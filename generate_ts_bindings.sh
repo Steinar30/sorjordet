@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+
+startpath=$(pwd)
+echo $startpath
+
+if [[ ! $startpath == *sorjordet ]] # * is used for pattern matching
+then
+  echo "Please go to root, can't be bothered to parse harder. Exiting..."
+  exit; 
+fi
+
+if [ -d "$startpath/src/Client/__old__bindings" ]; then
+    echo "Found old bindings, replacing them with current bindings."
+    rm -rf "$startpath/src/Client/__old__bindings"
+fi
+
+if [ -d "$startpath/src/Client/bindings" ]; then
+    echo "Found existing bindings at \"./src/Client/bindings\", moving them to \"./src/Client/__old__bindings\""
+    mv "$startpath/src/Client/bindings" "$startpath/src/Client/__old__bindings" && echo "Success!"
+fi
+
+
+cd "$startpath/src/Server"
+
+echo "Generating bindings.."
+cargo test --quiet && echo "Success"
+
+echo "Moving new bindings.."
+mv ./bindings ../Client && echo "Success!"

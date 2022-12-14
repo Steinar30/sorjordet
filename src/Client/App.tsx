@@ -1,26 +1,50 @@
-import type { Component } from 'solid-js';
+import { Component, lazy } from 'solid-js';
+import { Paper, Typography, ThemeProvider, createTheme, TextField } from '@suid/material';
+import { Routes, Route, A } from '@solidjs/router';
 
-import logo from './logo.svg';
+import logo from './farm-logo.svg';
 import styles from './App.module.css';
+import TopAppBar from './TopBar';
+import Login from './Login';
+
+
+function Home() {
+  return (
+    <h1>Main page. Put map here.</h1>
+  )
+}
+
+
+
+const farmTheme = createTheme({
+  palette: {
+    primary: {
+      main: "#81c784"
+    },
+    secondary: {
+      main: "#64b5f6"
+    }
+  }
+})
 
 const App: Component = () => {
   return (
-    <div class={styles.App}>
-      <header class={styles.header}>
-        <img src={logo} class={styles.logo} alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          class={styles.link}
-          href="https://github.com/solidjs/solid"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Solid
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={farmTheme}>
+      <div>
+        <TopAppBar />        
+
+        <Routes>
+          <Route path="/" component={Home}/>
+          <Route path="/login" component={Login}/>
+
+
+        </Routes>
+        
+      </div>
+
+    </ThemeProvider>
+    
+    
   );
 };
 

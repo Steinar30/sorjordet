@@ -1,6 +1,7 @@
 :root {
-  --main-color: #7FC37E;
-  --secondary-color: #FEFEE2;
+  --main-color: #81c784;
+  --opaque-main-color: rgba(129, 199, 132, 0.2);
+  --secondary-color: #64b5f6;
 }
 
 body {
@@ -10,8 +11,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--secondary-color);
-  
+  background-color: var(--opaque-main-color);
+  color: black;
 }
 
 code {

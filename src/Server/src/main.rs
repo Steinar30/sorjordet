@@ -1,38 +1,66 @@
-use std::{env::var};
-use actix_web::{middleware::Logger, web, App, HttpServer};
-use actix_web_lab::web::spa;
-use tracing::info;
+pub mod api;
+
+use std::env::var;
+use lazy_static::lazy_static;
+use axum_extra::routing::SpaRouter;
+use axum::{
+    Router, 
+};
+use sqlx::postgres::{PgPool, PgPoolOptions};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+use tower_http::trace::TraceLayer;
+use tower_http::cors::{Any,CorsLayer};
+use std::{net::SocketAddr, time::Duration};
+
+lazy_static! {
+    static ref JWT_SECRET: String = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+}
+
+#[tokio::main]
+async fn main() {
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::new(
+            std::env::var("RUST_LOG").unwrap_or_else(|_| "logging=debug,tower_http=debug".into()),
+        ))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    let cors = CorsLayer::new().allow_origin(Any);
+
+    let port : u16 = var("PORT").map(|x| x.parse::<u16>().unwrap()).unwrap_or(8000);
+
+    let db_connection_str = var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgresql://postgres:Demo123123@host.docker.internal:54321/sorjordet".to_string());
 
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+    let pool : PgPool = PgPoolOptions::new()
+        .max_connections(5)
+        .idle_timeout(Duration::from_secs(10))
+        .acquire_timeout(Duration::from_secs(3))
+        .connect(&db_connection_str)
+        .await
+        .expect("can't connect to database");
 
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
+    let spa  = 
+        SpaRouter::new("/assets", "./dist/assets")
+            .index_file("../index.html");
 
-    let port = var("PORT").unwrap_or_else(|_| "8000".to_string()).parse::<u16>().unwrap();
+    // build our application with some routes
+    let app = Router::new()
+        .nest("/api/", api::routes::api_router(pool).await)
+        .merge(spa)
+        .layer(cors)
+        .layer(TraceLayer::new_for_http());
     
-    let bind = ("0.0.0.0", port);
-    info!("staring server at http://{}:{}", &bind.0, &bind.1);
-    
-    HttpServer::new(|| {
-        App::new()
-        .wrap(Logger::default().log_target("@"))
-        .route(
-            "/api/fields",
-                web::to(|| async {
-                    "/api/fields"
-                }),
-        )
-        .service(
-            spa()
-                .index_file("./dist/index.html")
-                .static_resources_mount("/")
-                .static_resources_location("./dist")
-                .finish(),
-        )
-    })
-    .workers(1)
-    .bind(bind)?
-    .run()
-    .await
+
+    println!("Starting server on 0.0.0.0:{}", &port);
+
+    // run it with hyper
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    tracing::debug!("listening on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }
