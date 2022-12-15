@@ -6,6 +6,7 @@ import logo from './farm-logo.svg';
 import styles from './App.module.css';
 import TopAppBar from './TopBar';
 import Login from './Login';
+import NoEditMap from './Map';
 
 
 function Home() {
@@ -34,7 +35,9 @@ const App: Component = () => {
         <TopAppBar />        
 
         <Routes>
-          <Route path="/" component={Home}/>
+          <Route path="/" component={NoEditMap}/>
+          <Route path="/fields" component={Home} />
+          <Route path="/about" component={Home} />
           <Route path="/login" component={Login}/>
 
 
