@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS user_info (
     id SERIAL PRIMARY KEY,
     name VARCHAR(256) NOT NULL UNIQUE,
-    password_hash VARCHAR NOT NULL,
+    password VARCHAR NOT NULL,
     email VARCHAR(256) UNIQUE NOT NULL,
     created_on TIMESTAMP NOT NULL,
     last_login TIMESTAMP

@@ -1,7 +1,7 @@
 
 use crate::api::types::*;
 
-use axum::{self, Error, response::{Response, IntoResponse}, http::StatusCode};
+use axum::{self, response::{Response, IntoResponse}, http::StatusCode};
 
 impl IntoResponse for SorjordetError {
     fn into_response(self) -> Response {
@@ -28,7 +28,7 @@ impl IntoResponse for SorjordetError {
 }
 
 
-impl From<Error> for SorjordetError {
+impl From<axum::Error> for SorjordetError {
     fn from(err: axum::Error) -> Self {
         SorjordetError::InternalError(err.to_string())
     }

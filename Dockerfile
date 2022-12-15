@@ -30,5 +30,6 @@ COPY --from=builder /usr/local/cargo/bin/sorjordet /usr/local/bin/Sorjordet/sorj
 ARG Port
 ARG DATABASE_URL
 ARG JWT_SECRET
+ARG PW_SECRET
 CMD ["./sorjordet"]
 

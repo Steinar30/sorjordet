@@ -4,16 +4,8 @@ use sqlx::{PgPool, query_as, query_scalar};
 
 use crate::api::types::*;
 
-async fn simple_login_post(
-    State(_pool): State<PgPool>, 
-    extract::Json(payload): extract::Json<LoginRequest>) 
-    -> Result<impl IntoResponse, SorjordetError> {
-    
-    tracing::info!("Login request from {}", payload.username);
-    
+use super::{auth::Claims, login};
 
-    Ok(Json(""))
-}
 
 async fn get_farm_fields(
     extract::Path(farm_id) : extract::Path<i32>,
@@ -34,6 +26,7 @@ async fn get_farm_fields(
 }
 
 async fn post_farm_field(
+    claims: Claims,
     State(pool): State<PgPool>, 
     extract::Json(payload): extract::Json<FarmField>) 
     -> Result<impl IntoResponse, SorjordetError> {
@@ -48,6 +41,7 @@ async fn post_farm_field(
         .fetch_one(&pool)
         .await?;
 
+    tracing::info!("new field inserted by {}", claims.username);
 
     Ok(Json(result))
 }
@@ -57,7 +51,11 @@ pub async fn api_router(pg_pool: PgPool) -> Router {
     
     Router::new()
         .route("/farm_fields/:id", get(get_farm_fields).post(post_farm_field))
-        .route("/login", post(simple_login_post))
+        .nest("/auth", 
+            Router::new()
+                .route("/login", post(login::login_user))
+                .route("/register", post(login::register_user))
+        )
         .with_state(pg_pool)
 }
 
