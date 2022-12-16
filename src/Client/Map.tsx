@@ -1,6 +1,6 @@
 import { Paper, Typography, TextField, Button, Box } from '@suid/material';
 import { createStore } from "solid-js/store";
-import { onMount } from 'solid-js';
+import { onMount, createSignal } from 'solid-js';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import { Draw, Modify, Snap } from 'ol/interaction';
@@ -10,7 +10,14 @@ import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { get } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 
+import { FarmField } from './bindings/FarmField';
+
 import 'ol/ol.css'
+export const [mapObj, setMapObj] = createSignal();
+
+async function load_farm_tiles() : Promise<FarmField []> {
+    return fetch('/api/farm_fields').then(a => a.json())
+}
 
 export default function NoEditMap() {
 
@@ -24,17 +31,17 @@ export default function NoEditMap() {
             })
         });
     
-        const source = new VectorSource();
-        const vector = new VectorLayer({
-            source: source,
-            style: {
-                'fill-color': 'rgba(255, 255, 255, 0.2)',
-                'stroke-color': '#ffcc33',
-                'stroke-width': 2,
-                'circle-radius': 7,
-                'circle-fill-color': '#ffcc33',
-            },
-        });
+        // const source = new VectorSource();
+        // const vector = new VectorLayer({
+        //     source: source,
+        //     style: {
+        //         'fill-color': 'rgba(255, 255, 255, 0.2)',
+        //         'stroke-color': '#ffcc33',
+        //         'stroke-width': 2,
+        //         'circle-radius': 7,
+        //         'circle-fill-color': '#ffcc33',
+        //     },
+        // });
 
         const fields = 
             new VectorLayer({
@@ -45,7 +52,7 @@ export default function NoEditMap() {
             });
     
         const map = new Map({
-            layers: [worldImagery, vector, fields],
+            layers: [worldImagery, fields],
             target: 'map_container',
             view: new View({
                 center: [1722000, 10692000], //hardcoded center for now
@@ -56,8 +63,11 @@ export default function NoEditMap() {
 
         });
 
-        const modify = new Modify({ source: source });
-        map.addInteraction(modify);
+
+        // const modify = new Modify({ source: source });
+        // map.addInteraction(modify);
+
+        setMapObj(map);
     });
 
     return (

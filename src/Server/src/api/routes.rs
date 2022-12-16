@@ -8,17 +8,34 @@ use super::{auth::Claims, login};
 
 
 async fn get_farm_fields(
-    extract::Path(farm_id) : extract::Path<i32>,
     State(pool): State<PgPool>) 
     -> Result<impl IntoResponse, SorjordetError>  {
 
     let result =
         query_as!(FarmField,
             "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id
+                FROM farm_field
+            "
+        )
+        .fetch_all(&pool)
+        .await?;
+    
+    Ok(Json(result))
+    
+}
+
+async fn get_farm_field_by_id(
+    extract::Path(farm_id) : extract::Path<i32>,
+    State(pool): State<PgPool>) 
+    -> Result<impl IntoResponse, SorjordetError>  {
+
+    let result : FarmField =
+        query_as!(FarmField,
+            "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id
                 FROM farm_field WHERE farm_id = $1
             ", farm_id
         )
-        .fetch_all(&pool)
+        .fetch_one(&pool)
         .await?;
     
     Ok(Json(result))
@@ -50,7 +67,8 @@ async fn post_farm_field(
 pub async fn api_router(pg_pool: PgPool) -> Router {
     
     Router::new()
-        .route("/farm_fields/:id", get(get_farm_fields).post(post_farm_field))
+        .route("/farm_fields/:id", get(get_farm_field_by_id))
+        .route("/farm_fields", get(get_farm_fields).post(post_farm_field))
         .nest("/auth", 
             Router::new()
                 .route("/login", post(login::login_user))

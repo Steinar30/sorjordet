@@ -7,6 +7,7 @@ import styles from './App.module.css';
 import TopAppBar from './TopBar';
 import Login from './Login';
 import NoEditMap from './Map';
+import About from './About';
 
 
 function Home() {
@@ -37,7 +38,7 @@ const App: Component = () => {
         <Routes>
           <Route path="/" component={NoEditMap}/>
           <Route path="/fields" component={Home} />
-          <Route path="/about" component={Home} />
+          <Route path="/about" component={About} />
           <Route path="/login" component={Login}/>
 
 
