@@ -5,33 +5,24 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import { Draw, Modify, Snap } from 'ol/interaction';
 import { TileWMS, OSM, Vector as VectorSource } from 'ol/source';
+import XYZ from 'ol/source/XYZ';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { get } from 'ol/proj';
-import Style from 'ol/style/Style';
+import GeoJSON from 'ol/format/GeoJSON';
+
+import 'ol/ol.css'
 
 export default function NoEditMap() {
 
     onMount(() => {
-        const raster = new TileLayer({
-            source: new OSM(),
-        });
 
-        //Start: WMS-C Kartverket
-        var _url = "http://opencache.statkart.no/gatekeeper/gk/gk.open?";
-
-        //Start: source
-        var sourceWMSC = new TileWMS({
-            url: _url,
-            params: {
-                LAYERS: 'norges_grunnkart',
-                VERSION: '1.1.1'
-            }
+        const worldImagery = new TileLayer({
+            source: new XYZ({
+                url: 'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                maxZoom: 17,
+                attributions: 'Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community. Powered by OpenLayers.'
+            })
         });
-        var tileLayerWMSC = new TileLayer({
-            source: sourceWMSC
-            // title: "Norges grunnkart",
-        });
-    
     
         const source = new VectorSource();
         const vector = new VectorLayer({
@@ -44,13 +35,23 @@ export default function NoEditMap() {
                 'circle-fill-color': '#ffcc33',
             },
         });
+
+        const fields = 
+            new VectorLayer({
+                source: new VectorSource({
+                    format: new GeoJSON(),
+                    url: '/assets/fields_v1.json', // hardcoded geojson for now
+                }),
+            });
     
         const map = new Map({
-            layers: [raster, vector, tileLayerWMSC],
+            layers: [worldImagery, vector, fields],
             target: 'map_container',
             view: new View({
                 center: [1722000, 10692000], //hardcoded center for now
-                zoom: 16,
+                zoom: 15,
+                maxZoom: 20,
+                minZoom: 12,
             }),
 
         });
