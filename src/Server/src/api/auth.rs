@@ -1,9 +1,9 @@
 use axum::{
-    extract::{FromRequestParts}, 
-    http::{request::Parts},
-    async_trait, 
-    TypedHeader, 
-    headers::{authorization::Bearer, Authorization}
+    async_trait,
+    extract::FromRequestParts,
+    headers::{authorization::Bearer, Authorization},
+    http::request::Parts,
+    TypedHeader,
 };
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use lazy_static::lazy_static;
@@ -37,9 +37,7 @@ where
 {
     type Rejection = SorjordetError;
 
-    
     async fn from_request_parts(parts: &mut Parts, b: &B) -> Result<Self, Self::Rejection> {
-
         // Extract the token from the authorization header
         let TypedHeader(Authorization(bearer)) =
             TypedHeader::<Authorization<Bearer>>::from_request_parts(parts, b)
