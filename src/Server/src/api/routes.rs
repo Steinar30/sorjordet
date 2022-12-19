@@ -5,38 +5,34 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use sqlx::{query_as, query_scalar, PgPool};
+use sqlx::{query_scalar, PgPool};
 
+use crate::api::db_queries::*;
 use crate::api::types::*;
 
 use super::{auth::Claims, login};
 
 async fn get_farm_fields(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
-    let result = query_as!(
-        FarmField,
-        "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id
-                FROM farm_field
-            "
-    )
-    .fetch_all(&pool)
-    .await?;
+    let result = query_all_farm_fields(&pool).await?;
 
     Ok(Json(result))
 }
 
 async fn get_farm_field_by_id(
-    extract::Path(farm_id): extract::Path<i32>,
+    extract::Path(field_id): extract::Path<i32>,
     State(pool): State<PgPool>,
 ) -> Result<impl IntoResponse, SorjordetError> {
-    let result: FarmField = query_as!(
-        FarmField,
-        "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id
-                FROM farm_field WHERE farm_id = $1
-            ",
-        farm_id
-    )
-    .fetch_one(&pool)
-    .await?;
+    let result: FarmField = query_by_id_farm_field(field_id, &pool).await?;
+
+    Ok(Json(result))
+}
+
+
+async fn get_farm_field_by_group_id(
+    extract::Path(group_id): extract::Path<i32>,
+    State(pool): State<PgPool>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result: Vec<FarmField> = query_farm_fields_in_group(group_id, &pool).await?;
 
     Ok(Json(result))
 }
@@ -64,12 +60,72 @@ async fn post_farm_field(
     Ok(Json(result))
 }
 
+async fn get_farm_field_groups(
+    State(pool): State<PgPool>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result = query_all_farm_field_groups(&pool).await?;
+
+    Ok(Json(result))
+}
+
+async fn post_farm_field_group(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Json(payload): extract::Json<FarmField>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result = query_scalar!(
+        "INSERT INTO farm_field_group (name, farm_id)
+                VALUES ($1,$2)
+                RETURNING id
+            ",
+        &payload.name,
+        &payload.farm_id
+    )
+    .fetch_one(&pool)
+    .await?;
+
+    tracing::info!("new field_group inserted by {}", claims.username);
+
+    Ok(Json(result))
+}
+
+async fn get_farms(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
+    let result = query_all_farms(&pool).await?;
+
+    Ok(Json(result))
+}
+
+async fn post_farm(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Json(payload): extract::Json<Farm>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result = query_scalar!(
+        "INSERT INTO farm (name, farm_coordinates)
+                VALUES ($1,$2)
+                RETURNING id
+            ",
+        &payload.name,
+        &payload.farm_coordinates
+    )
+    .fetch_one(&pool)
+    .await?;
+
+    tracing::info!("new farm inserted by {}", claims.username);
+
+    Ok(Json(result))
+}
 
 pub async fn api_router(pg_pool: PgPool) -> Router {
     Router::new()
-        .route("/farm_fields/:id", get(get_farm_field_by_id))
-        .route("/farm_field_groups", post(post_farm_field_group))
+        .route("/farm_fields/:field_id", get(get_farm_field_by_id))
+        .route("/farm_fields/group/:group_id", get(get_farm_field_by_group_id))
+        .route(
+            "/farm_field_groups",
+            post(post_farm_field_group).get(get_farm_field_groups),
+        )
         .route("/farm_fields", get(get_farm_fields).post(post_farm_field))
+        .route("/farm", get(get_farms).post(post_farm))
         .nest(
             "/auth",
             Router::new()

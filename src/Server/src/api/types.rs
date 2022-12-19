@@ -36,7 +36,7 @@ pub struct FarmFieldGroup {
     pub id: i32,
     pub name: String,
     pub farm_id: i32,
-    pub fields: Vec<FarmField>,
+    pub fields: Vec<i32>,
     pub draw_color: String
 }
 
