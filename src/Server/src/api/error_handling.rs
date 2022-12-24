@@ -32,7 +32,8 @@ impl From<axum::Error> for SorjordetError {
     }
 }
 impl From<sqlx::Error> for SorjordetError {
-    fn from(_err: sqlx::Error) -> Self {
+    fn from(err: sqlx::Error) -> Self {
+        log::error!("DBError: {:?}", err);
         SorjordetError::DBError
     }
 }

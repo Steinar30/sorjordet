@@ -4,6 +4,8 @@ use axum::Router;
 use axum_extra::routing::SpaRouter;
 use lazy_static::lazy_static;
 use sqlx::postgres::{PgPool, PgPoolOptions};
+use tower_http::compression::CompressionLayer;
+use tower_http::timeout::TimeoutLayer;
 use std::env::var;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -49,6 +51,8 @@ async fn main() {
         .nest("/api/", api::routes::api_router(pool).await)
         .merge(spa)
         .layer(cors)
+        .layer(TimeoutLayer::new(core::time::Duration::new(2,0)))
+        .layer(CompressionLayer::new().br(true).gzip(true))
         .layer(TraceLayer::new_for_http());
 
     println!("Starting server on 0.0.0.0:{}", &port);

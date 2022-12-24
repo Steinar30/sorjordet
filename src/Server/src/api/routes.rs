@@ -55,7 +55,7 @@ async fn post_farm_field(
     .fetch_one(&pool)
     .await?;
 
-    tracing::info!("new field inserted by {}", claims.username);
+    log::info!("new field inserted by {}", claims.sub);
 
     Ok(Json(result))
 }
@@ -71,20 +71,21 @@ async fn get_farm_field_groups(
 async fn post_farm_field_group(
     claims: Claims,
     State(pool): State<PgPool>,
-    extract::Json(payload): extract::Json<FarmField>,
+    extract::Json(payload): extract::Json<FarmFieldGroup>,
 ) -> Result<impl IntoResponse, SorjordetError> {
     let result = query_scalar!(
-        "INSERT INTO farm_field_group (name, farm_id)
-                VALUES ($1,$2)
+        "INSERT INTO farm_field_group (name, farm_id, draw_color)
+                VALUES ($1,$2, $3)
                 RETURNING id
             ",
         &payload.name,
-        &payload.farm_id
+        &payload.farm_id,
+        &payload.draw_color
     )
     .fetch_one(&pool)
     .await?;
 
-    tracing::info!("new field_group inserted by {}", claims.username);
+    log::info!("new field_group inserted by {}", claims.sub);
 
     Ok(Json(result))
 }
@@ -111,7 +112,7 @@ async fn post_farm(
     .fetch_one(&pool)
     .await?;
 
-    tracing::info!("new farm inserted by {}", claims.username);
+    log::info!("new farm inserted by {}", claims.sub);
 
     Ok(Json(result))
 }

@@ -11,12 +11,11 @@ use axum::{
 use lazy_static::lazy_static;
 use sqlx::{query_as, query_scalar, PgPool};
 lazy_static! {
-    static ref PW_SECRET: String = std::env::var("PW_SECRET").expect("JWT_SECRET must be set");
+    static ref PW_SECRET: String = std::env::var("PW_SECRET").expect("PW_SECRET must be set");
 }
 
-use crate::api::{auth::generate_jwt, types::*};
+use crate::api::{auth::{generate_jwt, Claims}, types::*};
 
-use super::auth::Claims;
 
 pub fn hash_password(password: &str) -> Result<String, SorjordetError> {
     let salt = SaltString::generate(&mut OsRng);
@@ -67,7 +66,7 @@ impl User {
 /// Function for registering new users.
 /// Requires authentication, and takes a body of form loginrequest.
 pub async fn register_user(
-    claims: Claims,
+    // claims: Claims,
     State(pool): State<PgPool>,
     extract::Json(payload): extract::Json<LoginRequest>,
 ) -> Result<impl IntoResponse, SorjordetError> {
@@ -90,7 +89,7 @@ pub async fn register_user(
 
     user.id = result;
 
-    tracing::info!("Created new user. Inserted by {}", claims.username);
+    // tracing::info!("Created new user. Inserted by {}", claims.username);
 
     Ok(Json(user))
 }
@@ -117,7 +116,9 @@ pub async fn login_user(
         Some(u) => {
             verify_password(&payload.password, &u.password)?;
 
-            let jwt = generate_jwt(&(Claims { username: u.name }))?;
+            let jwt = generate_jwt(&(
+                Claims::new(u.name)
+            ))?;
 
             let json = Json(LoginResponse {
                 result: true,

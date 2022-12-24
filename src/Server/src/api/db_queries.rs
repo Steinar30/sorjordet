@@ -1,4 +1,4 @@
-use sqlx::{query_as, PgPool};
+use sqlx::{query, query_as, PgPool};
 
 use crate::api::types::*;
 
@@ -58,16 +58,28 @@ pub async fn query_farm_fields_in_group(
 pub async fn query_all_farm_field_groups(
     pool: &PgPool,
 ) -> Result<Vec<FarmFieldGroup>, sqlx::Error> {
-    query_as!(
-        FarmFieldGroup,
-        r#"SELECT g.id, g.name, g.farm_id, g.draw_color, 
-                ARRAY_AGG(f.id) 
-                filter (WHERE f.id IS NOT NULL) as "fields!" 
-            FROM farm_field_group AS g
-                LEFT JOIN farm_field AS f ON g.id = f.farm_field_group_id 
-            GROUP BY g.id
-            "#
+    let groups = 
+        query!(
+            r#"SELECT g.id, g.name, g.farm_id, g.draw_color, 
+                    ARRAY_AGG(f.id) 
+                    filter (WHERE f.id IS NOT NULL) as fields
+                FROM farm_field_group AS g
+                    LEFT JOIN farm_field AS f ON g.id = f.farm_field_group_id 
+                GROUP BY g.id
+                "#
+        )
+        .fetch_all(pool)
+        .await?;
+    
+    Ok(
+        groups.iter().map(|x| FarmFieldGroup {
+            id: x.id,
+            name: x.name.to_string(),
+            draw_color: x.draw_color.to_string(),
+            farm_id: x.farm_id,
+            fields: x.fields.to_owned().unwrap_or_default()
+        })
+        .collect()
     )
-    .fetch_all(pool)
-    .await
 }
+// SELECT g.id, g.name, g.farm_id, g.draw_color,  ARRAY_AGG(f.id)  filter (WHERE f.id IS NOT NULL) as "fields!" FROM farm_field_group AS g LEFT JOIN farm_field AS f ON g.id = f.farm_field_group_id GROUP BY g.id;

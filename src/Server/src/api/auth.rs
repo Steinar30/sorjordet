@@ -5,7 +5,7 @@ use axum::{
     http::request::Parts,
     TypedHeader,
 };
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation, Algorithm};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -15,9 +15,19 @@ lazy_static! {
     static ref JWT_SECRET: String = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 }
 
+const ISSUER : &str = "jwtauth/sorjordet.no";
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims {
-    pub username: String,
+    pub sub: String,
+    pub exp: usize,
+    pub iss: String,
+}
+
+impl Claims {
+    pub fn new(sub: String) -> Self {
+        Claims { sub, exp: 10000000000, iss: ISSUER.to_string() }
+    }
 }
 
 pub fn generate_jwt(claims: &Claims) -> Result<String, SorjordetError> {
@@ -43,11 +53,15 @@ where
             TypedHeader::<Authorization<Bearer>>::from_request_parts(parts, b)
                 .await
                 .map_err(|_| SorjordetError::AuthError)?;
+
         // Decode the user data
+        let mut validation = Validation::new(Algorithm::HS256);
+        validation.set_issuer(&[ISSUER]);
+
         let token_data = decode::<Claims>(
             bearer.token(),
             &DecodingKey::from_secret(JWT_SECRET.as_bytes()),
-            &Validation::default(),
+            &validation,
         )
         .map_err(|_| SorjordetError::AuthError)?;
 
