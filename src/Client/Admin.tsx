@@ -61,21 +61,18 @@ export default function Admin() {
                 <Match when={currentView() === "add-field"}>
                     {backButton}
 
-                    {FieldForm((f) => {
-                        refetch();
+                    {FieldForm(() => {
                         setCurrentView("admin");
-                    }
-
-                    )}
+                        refetch();
+                    })}
                 </Match>
                 <Match when={currentView() === "add-field-group"}>
                     {backButton}
 
-                    {FieldGroupForm((fg) => {
-                        refetch();
+                    {FieldGroupForm(() => {
                         setCurrentView("admin");
-                    }
-                    )}
+                        refetch();
+                    })}
 
                 </Match>
 

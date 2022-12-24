@@ -89,7 +89,7 @@ export function NoEditMap() {
                 center: [1721600, 10692300], //hardcoded center for now
                 zoom: 15,
                 maxZoom: 20,
-                minZoom: 12,
+                minZoom: 10,
             }),
         });
 

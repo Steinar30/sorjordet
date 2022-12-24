@@ -41,7 +41,7 @@ function validateFarmInput(field: FarmField, feature: Feature | undefined, valid
     )
 }
 
-export function FieldForm(onCreate: (x:FarmField) => void) {
+export function FieldForm(onCreate: () => void) {
     const [mapObj, setMapObj] = createSignal<Map | undefined>();
     const [farmFieldGroups, { mutate, refetch }] = createResource(
         getFarmFieldGroups
@@ -127,7 +127,7 @@ export function FieldForm(onCreate: (x:FarmField) => void) {
                 center: [1721600, 10692300], //hardcoded center for now
                 zoom: 15,
                 maxZoom: 20,
-                minZoom: 12,
+                minZoom: 10,
             }),
         });
 
@@ -239,8 +239,8 @@ export function FieldForm(onCreate: (x:FarmField) => void) {
     const selectComponent = () => {
         const fg = farmFieldGroups() ?? [];
         const options : selectOptionsType [] = 
-            fg.map((x) => 
-                {return {value: x, label: x.name}
+            fg.map((x) => {
+                return {value: x, label: x.name}
             });
 
         return (
@@ -297,7 +297,7 @@ export function FieldForm(onCreate: (x:FarmField) => void) {
                                 console.log('created field');
                                 const res = form;
                                 res.id = result;
-                                // onCreate(res);
+                                onCreate();
                             }
                         }
                 }}

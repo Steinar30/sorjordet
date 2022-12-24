@@ -41,7 +41,7 @@ function colorPicker(val: string, callback: (x:string) => void) {
     </div>)
 }
 
-export function FieldGroupForm(onCreate: (x:FarmFieldGroup) => void) {
+export function FieldGroupForm(onCreate: () => void) {
 
     const [form, setForm] = createStore<FarmFieldGroup>({
         id:-1,
@@ -88,7 +88,7 @@ export function FieldGroupForm(onCreate: (x:FarmFieldGroup) => void) {
                         if (result) {
                             const formRes = form;
                             formRes.id = result;
-                            onCreate(formRes);
+                            onCreate();
                         }
                 }}
                 >
