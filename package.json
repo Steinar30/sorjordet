@@ -20,6 +20,7 @@
     "@suid/icons-material": "^0.5.0",
     "@suid/material": "^0.7.0",
     "@suid/vite-plugin": "^0.1.0",
+    "@thisbeyond/solid-select": "^0.13.0",
     "ol": "^7.1.0",
     "solid-js": "^1.5.1"
   }
