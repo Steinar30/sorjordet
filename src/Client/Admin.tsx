@@ -8,6 +8,7 @@ import { FarmField } from "./bindings/FarmField";
 import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
 import { FieldForm } from "./FarmFieldForm";
 import { FieldGroupForm } from "./FarmFieldGroupForm";
+import FieldsList, { RenderFieldsList } from "./Fields";
 import { getFarmFieldGroupsWithFields } from "./requests";
 
 
@@ -56,6 +57,7 @@ export default function Admin() {
                     <div class={styles.admin_buttons}>
                         {navButton("Ny mark", "add-field")}
                         {navButton("Ny jordegruppe", "add-field-group")}
+                        {RenderFieldsList(farmFieldGroups())}
                     </div>
                 </Match>
                 <Match when={currentView() === "add-field"}>
