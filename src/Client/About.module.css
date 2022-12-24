@@ -1,0 +1,20 @@
+
+.about_container {
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+}
+
+.about_container div {
+    padding: 1rem;
+}
+
+.about_container p {
+    line-height: 2rem;
+}
+
+.about_container img {
+    width: 100%;
+    margin: 16px 0;
+}
