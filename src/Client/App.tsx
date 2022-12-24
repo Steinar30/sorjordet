@@ -11,18 +11,11 @@ import About from './About';
 
 import {createSignal} from 'solid-js';
 import Admin from './Admin';
+import FieldsList from './Fields';
 
 // use localstore to 
 export const jwt_localstore_key = 'jwt_localstore'
 export const [jwt_token, set_jwt_token] = createSignal(window.localStorage.getItem(jwt_localstore_key));
-
-
-function Home() {
-  return (
-    <h1>Main page. Put map here.</h1>
-  )
-}
-
 
 
 const farmTheme = createTheme({
@@ -44,7 +37,7 @@ const App: Component = () => {
 
         <Routes>
           <Route path="/"       component={NoEditMap} />
-          <Route path="/fields" component={Home} />
+          <Route path="/fields" component={FieldsList} />
           <Route path="/about"  component={About} />
           <Route path="/login"  component={Login} />
           <Route path="/admin"  component={Admin} />
