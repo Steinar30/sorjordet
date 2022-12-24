@@ -14,6 +14,9 @@
     padding: 5px 5px 8px 5px;
     border-radius: 10px;
     transition: all 300ms;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
 }
 
 .header_link:hover {
@@ -26,6 +29,7 @@
     justify-content: center;
     flex-wrap: wrap;
     flex-grow: 1;
+    max-width: 200px;
 }
 
 .header_image_button img {

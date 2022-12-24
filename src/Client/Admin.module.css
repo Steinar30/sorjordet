@@ -1,0 +1,15 @@
+
+.container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.admin_buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px;
+}

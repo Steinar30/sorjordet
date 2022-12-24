@@ -18,14 +18,13 @@ import { createMediaQuery } from "@solid-primitives/media";
 
 import logo from './farm-logo.svg';
 import styles from './TopBar.module.css';
-import { style } from "solid-js/web";
+import { jwt_localstore_key, jwt_token, set_jwt_token } from "./App";
 
 export default function TopAppBar() {
     const isSmall = createMediaQuery("(max-width:600px)");
 
     const [isOpen, setIsOpen] = createSignal(false);
 
-    
 
     const navHome = () => 
         <A href="/" class={styles.header_image_button} >
@@ -35,9 +34,27 @@ export default function TopAppBar() {
             </Typography>
         </A>
 
+    const navAdmin = 
+        <Show when={jwt_token() != null}>
+            <A class={styles.header_link} href="/admin">Admin</A>
+        </Show>
     const navFields = <A class={styles.header_link} href="/fields">Jorder</A>
     const navAbout  = <A class={styles.header_link} href="/about">Om siden</A>
-    const navLogin  = <A class={styles.header_link} href="/login">Logg inn</A>
+    const navLogin  = 
+        <Show when={jwt_token() != null}
+            fallback={
+                <A class={styles.header_link} href="/login">Logg inn</A>
+            }
+        >
+            <button 
+                onclick={() => {
+                    window.localStorage.removeItem(jwt_localstore_key);
+                    set_jwt_token(null);
+                }}
+                class={styles.header_link}>
+                Logg ut
+            </button>
+        </Show>
 
     return (
         
@@ -51,6 +68,7 @@ export default function TopAppBar() {
                             <div style={{"margin-left":"auto"}}>
                                 {navFields}
                                 {navAbout}
+                                {navAdmin}
                                 {navLogin}
                             </div>
                         }
@@ -82,19 +100,16 @@ export default function TopAppBar() {
                                 {navHome()}
                                 <List>
                                     <ListItem>
-                                        <ListItemText>
-                                            {navFields}
-                                        </ListItemText>
+                                        {navFields}                               
+                                    </ListItem>
+                                    <ListItem>                                        
+                                        {navAbout}
                                     </ListItem>
                                     <ListItem>
-                                        <ListItemText>
-                                            {navAbout}
-                                        </ListItemText>
+                                        {navAdmin}
                                     </ListItem>
                                     <ListItem>
-                                        <ListItemText>
-                                            {navLogin}
-                                        </ListItemText>
+                                        {navLogin}
                                     </ListItem>
                                 </List>
                             </div>
