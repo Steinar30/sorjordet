@@ -1,15 +1,18 @@
-import { Paper, Typography, TextField, Button, Box } from '@suid/material';
+import { Paper, Typography, TextField, Button, Box, Alert } from '@suid/material';
 import { createStore } from "solid-js/store";
 
 import logo from './farm-logo.svg';
 import styles from './App.module.css';
 import { LoginRequest } from './bindings/LoginRequest';
+import { LoginResponse } from './bindings/LoginResponse';
+import { jwt_localstore_key, set_jwt_token } from './App';
+import { createSignal, Show } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 
 
-const submit = (form:LoginRequest) => {
+const submit = async (form:LoginRequest, err_callback: Function, succ_callback: Function) => {
 
-
-    const response = fetch("/api/login", {
+    const response = await fetch("/api/auth/login", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -17,11 +20,26 @@ const submit = (form:LoginRequest) => {
             },
             body: JSON.stringify(form)
     });
+    try {
 
-    console.log("response", response);
+        const login_resp: LoginResponse = await response.clone().json();
+
+        if (login_resp.result) {
+            succ_callback(login_resp.token)
+        } else {
+            err_callback(login_resp.message)
+        }
+    }
+    catch (e) {
+        const body_text = await response.text();
+        err_callback(body_text);
+    }
 }
 
 export default function Login() {
+    
+    const navigate = useNavigate()
+    const [error, set_error] = createSignal<string | null>(null);
 
     const [form, setForm] = createStore<LoginRequest>({
         username:"",
@@ -37,7 +55,11 @@ export default function Login() {
 
     const handleSubmit = (event: Event): void => {
         event.preventDefault();
-        submit(form);
+        submit(form, set_error, (token: string) => {
+            window.localStorage.setItem(jwt_localstore_key, token);
+            set_jwt_token(token)
+            navigate("/")
+        });
     };
 
 
@@ -77,6 +99,12 @@ export default function Login() {
                     Logg inn
                     </Button>
                 </Box>
+
+                <Show when={error() != null}>
+                    <Alert severity='error' onClose={() => set_error(null)}>
+                        {error}
+                    </Alert>
+                </Show>
             </Paper>
         </div>
     )
