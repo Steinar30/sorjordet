@@ -8,7 +8,7 @@ import { FarmField } from "./bindings/FarmField";
 import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
 import { FieldForm } from "./FarmFieldForm";
 import { FieldGroupForm } from "./FarmFieldGroupForm";
-import { getFarmFieldGroups, getFarmFieldGroupsWithFields } from "./requests";
+import { getFarmFieldGroupsWithFields } from "./requests";
 
 
 export default function Admin() {
@@ -62,39 +62,8 @@ export default function Admin() {
                     {backButton}
 
                     {FieldForm((f) => {
-                        const ffg = farmFieldGroups();
-                        if (ffg) {
-                            mutate(
-                                ffg.map((x) => {
-                                    if (x[0].id === f.farm_field_group_id) {
-                                        const y = [...x[1], f]
-                                        const n : [FarmFieldGroup, FarmField []] = 
-                                            [x[0], y]
-                                        return n;
-                                    } else {
-                                        return x;
-                                    }
-                                })
-                            )
-                            const groupForFieldIdx = 
-                                ffg.findIndex(([x,_]) => 
-                                    x.id === f.farm_field_group_id);
-                            if (groupForFieldIdx < 0) {
-                                return;
-                            } else {
-                                const c = 
-                                    [
-                                        ffg[groupForFieldIdx][0]
-                                        , [...ffg[groupForFieldIdx][1], f]
-                                    ];
-                                
-
-
-                            }
-                                
-
-                            setCurrentView("admin");
-                        }
+                        refetch();
+                        setCurrentView("admin");
                     }
 
                     )}
@@ -103,13 +72,8 @@ export default function Admin() {
                     {backButton}
 
                     {FieldGroupForm((fg) => {
-                        const ffg = farmFieldGroups();
-                        if (ffg) {
-                            mutate(
-                                [...ffg, [fg, []]]
-                            )
-                            setCurrentView("admin");
-                        }
+                        refetch();
+                        setCurrentView("admin");
                     }
                     )}
 

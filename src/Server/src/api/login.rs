@@ -54,11 +54,12 @@ pub fn verify_password(password: &str, password_hash: &str) -> Result<(), Sorjor
 
 impl User {
     pub fn new(user: LoginRequest) -> Result<Self, SorjordetError> {
+        let salt = SaltString::generate(&mut OsRng);
         Ok(User {
             id: -1,
             name: user.username,
             password: hash_password(&user.password)?,
-            email: "".to_string(),
+            email: salt.to_string(),
         })
     }
 }
@@ -66,7 +67,7 @@ impl User {
 /// Function for registering new users.
 /// Requires authentication, and takes a body of form loginrequest.
 pub async fn register_user(
-    // claims: Claims,
+    claims: Claims,
     State(pool): State<PgPool>,
     extract::Json(payload): extract::Json<LoginRequest>,
 ) -> Result<impl IntoResponse, SorjordetError> {
@@ -89,7 +90,7 @@ pub async fn register_user(
 
     user.id = result;
 
-    // tracing::info!("Created new user. Inserted by {}", claims.username);
+    log::info!("Created new user. Inserted by {}", claims.sub);
 
     Ok(Json(user))
 }
