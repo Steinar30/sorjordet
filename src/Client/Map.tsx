@@ -11,63 +11,79 @@ import "./Map.css";
 
 import { FarmField } from "./bindings/FarmField";
 import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
-import { Polygon } from "ol/geom";
+import { Geometry, Polygon } from "ol/geom";
 import { getFarmFieldGroupsWithFields } from "./requests";
+import { Select } from "ol/interaction";
+import Style from "ol/style/Style";
+import Stroke from "ol/style/Stroke";
+import { Feature, Overlay } from "ol";
+import Fill from "ol/style/Fill";
 
 
 export function formatArea(polygon: Polygon): string {
+    //TODO go from km2 to mål and dekar
     const area: number = polygon.getArea();
-    if (area > 10000) {
-        return Math.round((area / 1000000) * 100) / 100 + " " + "km<sup>2</sup>";
-    } else {
-        return Math.round(area * 100) / 100 + " " + "m<sup>2</sup>";
-    }
+    // if (area > 10000) {
+    //     return Math.round((area / 1000000) * 100) / 100 + " " + "km<sup>2</sup>";
+    // } else {
+    // }
+    return Math.round(area) / 10000 + " " + "dekar";
+}
+
+export function formatSelectedDiv(fieldName:string, fieldGroup:string, area: string) {
+    return (
+        '<div><p>Navn: ' + fieldName 
+        + '</p> <p>Gruppe: ' + fieldGroup 
+        + '</p> <p>Areal: ' + area + '</p> </div>'
+    );
 }
 
 export function fromGroupFieldsToLayer(
     group: FarmFieldGroup,
     fields: FarmField[]
 ) {
-    const field_list: string[] = fields
-        .map((f) => {
-            try {
-                return JSON.parse(f.map_polygon_string);
-            } catch (e) {
-                console.log("failed to parse as json: ", f.map_polygon_string);
-                return null;
-            }
-        })
-        .filter((f) => f != null);
+    const fieldFeatures : Feature<Geometry> [] = fields.map((f) => {
+        try {
+            const json = JSON.parse(f.map_polygon_string);
+            const feature : Feature<Geometry> = new GeoJSON().readFeature(json);
+            feature.set('name', f.name);
+            feature.set('group-name', group.name);
 
-    const aggFieldPolygons = {
-        type: "FeatureCollection",
-        features: field_list,
-    };
-    console.log("drawing features: ", aggFieldPolygons);
+            return feature
+
+        } catch (e) {
+            console.log("failed to parse as json: ", f.map_polygon_string);
+            return null;
+        }
+    }).filter((x) : x is Feature<Geometry> => {return (x !== null)});
+
     const new_layer = new VectorLayer({
         source: new VectorSource({
-            features: new GeoJSON().readFeatures(aggFieldPolygons),
+            features: fieldFeatures,
         }),
         style: {
             "fill-color": group.draw_color,
             "stroke-color": group.draw_color,
         },
     });
+    new_layer.setProperties({'group-name':group.name, 'fields': group.fields});
     return new_layer;
 }
 
 export function NoEditMap() {
     const [mapObj, setMapObj] = createSignal<Map | undefined>();
     // const [farms, modify_farm] = createResource(requests.get_farm);
-    const [farm_field_groups, { mutate, refetch }] = createResource(
+    const [farmFieldGroups, { mutate, refetch }] = createResource(
         getFarmFieldGroupsWithFields
     );
 
     createEffect(() => {
-        if (mapObj() != undefined && farm_field_groups() != undefined) {
-            farm_field_groups()?.map(([group, fields]) => {
+        const m = mapObj();
+        const fg = farmFieldGroups();
+        if (m != undefined && fg != undefined) {
+            fg.map(([group, fields]) => {
                 const new_layer = fromGroupFieldsToLayer(group, fields);
-                mapObj()?.addLayer(new_layer);
+                m.addLayer(new_layer);
             });
         }
     });
@@ -91,6 +107,45 @@ export function NoEditMap() {
                 maxZoom: 20,
                 minZoom: 10,
             }),
+        });
+
+        const selectedStyle = new Style({
+            stroke: new Stroke({
+                color: 'rgba(129, 199, 132, 1)',
+                width: 2,
+            }),
+            fill: new Fill({
+                color: 'rgba(100, 181, 246, 0.7)'
+            })
+          });
+
+        let select: Select;
+        let selectElement: HTMLElement = document.createElement('div');
+        let selectOverlay: Overlay = new Overlay({
+            element: selectElement,
+            positioning: 'center-center',
+        });
+        map.addOverlay(selectOverlay);
+
+        select = new Select({
+            style: selectedStyle,
+        });
+        map.addInteraction(select);
+        select.on('select', (e) => {
+            if (e.selected.length == 1) {
+                const selected : Feature<Geometry> = e.selected[0];
+                const x = selected.getProperties();
+                const y : Polygon = selected.getGeometry()?.simplifyTransformedInternal();
+                const selectedCoords = y.getInteriorPoint().getCoordinates();
+
+                selectElement.className = 'ol-tooltip'
+                selectElement.innerHTML = 
+                    formatSelectedDiv(x['name'], x['group-name'], formatArea(y));
+                selectOverlay.setPosition(selectedCoords);
+            } else {
+                console.log('unselecting');
+                selectOverlay.setPosition(undefined);
+            }
         });
 
         setMapObj(map);
