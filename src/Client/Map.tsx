@@ -5,35 +5,36 @@ import { Vector as VectorSource } from "ol/source";
 import XYZ from "ol/source/XYZ";
 import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
 import GeoJSON from "ol/format/GeoJSON";
+import { Geometry, Polygon } from "ol/geom";
+import { Select } from "ol/interaction";
+import Style from "ol/style/Style";
+import Stroke from "ol/style/Stroke";
+import { Feature, Overlay } from "ol";
+import Fill from "ol/style/Fill";
+import { getArea } from 'ol/sphere';
 
 import "ol/ol.css";
 import "./Map.css";
 
 import { FarmField } from "./bindings/FarmField";
 import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
-import { Geometry, Polygon } from "ol/geom";
 import { getFarmFieldGroupsWithFields } from "./requests";
-import { Select } from "ol/interaction";
-import Style from "ol/style/Style";
-import Stroke from "ol/style/Stroke";
-import { Feature, Overlay } from "ol";
-import Fill from "ol/style/Fill";
 
 
 export function formatArea(polygon: Polygon): string {
     //TODO go from km2 to mål and dekar
-    const area: number = polygon.getArea();
+    const area: number = getArea(polygon);
     // if (area > 10000) {
     //     return Math.round((area / 1000000) * 100) / 100 + " " + "km<sup>2</sup>";
     // } else {
     // }
-    return Math.round(area) / 10000 + " " + "dekar";
+    return Math.round(area) / 1000 + " " + "dekar";
 }
 
-export function formatSelectedDiv(fieldName:string, fieldGroup:string, area: string) {
+export function formatSelectedDiv(fieldName: string, fieldGroup: string, area: string) {
     return (
-        '<div><p>Navn: ' + fieldName 
-        + '</p> <p>Gruppe: ' + fieldGroup 
+        '<div><p>Navn: ' + fieldName
+        + '</p> <p>Gruppe: ' + fieldGroup
         + '</p> <p>Areal: ' + area + '</p> </div>'
     );
 }
@@ -42,10 +43,10 @@ export function fromGroupFieldsToLayer(
     group: FarmFieldGroup,
     fields: FarmField[]
 ) {
-    const fieldFeatures : Feature<Geometry> [] = fields.map((f) => {
+    const fieldFeatures: Feature<Geometry>[] = fields.map((f) => {
         try {
             const json = JSON.parse(f.map_polygon_string);
-            const feature : Feature<Geometry> = new GeoJSON().readFeature(json);
+            const feature: Feature<Geometry> = new GeoJSON().readFeature(json);
             feature.set('name', f.name);
             feature.set('group-name', group.name);
 
@@ -55,7 +56,7 @@ export function fromGroupFieldsToLayer(
             console.log("failed to parse as json: ", f.map_polygon_string);
             return null;
         }
-    }).filter((x) : x is Feature<Geometry> => {return (x !== null)});
+    }).filter((x): x is Feature<Geometry> => { return (x !== null) });
 
     const new_layer = new VectorLayer({
         source: new VectorSource({
@@ -66,7 +67,7 @@ export function fromGroupFieldsToLayer(
             "stroke-color": group.draw_color,
         },
     });
-    new_layer.setProperties({'group-name':group.name, 'fields': group.fields});
+    new_layer.setProperties({ 'group-name': group.name, 'fields': group.fields });
     return new_layer;
 }
 
@@ -117,7 +118,7 @@ export function NoEditMap() {
             fill: new Fill({
                 color: 'rgba(100, 181, 246, 0.7)'
             })
-          });
+        });
 
         let select: Select;
         let selectElement: HTMLElement = document.createElement('div');
@@ -133,13 +134,13 @@ export function NoEditMap() {
         map.addInteraction(select);
         select.on('select', (e) => {
             if (e.selected.length == 1) {
-                const selected : Feature<Geometry> = e.selected[0];
+                const selected: Feature<Geometry> = e.selected[0];
                 const x = selected.getProperties();
-                const y : Polygon = selected.getGeometry()?.simplifyTransformedInternal();
+                const y: Polygon = selected.getGeometry()?.simplifyTransformedInternal();
                 const selectedCoords = y.getInteriorPoint().getCoordinates();
 
                 selectElement.className = 'ol-tooltip'
-                selectElement.innerHTML = 
+                selectElement.innerHTML =
                     formatSelectedDiv(x['name'], x['group-name'], formatArea(y));
                 selectOverlay.setPosition(selectedCoords);
             } else {
