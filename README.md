@@ -1,34 +1,13 @@
-## Usage
+# Sørjordet
+> https://sorjordet.no
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+Sorjordet is a web app for my family farm, where we can track harvest data in an interactive manner. It allows us to plot the fields we harvest onto a map, and group the fields by area. The goal is to add tracking of harvest results per field and field group.
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+The frontend is built in Typescript with Solid.js, and OpenLayers for maps. 
+The backend is built in Rust, using the Axum framework and various other supporting libraries. 
+The backend implements user authentication with argon2 password hashing and JWT tokens.
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+Hosted on [railway.app](https://railway.app).
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm dev` or `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+![sorjordet.no screenshot](assets/ReadmeSkjermbilde.jpg)
