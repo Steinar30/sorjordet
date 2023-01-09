@@ -9,8 +9,6 @@ export default function About() {
 
                 <Typography variant="h3">Om siden</Typography>
 
-                <img src="/assets/santa-dog-laptop.jpg"/>
-
                 <Typography>
                     Denne siden er ment som en oversiktsside for gården jeg kommer fra. Jeg brukte det også som en mulighet for å teste teknologi jeg ikke har brukt så mye før.
                 </Typography>
