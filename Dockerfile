@@ -1,6 +1,6 @@
 FROM rust:1.78.0 as builder
 WORKDIR /usr/src/Sorjordet
-ARG DATABASE_URL="postgresql://postgres:Demo123123@host.docker.internal:54321/sorjordet"
+
 RUN echo "fn main() {}" > dummy.rs
 COPY ./src/Server/Cargo.toml .
 RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
