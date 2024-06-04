@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO farm_field (name, farm_id, farm_field_group_id, map_polygon_string)\n                VALUES ($1,$2,$3,$4)\n                RETURNING id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "5e16c9f35c69a204d692eaf46ea872eb97d4891d07c3bc8d91a99c250bee0509"
+}

@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id\n                FROM farm_field\n                WHERE farm_field_group_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "map_polygon_string",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "farm_field_group_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "farm_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "06214c273666f486cfff665c59f700c2ed226c849d55c31fe9c975f1f537510d"
+}
