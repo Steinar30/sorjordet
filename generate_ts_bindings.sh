@@ -10,18 +10,18 @@ then
   exit; 
 fi
 
-if [ -d "$startpath/src/Client/__old__bindings" ]; then
+if [ -d "$startpath/Client/__old__bindings" ]; then
     echo "Found old bindings, replacing them with current bindings."
-    rm -rf "$startpath/src/Client/__old__bindings"
+    rm -rf "$startpath/Client/__old__bindings"
 fi
 
-if [ -d "$startpath/src/Client/bindings" ]; then
-    echo "Found existing bindings at \"./src/Client/bindings\", moving them to \"./src/Client/__old__bindings\""
-    mv "$startpath/src/Client/bindings" "$startpath/src/Client/__old__bindings" && echo "Success!"
+if [ -d "$startpath/Client/bindings" ]; then
+    echo "Found existing bindings at \"./Client/bindings\", moving them to \"./Client/__old__bindings\""
+    mv "$startpath/Client/bindings" "$startpath/Client/__old__bindings" && echo "Success!"
 fi
 
 
-cd "$startpath/src/Server"
+cd "$startpath/Server"
 
 echo "Generating bindings.."
 cargo test --quiet && echo "Success"
