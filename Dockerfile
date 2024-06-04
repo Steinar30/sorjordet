@@ -1,4 +1,4 @@
-FROM rust:1.65.0 as builder
+FROM rust:1.78.0 as builder
 WORKDIR /usr/src/Sorjordet
 ARG DATABASE_URL="postgresql://postgres:Demo123123@host.docker.internal:54321/sorjordet"
 RUN echo "fn main() {}" > dummy.rs
