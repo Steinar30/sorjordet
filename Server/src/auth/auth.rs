@@ -1,21 +1,19 @@
-use axum::{
-    async_trait,
-    extract::FromRequestParts,
+use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
+use axum_extra::{
     headers::{authorization::Bearer, Authorization},
-    http::request::Parts,
     TypedHeader,
 };
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation, Algorithm};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
-use crate::api::types::SorjordetError;
+use crate::errors::SorjordetError;
 
 lazy_static! {
     static ref JWT_SECRET: String = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 }
 
-const ISSUER : &str = "jwtauth/sorjordet.no";
+const ISSUER: &str = "jwtauth/sorjordet.no";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims {
@@ -26,7 +24,11 @@ pub struct Claims {
 
 impl Claims {
     pub fn new(sub: String) -> Self {
-        Claims { sub, exp: 10000000000, iss: ISSUER.to_string() }
+        Claims {
+            sub,
+            exp: 10000000000,
+            iss: ISSUER.to_string(),
+        }
     }
 }
 

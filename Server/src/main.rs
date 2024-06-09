@@ -1,10 +1,13 @@
 pub mod api;
+pub mod auth;
+pub mod errors;
 
+use api::api_router;
 use axum::Router;
-use axum_extra::routing::SpaRouter;
 use lazy_static::lazy_static;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use tower_http::compression::CompressionLayer;
+use tower_http::services::{ServeDir, ServeFile};
 use tower_http::timeout::TimeoutLayer;
 use std::env::var;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -44,12 +47,10 @@ async fn main() {
         .await
         .expect("can't connect to database");
 
-    let spa = SpaRouter::new("/assets", "./dist/assets").index_file("../index.html");
-
     // build our application with some routes
     let app = Router::new()
-        .nest("/api/", api::routes::api_router(pool).await)
-        .merge(spa)
+        .nest("/api/", api_router(pool).await)
+        .nest_service("/assets", ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")))
         .layer(cors)
         .layer(TimeoutLayer::new(core::time::Duration::new(2,0)))
         .layer(CompressionLayer::new().br(true).gzip(true))
@@ -60,8 +61,8 @@ async fn main() {
     // run it with hyper
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    axum::serve(listener, app)
         .await
         .unwrap();
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id\n                FROM farm_field\n                WHERE farm_field_group_id = $1\n            ",
+  "query": "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id\n                        FROM farm_field\n                        WHERE farm_field_group_id = $1\n                    ",
   "describe": {
     "columns": [
       {
@@ -42,5 +42,5 @@
       false
     ]
   },
-  "hash": "06214c273666f486cfff665c59f700c2ed226c849d55c31fe9c975f1f537510d"
+  "hash": "687229dde8c8bf04cb0cbbee6fd4e6f07c85690cbe40cd4a0d990db56fd3db02"
 }

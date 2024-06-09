@@ -1,10 +1,17 @@
-use crate::api::types::*;
-
 use axum::{
     self,
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+
+
+pub enum SorjordetError {
+    AuthError,
+    DBError,
+    NotFound(String),
+    InvalidInput(String),
+    InternalError(String),
+}
 
 impl IntoResponse for SorjordetError {
     fn into_response(self) -> Response {

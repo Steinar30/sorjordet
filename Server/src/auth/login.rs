@@ -9,15 +9,43 @@ use axum::{
     Json,
 };
 use lazy_static::lazy_static;
-use sqlx::{query_as, query_scalar, PgPool};
+use serde::{Deserialize, Serialize};
+use sqlx::{query_as, query_scalar, FromRow, PgPool};
+use ts_rs::TS;
 lazy_static! {
     static ref PW_SECRET: String = std::env::var("PW_SECRET").expect("PW_SECRET must be set");
 }
 
-use crate::api::{auth::{generate_jwt, Claims}, types::*};
+use crate::{auth::{generate_jwt, Claims}, errors::SorjordetError};
 
 
-pub fn hash_password(password: &str) -> Result<String, SorjordetError> {
+#[derive(Serialize, Deserialize, FromRow, TS)]
+#[ts(export)]
+pub struct User {
+    pub id: i32,
+    pub name: String,
+    #[serde(skip_serializing)]
+    pub password: String,
+    pub email: String,
+}
+
+#[derive(Deserialize, TS)]
+#[ts(export)]
+pub struct LoginRequest {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Serialize, TS)]
+#[ts(export)]
+pub struct LoginResponse {
+    pub result: bool,
+    pub message: String,
+    pub token: String,
+}
+
+
+fn hash_password(password: &str) -> Result<String, SorjordetError> {
     let salt = SaltString::generate(&mut OsRng);
 
     let config = Argon2::new_with_secret(
