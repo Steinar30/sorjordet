@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS farm_field_group (
     id SERIAL PRIMARY KEY,
     name VARCHAR(256) NOT NULL UNIQUE,
     farm_id INT NOT NULL,
+    draw_color VARCHAR(64) NOT NULL,
     CONSTRAINT fk_farm
         FOREIGN KEY(farm_id)
             REFERENCES farm(id)
