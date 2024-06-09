@@ -49,8 +49,8 @@ async fn main() {
 
     // build our application with some routes
     let app = Router::new()
+        .fallback_service(ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")))
         .nest("/api/", api_router(pool).await)
-        .nest_service("/assets", ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")))
         .layer(cors)
         .layer(TimeoutLayer::new(core::time::Duration::new(2,0)))
         .layer(CompressionLayer::new().br(true).gzip(true))
