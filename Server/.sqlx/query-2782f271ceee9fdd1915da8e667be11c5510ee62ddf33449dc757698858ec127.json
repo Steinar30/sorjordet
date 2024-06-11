@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO field_event (time, field_id, event_name, description)\n                VALUES ($1, $2, $3, $4)\n                RETURNING id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int4",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2782f271ceee9fdd1915da8e667be11c5510ee62ddf33449dc757698858ec127"
+}

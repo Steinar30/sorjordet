@@ -347,6 +347,7 @@ dependencies = [
  "iana-time-zone",
  "js-sys",
  "num-traits",
+ "serde",
  "wasm-bindgen",
  "windows-targets 0.52.5",
 ]
@@ -2290,6 +2291,7 @@ version = "8.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09d3fa4606cdab1e9b668cc65ce2545941d01f52bc27536a195c66c55b91cb84"
 dependencies = [
+ "chrono",
  "thiserror",
  "ts-rs-macros",
 ]
