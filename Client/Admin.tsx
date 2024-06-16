@@ -54,14 +54,14 @@ export default function Admin() {
             <Typography variant="h6">Admin</Typography>
             <Switch >
                 <Match when={currentView() === "admin"}>
-                    <div class={styles.admin_buttons}>
+                    <div class={styles.adminButtons}>
                         {navButton("Ny mark", "add-field")}
                         {navButton("Ny jordegruppe", "add-field-group")}
                         {RenderFieldsList(farmFieldGroups())}
                     </div>
                 </Match>
                 <Match when={currentView() === "add-field"}>
-                    {backButton}
+                    {backButton()}
 
                     {FieldForm(() => {
                         setCurrentView("admin");
@@ -69,7 +69,7 @@ export default function Admin() {
                     })}
                 </Match>
                 <Match when={currentView() === "add-field-group"}>
-                    {backButton}
+                    {backButton()}
 
                     {FieldGroupForm(() => {
                         setCurrentView("admin");

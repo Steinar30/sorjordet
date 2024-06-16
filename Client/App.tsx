@@ -1,9 +1,8 @@
 import { Component, lazy, Show } from 'solid-js';
-import { Paper, Typography, ThemeProvider, createTheme, TextField } from '@suid/material';
-import { Routes, Route, A } from '@solidjs/router';
+import { ThemeProvider, createTheme } from '@suid/material';
+import { Router, Route } from '@solidjs/router';
 
 import logo from './farm-logo.svg';
-import styles from './App.module.css';
 import TopAppBar from './TopBar';
 import Login from './Login';
 import { NoEditMap } from './Map';
@@ -35,13 +34,13 @@ const App: Component = () => {
       <div>
         <TopAppBar />        
 
-        <Routes>
+        <Router>
           <Route path="/"       component={NoEditMap} />
           <Route path="/fields" component={FieldsList} />
           <Route path="/about"  component={About} />
           <Route path="/login"  component={Login} />
           <Route path="/admin"  component={Admin} />
-        </Routes>
+        </Router>
       </div>
     </ThemeProvider>    
   );

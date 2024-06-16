@@ -8,7 +8,10 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vite-plugin-solid", "@suid/vite-plugin"],
+    "types": [
+      "vite-plugin-solid",
+      "@suid/vite-plugin",
+    ],
     "noEmit": true,
     "isolatedModules": true
   }

@@ -276,7 +276,7 @@ export function FieldForm(onCreate: () => void) {
                     onChange={updateField("name")}
                 ></TextField>
 
-                {selectComponent}
+                {selectComponent()}
 
                 <Typography variant="body2">
                     Tegn opp et utsnitt av marken i kartet under for å vise den på kartet.

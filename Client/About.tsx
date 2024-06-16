@@ -4,7 +4,7 @@ import styles from './About.module.css';
 
 export default function About() {
     return (
-        <main class={styles.about_container}>
+        <main class={styles.aboutContainer}>
             <Box>
 
                 <Typography variant="h3">Om siden</Typography>

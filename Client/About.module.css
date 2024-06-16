@@ -1,20 +1,20 @@
 
-.about_container {
+.aboutContainer {
     max-width: 600px;
     width: 100%;
     text-align: center;
     margin: auto;
 }
 
-.about_container div {
+.aboutContainer div {
     padding: 1rem;
 }
 
-.about_container p {
+.aboutContainer p {
     line-height: 2rem;
 }
 
-.about_container img {
+.aboutContainer img {
     width: 100%;
     margin: 16px 0;
 }

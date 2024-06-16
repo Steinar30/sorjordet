@@ -64,15 +64,15 @@ export default function Login() {
 
 
     return (
-        <div class={styles.login_container}>
-            <Paper class={styles.login_paper}>
-                <img src={logo} class={styles.login_logo} alt="logo" />
+        <div class={styles.loginContainer}>
+            <Paper class={styles.loginPaper}>
+                <img src={logo} class={styles.loginLogo} alt="logo" />
 
                 <Typography variant='h5'>Sørjordet gård</Typography>
                 
                 <Box
                     component="form"
-                    class={styles.login_paper}
+                    class={styles.loginPaper}
                     sx={{ margin: 0, p: 0, pb: "1rem", pt: "1rem" }}
                     onsubmit={handleSubmit}
                 >
@@ -102,7 +102,7 @@ export default function Login() {
 
                 <Show when={error() != null}>
                     <Alert severity='error' onClose={() => set_error(null)}>
-                        {error}
+                        {error?.toString()}
                     </Alert>
                 </Show>
             </Paper>

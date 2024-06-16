@@ -47,7 +47,7 @@ export default function FieldsList() {
             {RenderFieldsList(farmFieldGroups())}
 
             <Box sx={{maxWidth: "600px", width:"90%", height:"400px"}}>
-                {NoEditMap}
+                {NoEditMap()}
             </Box>
 
         </main>

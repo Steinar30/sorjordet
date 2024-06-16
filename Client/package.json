@@ -1,6 +1,7 @@
 {
-  "name": "vite-template-solid",
-  "version": "0.0.0",
+  "name": "sorjordet",
+  "version": "0.2.0",
+  "type": "module",
   "description": "",
   "scripts": {
     "start": "vite",
@@ -10,18 +11,18 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^4.8.2",
-    "vite": "^3.0.9",
-    "vite-plugin-solid": "^2.3.0"
+    "typescript": "^5.4.5",
+    "vite": "^5.3.1",
+    "vite-plugin-solid": "^2.10.2"
   },
   "dependencies": {
-    "@solid-primitives/media": "^2.0.4",
-    "@solidjs/router": "^0.5.0",
-    "@suid/icons-material": "^0.5.0",
-    "@suid/material": "^0.7.0",
-    "@suid/vite-plugin": "^0.1.0",
+    "@solid-primitives/media": "^2.2.9",
+    "@solidjs/router": "^0.13.5",
+    "@suid/icons-material": "^0.7.0",
+    "@suid/material": "^0.16.0",
+    "@suid/vite-plugin": "^0.2.0",
     "@thisbeyond/solid-select": "^0.13.0",
     "ol": "^7.1.0",
-    "solid-js": "^1.5.1"
+    "solid-js": "^1.8.17"
   }
 }

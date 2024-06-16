@@ -1,12 +1,12 @@
-.header_container {
+.headerContainer {
     color: var(--dark-text-color);;
 }
 
-.header_container a {
+.headerContainer a {
     text-decoration: none;
 }
 
-.header_link {
+.headerLink {
     margin-right: 10px;
     color: var(--dark-text-color);
     font-size: 1.25rem;
@@ -19,11 +19,11 @@
     cursor: pointer;
 }
 
-.header_link:hover {
+.headerLink:hover {
     background-color: rgba(40,50,50, 0.1);
 }
 
-.header_image_button {
+.headerImageButton {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -32,13 +32,13 @@
     max-width: 200px;
 }
 
-.header_image_button img {
+.headerImageButton img {
     max-height: 48px;
     max-width: 48px; 
     padding-left: 5px;
 }
 
-.header_image_text {
+.headerImageText {
     flex-grow: 1;
     font-size: 2rem;
     color: var(--dark-text-color);

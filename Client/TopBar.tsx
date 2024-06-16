@@ -1,17 +1,13 @@
 import MenuIcon from "@suid/icons-material/Menu";
 import {
     AppBar,
-    Box,
-    Button,
     Drawer,
     IconButton,
     List,
     ListItem,
-    ListItemText,
     Toolbar,
     Typography
 } from "@suid/material";
-import { A } from "@solidjs/router";
 import { createSignal, mapArray, Show } from 'solid-js';
 import { createMediaQuery } from "@solid-primitives/media";
 
@@ -27,23 +23,23 @@ export default function TopAppBar() {
 
 
     const navHome = () => 
-        <A href="/" class={styles.header_image_button} >
+        <a href="/" class={styles.headerImageButton} >
             <img src={logo} alt="logo" />
-            <Typography variant="h6" class={styles.header_image_text} component="div">
+            <Typography variant="h6" class={styles.headerImageText} component="div">
                 Sørjordet
             </Typography>
-        </A>
+        </a>
 
     const navAdmin = 
         <Show when={jwt_token() != null}>
-            <A class={styles.header_link} href="/admin">Admin</A>
+            <a class={styles.headerLink} href="/admin">Admin</a>
         </Show>
-    const navFields = <A class={styles.header_link} href="/fields">Jorder</A>
-    const navAbout  = <A class={styles.header_link} href="/about">Om siden</A>
+    const navFields = <a class={styles.headerLink} href="/fields">Jorder</a>
+    const navAbout  = <a class={styles.headerLink} href="/about">Om siden</a>
     const navLogin  = 
         <Show when={jwt_token() != null}
             fallback={
-                <A class={styles.header_link} href="/login">Logg inn</A>
+                <a class={styles.headerLink} href="/login">Logg inn</a>
             }
         >
             <button 
@@ -51,14 +47,14 @@ export default function TopAppBar() {
                     window.localStorage.removeItem(jwt_localstore_key);
                     set_jwt_token(null);
                 }}
-                class={styles.header_link}>
+                class={styles.headerLink}>
                 Logg ut
             </button>
         </Show>
 
     return (
         
-            <AppBar position="static" class={styles.header_container}>
+            <AppBar position="static" class={styles.headerContainer}>
                 <Toolbar>
                     {navHome()}
 
@@ -87,7 +83,7 @@ export default function TopAppBar() {
 
                         </IconButton>
                         <Drawer
-                            class={styles.header_container}
+                            class={styles.headerContainer}
                             anchor="left"
                             open={isOpen()}
                             onClose={() => {

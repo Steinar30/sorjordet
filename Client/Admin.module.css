@@ -7,7 +7,7 @@
     width: 100%;
 }
 
-.admin_buttons {
+.adminButtons {
     display: flex;
     flex-direction: column;
     gap: 10px;
