@@ -23,10 +23,19 @@ pub struct FarmField {
     pub farm_field_group_id: Option<i32>,
 }
 
-async fn get_farm_fields(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
+#[derive(Serialize, Deserialize, FromRow, TS)]
+#[ts(export)]
+pub struct FarmFieldMeta {
+    pub id: i32,
+    pub name: String,
+    pub farm_id: i32,
+    pub farm_field_group_id: Option<i32>,
+}
+
+async fn get_farm_fields_meta(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
     let result = query_as!(
-        FarmField,
-        "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id
+        FarmFieldMeta,
+        "SELECT id, name, farm_field_group_id, farm_id
                 FROM farm_field
             "
     )
@@ -98,5 +107,5 @@ pub fn farm_field_router() -> Router<PgPool> {
     Router::new()
         .route("/:field_id", get(get_farm_field_by_id))
         .route("/group/:group_id", get(get_farm_field_by_group_id))
-        .route("/", get(get_farm_fields).post(post_farm_field))
+        .route("/", get(get_farm_fields_meta).post(post_farm_field))
 }
