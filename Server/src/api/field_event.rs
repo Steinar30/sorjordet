@@ -2,7 +2,7 @@ use axum::{
     self,
     extract::{self, State},
     response::IntoResponse,
-    routing::get,
+    routing::{get, post},
     Json, Router,
 };
 use chrono::{DateTime, Utc};
@@ -32,6 +32,7 @@ async fn get_events(
         "SELECT id, time, field_id, event_name, description 
                 FROM field_event
                 WHERE field_id = $1
+                ORDER BY time DESC
             ",
         field_id
     )
@@ -65,5 +66,7 @@ async fn post_events(
 }
 
 pub fn field_event_router() -> Router<PgPool> {
-    Router::new().route("/", get(get_events).post(post_events))
+    Router::new()
+        .route("/:field_id", get(get_events))
+        .route("/", post(post_events))
 }

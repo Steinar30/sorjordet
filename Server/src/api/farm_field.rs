@@ -30,14 +30,18 @@ pub struct FarmFieldMeta {
     pub name: String,
     pub farm_id: i32,
     pub farm_field_group_id: Option<i32>,
+    pub farm_field_group_name: Option<String>,
 }
 
 async fn get_farm_fields_meta(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
     let result = query_as!(
         FarmFieldMeta,
-        "SELECT id, name, farm_field_group_id, farm_id
-                FROM farm_field
-            "
+        "SELECT f.id, f.name, f.farm_field_group_id, f.farm_id,
+                fg.name as farm_field_group_name
+                FROM farm_field f
+                LEFT JOIN farm_field_group fg ON f.farm_field_group_id = fg.id
+            ORDER BY fg.name, f.name
+        "
     )
     .fetch_all(&pool)
     .await?;
