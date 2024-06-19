@@ -1,4 +1,4 @@
-import { onMount, createSignal, createResource, createEffect, Ref } from "solid-js";
+import { onMount, createSignal, createResource, createEffect } from "solid-js";
 import Map from "ol/Map";
 import View from "ol/View";
 import { Vector as VectorSource } from "ol/source";
@@ -74,7 +74,7 @@ export function fromGroupFieldsToLayer(
 export function NoEditMap() {
     const [mapObj, setMapObj] = createSignal<Map | undefined>();
     // const [farms, modify_farm] = createResource(requests.get_farm);
-    const [farmFieldGroups, { mutate, refetch }] = createResource(
+    const [farmFieldGroups] = createResource(
         getFarmFieldGroupsWithFields
     );
 
@@ -121,13 +121,14 @@ export function NoEditMap() {
         });
 
         let select: Select;
-        let selectElement: HTMLElement = document.createElement('div');
-        let selectOverlay: Overlay = new Overlay({
+        const selectElement: HTMLElement = document.createElement('div');
+        const selectOverlay: Overlay = new Overlay({
             element: selectElement,
             positioning: 'center-center',
         });
         map.addOverlay(selectOverlay);
 
+        // eslint-disable-next-line prefer-const
         select = new Select({
             style: selectedStyle,
         });

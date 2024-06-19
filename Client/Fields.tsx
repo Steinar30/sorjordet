@@ -12,7 +12,7 @@ export function RenderFieldsList(fieldGroups: [FarmFieldGroup, FarmField[]][] | 
     return (
         <List>
             <ListItem>Liste over jorder etter gruppe:</ListItem>
-            <For each={fieldGroups}>{([fg,fields],i) => {
+            <For each={fieldGroups}>{([fg,fields]) => {
                 return (
                     <List>
                         <ListItem>
@@ -21,7 +21,7 @@ export function RenderFieldsList(fieldGroups: [FarmFieldGroup, FarmField[]][] | 
                                 <Circle sx={{color: fg.draw_color, marginLeft:"10px"}}/>
                             </ListItemIcon>
                         </ListItem>
-                        <For each={fields}>{(field, j) => {
+                        <For each={fields}>{(field) => {
                             return (
                                 <ListItem sx={{marginLeft:"10px"}}>
                                     {field.name}
@@ -38,7 +38,7 @@ export function RenderFieldsList(fieldGroups: [FarmFieldGroup, FarmField[]][] | 
 }
 
 export default function FieldsList() {
-    const [farmFieldGroups, { mutate, refetch }] = createResource(
+    const [farmFieldGroups] = createResource(
         getFarmFieldGroupsWithFields
     );
 

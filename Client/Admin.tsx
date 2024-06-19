@@ -4,17 +4,15 @@ import { createResource, createSignal, Match, Show, Switch } from "solid-js";
 
 import styles from './Admin.module.css';
 import { jwt_token } from "./App";
-import { FarmField } from "./bindings/FarmField";
-import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
 import { FieldForm } from "./FarmFieldForm";
 import { FieldGroupForm } from "./FarmFieldGroupForm";
-import FieldsList, { RenderFieldsList } from "./Fields";
+import { RenderFieldsList } from "./Fields";
 import { getFarmFieldGroupsWithFields } from "./requests";
 
 
 export default function Admin() {
     const [currentView, setCurrentView] = createSignal<string>("admin");
-    const [farmFieldGroups, {mutate, refetch}] = 
+    const [farmFieldGroups, {refetch}] = 
         createResource(getFarmFieldGroupsWithFields);
     
     function navButton(label:string, navstring:string) {

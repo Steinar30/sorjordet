@@ -1,16 +1,11 @@
-import { Component, lazy, Show } from 'solid-js';
+import { Component, lazy } from 'solid-js';
 import { ThemeProvider, createTheme } from '@suid/material';
 import { Router, Route } from '@solidjs/router';
 
-import logo from './farm-logo.svg';
 import TopAppBar from './TopBar';
-import Login from './Login';
 import { NoEditMap } from './Map';
-import About from './About';
 
-import {createSignal} from 'solid-js';
-import Admin from './Admin';
-import FieldsList from './Fields';
+import { createSignal } from 'solid-js';
 
 // use localstore to 
 export const jwt_localstore_key = 'jwt_localstore'
@@ -32,17 +27,18 @@ const App: Component = () => {
   return (
     <ThemeProvider theme={farmTheme}>
       <div>
-        <TopAppBar />        
+        <TopAppBar />
 
         <Router>
-          <Route path="/"       component={NoEditMap} />
-          <Route path="/fields" component={FieldsList} />
-          <Route path="/about"  component={About} />
-          <Route path="/login"  component={Login} />
-          <Route path="/admin"  component={Admin} />
+          <Route path="/" component={NoEditMap} />
+          <Route path="/fields" component={lazy(() => import('./Fields'))} />
+          <Route path="/about" component={lazy(() => import('./About'))} />
+          <Route path="/login" component={lazy(() => import('./Login'))} />
+          <Route path="/admin" component={lazy(() => import('./Admin'))} />
+          <Route path="/harvest" component={lazy(() => import('./Harvest'))} />
         </Router>
       </div>
-    </ThemeProvider>    
+    </ThemeProvider>
   );
 };
 

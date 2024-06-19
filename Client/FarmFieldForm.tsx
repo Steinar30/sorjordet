@@ -1,6 +1,6 @@
-import { Paper, Typography, TextField, Button, Box, FormControl, InputLabel, MenuItem } from "@suid/material";
+import { Typography, TextField, Button } from "@suid/material";
 import { createStore } from "solid-js/store";
-import { onMount, createSignal, createResource, createEffect, Ref, Show } from "solid-js";
+import { onMount, createSignal, createResource, createEffect, Show } from "solid-js";
 import Map from "ol/Map";
 import View from "ol/View";
 import { Draw, Modify, Snap } from "ol/interaction";
@@ -17,13 +17,11 @@ import "./Map.css";
 
 import { FarmField } from "./bindings/FarmField";
 import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
-import { Farm } from "./bindings/Farm";
 import { Feature, MapBrowserEvent, Overlay } from "ol";
-import { Geometry, Polygon } from "ol/geom";
+import { Polygon } from "ol/geom";
 import Style from "ol/style/Style";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
-import { Coordinate } from "ol/coordinate";
 import { EventsKey } from "ol/events";
 import { DrawEvent } from "ol/interaction/Draw";
 import { getFarmFieldGroups, getFarmFieldsForGroup, tryPostNewField } from "./requests";
@@ -43,7 +41,7 @@ function validateFarmInput(field: FarmField, feature: Feature | undefined, valid
 
 export function FieldForm(onCreate: () => void) {
     const [mapObj, setMapObj] = createSignal<Map | undefined>();
-    const [farmFieldGroups, { mutate, refetch }] = createResource(
+    const [farmFieldGroups] = createResource(
         getFarmFieldGroups
     );
     const [drawnFeature, setDrawnFeature] = createSignal<Feature | undefined>();
@@ -136,7 +134,7 @@ export function FieldForm(onCreate: () => void) {
             helpTooltipElement.classList.add('hidden');
         });
 
-        var snap, draw: Draw;
+        let snap, draw: Draw;
         function addInteraction() {
             draw = new Draw({
                 source: source,
@@ -161,6 +159,7 @@ export function FieldForm(onCreate: () => void) {
             const modify = new Modify({ source: source });
             map.addInteraction(modify);
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             let listener: EventsKey | undefined;
             draw.on("drawstart", function (evt: DrawEvent) {
                 if (helpTooltip) {
@@ -175,7 +174,7 @@ export function FieldForm(onCreate: () => void) {
                 
                 listener = sketch.getGeometry()?.on("change", function (evt) {
                     const geom : Polygon = evt.target;
-                    let output = formatArea(geom);
+                    const output = formatArea(geom);
                     tooltipCoord = geom.getInteriorPoint().getCoordinates();
                     measureTooltipElement.innerHTML = output;
                     measureTooltip.setPosition(tooltipCoord);
@@ -288,9 +287,9 @@ export function FieldForm(onCreate: () => void) {
                     variant="contained"
                     onClick={async () => {
                         console.log('click of button');
-                        var f = drawnFeature();
+                        const f = drawnFeature();
                         if (f) {
-                            var json = new GeoJSON().writeFeature(f);
+                            const json = new GeoJSON().writeFeature(f);
                             setForm({["map_polygon_string"]: json});
                             const result = await tryPostNewField(form);
                             if (result) {

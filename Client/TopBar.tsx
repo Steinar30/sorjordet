@@ -8,7 +8,7 @@ import {
     Toolbar,
     Typography
 } from "@suid/material";
-import { createSignal, mapArray, Show } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { createMediaQuery } from "@solid-primitives/media";
 
 

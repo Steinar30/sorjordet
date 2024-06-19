@@ -10,7 +10,11 @@ import { createSignal, Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 
 
-const submit = async (form:LoginRequest, err_callback: Function, succ_callback: Function) => {
+const submit = async (
+    form: LoginRequest,
+    err_callback: (message: string) => void,
+    succ_callback: (token: string) => void
+) => {
 
     const response = await fetch("/api/auth/login", {
             method: 'POST',
