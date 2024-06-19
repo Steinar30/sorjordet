@@ -18,6 +18,10 @@ use harvest_type::harvest_type_router;
 use field_event::field_event_router;
 use sqlx::PgPool;
 
+async fn fallback() -> impl axum::response::IntoResponse {
+    (axum::http::StatusCode::NOT_FOUND, "Not Found")
+}
+
 pub async fn api_router(pg_pool: PgPool) -> Router {
     Router::new()
         .nest("/field_event", field_event_router())
@@ -33,4 +37,5 @@ pub async fn api_router(pg_pool: PgPool) -> Router {
                 .route("/register", post(register_user)),
         )
         .with_state(pg_pool)
+        .fallback(fallback)
 }

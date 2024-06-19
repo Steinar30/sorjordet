@@ -39,6 +39,8 @@ async fn main() {
         "postgresql://postgres:Demo123123@host.docker.internal:54321/sorjordet".to_string()
     });
 
+    println!("Connecting to database: {}", &db_connection_str);
+
     let pool: PgPool = PgPoolOptions::new()
         .max_connections(5)
         .idle_timeout(Duration::from_secs(10))
