@@ -1,3 +1,4 @@
 node_modules
 dist
 **/target
+**/__old__bindings
