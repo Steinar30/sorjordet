@@ -5,11 +5,13 @@ pub mod errors;
 use api::api_router;
 use axum::Router;
 use lazy_static::lazy_static;
-use sqlx::postgres::{PgPool, PgPoolOptions};
+use sqlx::postgres::{PgConnectOptions, PgPool, PgPoolOptions};
+use sqlx::ConnectOptions;
+use std::env::var;
 use tower_http::compression::CompressionLayer;
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::timeout::TimeoutLayer;
-use std::env::var;
+use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use std::{net::SocketAddr, time::Duration};
@@ -23,9 +25,10 @@ lazy_static! {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG").unwrap_or_else(|_| "logging=info,tower_http=info".into()),
-        ))
+        .with(
+            tracing_subscriber::EnvFilter::from_env("RUST_LOG")
+                .add_directive(LevelFilter::DEBUG.into()),
+        )
         .with(tracing_subscriber::fmt::layer())
         .init();
 
@@ -39,22 +42,33 @@ async fn main() {
         "postgresql://postgres:Demo123123@host.docker.internal:54321/sorjordet".to_string()
     });
 
+    let options: PgConnectOptions = db_connection_str
+        .parse::<PgConnectOptions>()
+        .unwrap()
+        .log_slow_statements(
+            tracing::log::LevelFilter::Warn,
+            std::time::Duration::from_secs(1),
+        )
+        .log_statements(tracing::log::LevelFilter::Trace);
+
     println!("Connecting to database: {}", &db_connection_str);
 
     let pool: PgPool = PgPoolOptions::new()
         .max_connections(5)
         .idle_timeout(Duration::from_secs(10))
         .acquire_timeout(Duration::from_secs(3))
-        .connect(&db_connection_str)
+        .connect_with(options)
         .await
         .expect("can't connect to database");
 
     // build our application with some routes
     let app = Router::new()
-        .fallback_service(ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")))
+        .fallback_service(
+            ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")),
+        )
         .nest("/api/", api_router(pool).await)
         .layer(cors)
-        .layer(TimeoutLayer::new(core::time::Duration::new(2,0)))
+        .layer(TimeoutLayer::new(core::time::Duration::new(2, 0)))
         .layer(CompressionLayer::new().br(true).gzip(true))
         .layer(TraceLayer::new_for_http());
 
@@ -64,7 +78,5 @@ async fn main() {
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     tracing::debug!("listening on {}", addr);
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    axum::serve(listener, app)
-        .await
-        .unwrap();
+    axum::serve(listener, app).await.unwrap();
 }

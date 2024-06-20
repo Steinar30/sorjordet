@@ -45,7 +45,7 @@ async fn post_types(
     .fetch_one(&pool)
     .await?;
 
-    log::info!("new harvest_type inserted by {}", claims.sub);
+    tracing::info!("new harvest_type inserted by {}", claims.sub);
 
     Ok(Json(result))
 }

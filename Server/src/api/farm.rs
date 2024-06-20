@@ -50,7 +50,7 @@ async fn post_farm(
     .fetch_one(&pool)
     .await?;
 
-    log::info!("new farm inserted by {}", claims.sub);
+    tracing::info!("new farm inserted by {}", claims.sub);
 
     Ok(Json(result))
 }

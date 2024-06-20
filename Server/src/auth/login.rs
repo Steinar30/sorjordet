@@ -118,7 +118,7 @@ pub async fn register_user(
 
     user.id = result;
 
-    log::info!("Created new user. Inserted by {}", claims.sub);
+    tracing::info!("Created new user. Inserted by {}", claims.sub);
 
     Ok(Json(user))
 }

@@ -60,7 +60,7 @@ async fn post_events(
     .fetch_one(&pool)
     .await?;
 
-    log::info!("new field_event inserted by {}", claims.sub);
+    tracing::info!("new field_event inserted by {}", claims.sub);
 
     Ok(Json(result))
 }

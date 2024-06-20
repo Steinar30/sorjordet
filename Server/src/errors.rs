@@ -4,7 +4,6 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-
 pub enum SorjordetError {
     AuthError,
     DBError,
@@ -40,7 +39,7 @@ impl From<axum::Error> for SorjordetError {
 }
 impl From<sqlx::Error> for SorjordetError {
     fn from(err: sqlx::Error) -> Self {
-        log::error!("DBError: {:?}", err);
+        tracing::error!("DBError: {:?}", err);
         SorjordetError::DBError
     }
 }

@@ -70,7 +70,7 @@ async fn post_farm_field_group(
     .fetch_one(&pool)
     .await?;
 
-    log::info!("new field_group inserted by {}", claims.sub);
+    tracing::info!("new field_group inserted by {}", claims.sub);
 
     Ok(Json(result))
 }

@@ -102,7 +102,7 @@ async fn post_farm_field(
     .fetch_one(&pool)
     .await?;
 
-    log::info!("new field inserted by {}", claims.sub);
+    tracing::info!("new field inserted by {}", claims.sub);
 
     Ok(Json(result))
 }

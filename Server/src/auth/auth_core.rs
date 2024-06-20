@@ -65,7 +65,10 @@ where
             &DecodingKey::from_secret(JWT_SECRET.as_bytes()),
             &validation,
         )
-        .map_err(|_| SorjordetError::AuthError)?;
+        .map_err(|e| {
+            tracing::error!("Authentication failed with error: {:?}", e);
+            SorjordetError::AuthError
+        })?;
 
         Ok(token_data.claims)
     }
