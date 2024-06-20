@@ -7,7 +7,7 @@ use axum::{
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{query_as, query_scalar, FromRow, PgPool};
+use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -43,7 +43,7 @@ async fn get_events(
     Ok(Json(result))
 }
 
-async fn post_events(
+async fn post_event(
     claims: Claims,
     State(pool): State<PgPool>,
     extract::Json(payload): extract::Json<HarvestEvent>,
@@ -61,13 +61,43 @@ async fn post_events(
     .fetch_one(&pool)
     .await?;
 
-    log::info!("new harvest_event inserted by {}", claims.sub);
+    tracing::info!("New harvest_event created by {}", claims.sub);
 
     Ok(Json(result))
 }
 
+async fn patch_event(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Path(event_id): extract::Path<i32>,
+    extract::Json(payload): extract::Json<HarvestEvent>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result = query!(
+        "UPDATE harvest_event
+                SET value = $1, time = $2
+                WHERE id = $3
+            ",
+        &payload.value,
+        &payload.time,
+        &event_id
+    )
+    .execute(&pool)
+    .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(SorjordetError::NotFound(format!(
+            "harvest_event with id {} not found",
+            event_id
+        )));
+    }
+
+    tracing::info!("harvest_event {event_id} updated by {}", claims.sub);
+
+    Ok(())
+}
+
 pub fn harvest_event_router() -> Router<PgPool> {
     Router::new()
-        .route("/:field_id", get(get_events))
-        .route("/", post(post_events))
+        .route("/:field_id", get(get_events).patch(patch_event))
+        .route("/", post(post_event))
 }
