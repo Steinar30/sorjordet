@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT g.id, g.name, g.farm_id, g.draw_color, \n                    ARRAY_AGG(f.id) \n                    filter (WHERE f.id IS NOT NULL) as fields\n                FROM farm_field_group AS g\n                    LEFT JOIN farm_field AS f ON g.id = f.farm_field_group_id \n                GROUP BY g.id\n                ",
+  "query": "SELECT g.id, g.name, g.farm_id, g.draw_color, \n                    ARRAY_AGG(f.id) \n                    filter (WHERE f.id IS NOT NULL) as fields\n                FROM farm_field_group AS g\n                    LEFT JOIN farm_field AS f ON g.id = f.farm_field_group_id \n                GROUP BY g.id\n                ORDER BY g.name\n                ",
   "describe": {
     "columns": [
       {
@@ -40,5 +40,5 @@
       null
     ]
   },
-  "hash": "8add815cbe9a87282b2bf27e978c06a13c5b4768adcdb80c7c13fb4f69d5266f"
+  "hash": "c0381ddfedf33f2d60db55aab819687a96de24eb9835526eed108cba06a69492"
 }
