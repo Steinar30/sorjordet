@@ -2,12 +2,12 @@ use axum::{
     self,
     extract::{self, State},
     response::IntoResponse,
-    routing::get,
+    routing::{delete, get},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
+use sqlx::{query, FromRow};
 use sqlx::{query_as, query_scalar, PgPool};
-use sqlx::FromRow;
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -29,19 +29,14 @@ pub struct FarmFieldMeta {
     pub id: i32,
     pub name: String,
     pub farm_id: i32,
-    pub farm_field_group_id: Option<i32>,
-    pub farm_field_group_name: Option<String>,
 }
 
-async fn get_farm_fields_meta(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
+async fn get_farm_fields_meta(
+    State(pool): State<PgPool>,
+) -> Result<impl IntoResponse, SorjordetError> {
     let result = query_as!(
         FarmFieldMeta,
-        "SELECT f.id, f.name, f.farm_field_group_id, f.farm_id,
-                fg.name as farm_field_group_name
-                FROM farm_field f
-                LEFT JOIN farm_field_group fg ON f.farm_field_group_id = fg.id
-            ORDER BY fg.name, f.name
-        "
+        "SELECT id, name, farm_id FROM farm_field ORDER BY name"
     )
     .fetch_all(&pool)
     .await?;
@@ -107,8 +102,23 @@ async fn post_farm_field(
     Ok(Json(result))
 }
 
+async fn delete_farm_field(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Path(field_id): extract::Path<i32>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    query!("DELETE FROM farm_field WHERE id = $1", field_id)
+        .execute(&pool)
+        .await?;
+
+    tracing::info!("field {} inserted  by {}", field_id, claims.sub);
+
+    Ok(())
+}
+
 pub fn farm_field_router() -> Router<PgPool> {
     Router::new()
+        .route("/:field_id", delete(delete_farm_field))
         .route("/:field_id", get(get_farm_field_by_id))
         .route("/group/:group_id", get(get_farm_field_by_group_id))
         .route("/", get(get_farm_fields_meta).post(post_farm_field))

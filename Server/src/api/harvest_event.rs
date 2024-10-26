@@ -74,11 +74,12 @@ async fn patch_event(
 ) -> Result<impl IntoResponse, SorjordetError> {
     let result = query!(
         "UPDATE harvest_event
-                SET value = $1, time = $2
-                WHERE id = $3
+                SET value = $1, time = $2, harvest_type_id = $3
+                WHERE id = $4
             ",
         &payload.value,
         &payload.time,
+        &payload.type_id,
         &event_id
     )
     .execute(&pool)

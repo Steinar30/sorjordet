@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use axum::{
     self,
     extract::{self, State},
@@ -5,14 +7,15 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use sqlx::{query, query_scalar, PgPool};
-
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+use sqlx::{query, query_scalar, PgPool, Row};
 use ts_rs::TS;
 
 use crate::auth::Claims;
 use crate::errors::SorjordetError;
+
+use super::farm_field::FarmFieldMeta;
 
 #[derive(Serialize, Deserialize, FromRow, TS)]
 #[ts(export)]
@@ -22,6 +25,16 @@ pub struct FarmFieldGroup {
     pub farm_id: i32,
     pub fields: Vec<i32>,
     pub draw_color: String,
+}
+
+#[derive(Serialize, Deserialize, FromRow, TS)]
+#[ts(export)]
+pub struct FarmFieldGroupMeta {
+    pub id: i32,
+    pub farm_id: i32,
+    pub name: String,
+    pub draw_color: String,
+    pub fields: Vec<FarmFieldMeta>,
 }
 
 async fn get_farm_field_groups(
@@ -34,6 +47,7 @@ async fn get_farm_field_groups(
                 FROM farm_field_group AS g
                     LEFT JOIN farm_field AS f ON g.id = f.farm_field_group_id 
                 GROUP BY g.id
+                ORDER BY g.name
                 "#
     )
     .fetch_all(&pool)
@@ -51,6 +65,54 @@ async fn get_farm_field_groups(
         .collect();
 
     Ok(Json(result))
+}
+
+async fn get_farm_field_groups_meta(
+    State(pool): State<PgPool>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let mut groups: Vec<FarmFieldGroupMeta> = query(
+        "SELECT fg.id as id, fg.name as name, fg.farm_id as farm_id, draw_color, f.id as field_id, f.name as field_name
+                FROM farm_field_group fg
+                LEFT JOIN farm_field f ON fg.id = f.farm_field_group_id
+            ORDER BY fg.name, f.name
+        ",
+    )
+    .fetch_all(&pool)
+    .await?
+    .into_iter()
+    .fold(
+        HashMap::<i32, FarmFieldGroupMeta>::new(),
+        |mut acc, x| {
+            let id : i32 = x.get("id");
+            let farm_id : i32 = x.get("farm_id");
+            let name: String = x.get("name");
+            let draw_color: String = x.get("draw_color");
+            let field_id : Option<i32> = x.try_get("field_id").unwrap_or_default();
+            let field_name: Option<String> = x.try_get("field_name").unwrap_or_default();
+            let group = acc.entry(id).or_insert(FarmFieldGroupMeta {
+                id,
+                farm_id,
+                name: name.to_string(),
+                draw_color: draw_color.to_string(),
+                fields: vec![],
+            });
+            if let Some(field_id) = field_id {
+                group.fields.push(FarmFieldMeta {
+                    id: field_id,
+                    name: field_name.unwrap_or_default(),
+                    farm_id,
+                });
+            }
+            acc
+        },
+    )
+    .into_iter()
+    .map(|(_, x)| x)
+    .collect();
+
+    groups.sort_by(|a, b| a.name.cmp(&b.name));
+
+    Ok(Json(groups))
 }
 
 async fn post_farm_field_group(
@@ -76,5 +138,7 @@ async fn post_farm_field_group(
 }
 
 pub fn farm_field_group_router() -> Router<PgPool> {
-    Router::new().route("/", get(get_farm_field_groups).post(post_farm_field_group))
+    Router::new()
+        .route("/meta", get(get_farm_field_groups_meta))
+        .route("/", get(get_farm_field_groups).post(post_farm_field_group))
 }

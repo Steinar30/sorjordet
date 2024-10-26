@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id\n                FROM harvest_event AS e JOIN harvest_type AS h ON e.harvest_type_id = h.id\n                WHERE field_id = $1\n            ",
+  "query": "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id\n                FROM harvest_event AS e JOIN harvest_type AS h ON e.harvest_type_id = h.id\n                WHERE field_id = $1\n                ORDER BY time DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -48,5 +48,5 @@
       false
     ]
   },
-  "hash": "cf7adf9c5f619498eb77094e3f85308efd3c77923fe9792481f532ee746fe2c6"
+  "hash": "16ffea9c5c8c0fa255d1a059b43d725e7ea4040d4aa13d842569283530950bc7"
 }
