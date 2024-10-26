@@ -4,7 +4,7 @@ import { createResource, createSignal, Match, Show, Switch } from "solid-js";
 
 import styles from './Admin.module.css';
 import { jwt_token } from "../App";
-import { FieldForm } from "./FieldForm";
+import { FieldForm } from "./FarmFieldForm";
 import { FieldGroupForm } from "./FarmFieldGroupForm";
 import { RenderFieldsList } from "../Fields";
 import { getFarmFieldGroupsWithFields } from "../requests";
