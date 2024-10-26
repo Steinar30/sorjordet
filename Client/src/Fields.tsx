@@ -1,29 +1,27 @@
 import { createResource, For } from "solid-js";
 import { getFarmFieldGroupsWithFields } from "./requests";
 
-import styles from './Admin.module.css';
-import { Box, List, ListItem, ListItemIcon } from "@suid/material";
-import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
-import { FarmField } from "./bindings/FarmField";
-import { NoEditMap } from "./Map";
+import { List, ListItem, ListItemIcon } from "@suid/material";
+import { FarmFieldGroup } from "../bindings/FarmFieldGroup";
+import { FarmField } from "../bindings/FarmField";
 import { Circle } from "@suid/icons-material";
 
 export function RenderFieldsList(fieldGroups: [FarmFieldGroup, FarmField[]][] | undefined) {
     return (
         <List>
-            <ListItem>Liste over jorder etter gruppe:</ListItem>
-            <For each={fieldGroups}>{([fg,fields]) => {
+            <ListItem>All fields by group:</ListItem>
+            <For each={fieldGroups}>{([fg, fields]) => {
                 return (
                     <List>
                         <ListItem>
                             {fg.name}
                             <ListItemIcon>
-                                <Circle sx={{color: fg.draw_color, marginLeft:"10px"}}/>
+                                <Circle sx={{ color: fg.draw_color, marginLeft: "10px" }} />
                             </ListItemIcon>
                         </ListItem>
                         <For each={fields}>{(field) => {
                             return (
-                                <ListItem sx={{marginLeft:"10px"}}>
+                                <ListItem sx={{ marginLeft: "10px" }}>
                                     {field.name}
                                 </ListItem>
                             )
@@ -43,12 +41,8 @@ export default function FieldsList() {
     );
 
     return (
-        <main class={styles.container}>
+        <main style={{ "margin": "20px", "display": "flex", "flex-direction": "row", "flex-wrap": "wrap", "align-items": "start", "justify-content": "space-evenly" }}>
             {RenderFieldsList(farmFieldGroups())}
-
-            <Box sx={{maxWidth: "600px", width:"90%", height:"400px"}}>
-                {NoEditMap()}
-            </Box>
 
         </main>
     );

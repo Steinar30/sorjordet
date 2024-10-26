@@ -16,9 +16,9 @@ import { getArea } from 'ol/sphere';
 import "ol/ol.css";
 import "./Map.css";
 
-import { FarmField } from "./bindings/FarmField";
-import { FarmFieldGroup } from "./bindings/FarmFieldGroup";
-import { getFarmFieldGroupsWithFields } from "./requests";
+import { FarmField } from "../../bindings/FarmField";
+import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
+import { getFarmFieldGroupsWithFields } from "../requests";
 
 
 export function formatArea(polygon: Polygon): string {
@@ -53,6 +53,7 @@ export function fromGroupFieldsToLayer(
             return feature
 
         } catch (e) {
+            console.error(e);
             console.log("failed to parse as json: ", f.map_polygon_string);
             return null;
         }
