@@ -6,7 +6,7 @@ use axum::{
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, query_as, query_scalar, PgPool};
+use sqlx::{query_as, query_scalar, FromRow, PgPool};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -20,12 +20,9 @@ pub struct HarvestType {
 }
 
 async fn get_types(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
-    let result: Vec<HarvestType> = query_as!(
-        HarvestType,
-        "SELECT id, name FROM harvest_type"
-    )
-    .fetch_all(&pool)
-    .await?;
+    let result: Vec<HarvestType> = query_as!(HarvestType, "SELECT id, name FROM harvest_type")
+        .fetch_all(&pool)
+        .await?;
 
     Ok(Json(result))
 }
@@ -51,6 +48,5 @@ async fn post_types(
 }
 
 pub fn harvest_type_router() -> Router<PgPool> {
-    Router::new()
-    .route("/", get(get_types).post(post_types))
+    Router::new().route("/", get(get_types).post(post_types))
 }

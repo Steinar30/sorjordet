@@ -56,6 +56,5 @@ async fn post_farm(
 }
 
 pub fn farm_router() -> Router<PgPool> {
-    Router::new()
-    .route("/", get(get_farms).post(post_farm))
+    Router::new().route("/", get(get_farms).post(post_farm))
 }

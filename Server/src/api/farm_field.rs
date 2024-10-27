@@ -31,6 +31,22 @@ pub struct FarmFieldMeta {
     pub farm_id: i32,
 }
 
+async fn get_all_farm_fields(
+    State(pool): State<PgPool>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result: Vec<FarmField> = query_as!(
+        FarmField,
+        "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id
+                FROM farm_field
+            ORDER BY name
+        "
+    )
+    .fetch_all(&pool)
+    .await?;
+
+    Ok(Json(result))
+}
+
 async fn get_farm_fields_meta(
     State(pool): State<PgPool>,
 ) -> Result<impl IntoResponse, SorjordetError> {
@@ -121,5 +137,6 @@ pub fn farm_field_router() -> Router<PgPool> {
         .route("/:field_id", delete(delete_farm_field))
         .route("/:field_id", get(get_farm_field_by_id))
         .route("/group/:group_id", get(get_farm_field_by_group_id))
+        .route("/all", get(get_all_farm_fields))
         .route("/", get(get_farm_fields_meta).post(post_farm_field))
 }
