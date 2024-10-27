@@ -1,14 +1,43 @@
-import { ArrowBack } from "@suid/icons-material";
-import { Button, IconButton, Typography } from "@suid/material";
-import { createResource, createSignal, Match, Show, Switch } from "solid-js";
+import { ArrowBack, Circle } from "@suid/icons-material";
+import { Button, IconButton, List, ListItem, ListItemIcon, Typography } from "@suid/material";
+import { createResource, createSignal, For, Match, Show, Switch } from "solid-js";
 
 import styles from './Admin.module.css';
 import { jwt_token } from "../App";
 import { FieldForm } from "./FarmFieldForm";
 import { FieldGroupForm } from "./FarmFieldGroupForm";
-import { RenderFieldsList } from "../Fields";
 import { getFarmFieldGroupsWithFields } from "../requests";
+import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
+import { FarmField } from "../../bindings/FarmField";
 
+function RenderFieldsList(fieldGroups: [FarmFieldGroup, FarmField[]][] | undefined) {
+  return (
+    <List>
+      <ListItem>All fields by group:</ListItem>
+      <For each={fieldGroups}>{([fg, fields]) => {
+        return (
+          <List>
+            <ListItem>
+              {fg.name}
+              <ListItemIcon>
+                <Circle sx={{ color: fg.draw_color, marginLeft: "10px" }} />
+              </ListItemIcon>
+            </ListItem>
+            <For each={fields}>{(field) => {
+              return (
+                <ListItem sx={{ marginLeft: "10px" }}>
+                  {field.name}
+                </ListItem>
+              )
+            }}
+            </For>
+          </List>
+        )
+      }}
+      </For>
+    </List>
+  )
+}
 
 export default function Admin() {
   const [currentView, setCurrentView] = createSignal<string>("admin");
