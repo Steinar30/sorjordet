@@ -21,14 +21,23 @@ import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { getFarmFieldGroupsWithFields } from "../requests";
 
 
-export function formatArea(polygon: Polygon): string {
-    //TODO go from km2 to mål and dekar
+export function formatArea(polygon: Polygon | number): string {
+    if (typeof polygon === "number") {
+        return Math.round(polygon) / 1000 + " " + "dekar";
+    }
     const area: number = getArea(polygon);
-    // if (area > 10000) {
-    //     return Math.round((area / 1000000) * 100) / 100 + " " + "km<sup>2</sup>";
-    // } else {
-    // }
     return Math.round(area) / 1000 + " " + "dekar";
+}
+
+export function getMapPolygonArea(mapPolygonString: string): number {
+    try {
+        const json = JSON.parse(mapPolygonString);
+        const feature: Feature<Geometry> = new GeoJSON().readFeature(json);
+        return getArea(feature.getGeometry() as Polygon);
+    } catch (e) {
+        console.error(e);
+        return -1;
+    }
 }
 
 export function formatSelectedDiv(fieldName: string, fieldGroup: string, area: string) {

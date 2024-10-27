@@ -57,8 +57,8 @@ export function DrawableMap(featureState: MapFeature) {
     const vector = new VectorLayer({
       source: source,
       style: {
-        "fill-color": "rgba(129, 199, 132, 0.2)",
-        "stroke-color": "rgba(129, 199, 132, 0.7)",
+        "fill-color": "rgba(256, 256, 256, 0.2)",
+        "stroke-color": "rgba(256, 256, 256, 0.7)",
         "stroke-width": 2,
       },
     });
@@ -109,10 +109,10 @@ export function DrawableMap(featureState: MapFeature) {
         type: "Polygon",
         style: new Style({
           fill: new Fill({
-            color: "rgba(129, 199, 132, 0.2)",
+            color: "rgba(256, 256, 256, 0.2)",
           }),
           stroke: new Stroke({
-            color: "rgba(129, 199, 132, 0.7)",
+            color: "rgba(256, 256, 256, 0.7)",
             width: 2,
           }),
         }),
