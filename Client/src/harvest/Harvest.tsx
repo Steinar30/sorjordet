@@ -282,6 +282,7 @@ export default function Harvest() {
             return;
           }
           postNewHarvestEvent(harvestSelector().selectedField?.id ?? -1).then(() => {
+            setshowInvalid(false);
             setHarvestSelector({
               ...harvestSelector(),
               selectedHarvestEvent: undefined
@@ -345,7 +346,7 @@ export default function Harvest() {
 
   const selectFieldModal = () => {
     return (
-      <Dialog open={isOpen()} onClose={() => setIsOpen(false)}>
+      <Dialog open={isOpen()} onClose={() => { setshowInvalid(false); setIsOpen(false); }}>
         <DialogTitle>Choose or create harvest</DialogTitle>
         <DialogContent class={styles.harvestSelectBody} style={{ padding: "20px" }}>
           <Switch>
@@ -379,7 +380,10 @@ export default function Harvest() {
             value={editHarvest().type_name}
             error={showInvalid() && harvestType() == undefined}
             onChange={value => {
-              setHarvestType(harvestTypes.data?.find(h => h.name === value.target.value));
+              const type = harvestTypes.data?.find(h => h.name === value.target.value);
+              if (type) {
+                setEditHarvest({ ...editHarvest(), type_name: type.name, type_id: type.id });
+              }
             }}
             label="Select Type"
             notched
