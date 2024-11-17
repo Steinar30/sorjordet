@@ -2,11 +2,11 @@ use axum::{
     self,
     extract::{self, State},
     response::IntoResponse,
-    routing::get,
+    routing::{get, patch},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{query_as, query_scalar, FromRow, PgPool};
+use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -27,7 +27,7 @@ async fn get_types(State(pool): State<PgPool>) -> Result<impl IntoResponse, Sorj
     Ok(Json(result))
 }
 
-async fn post_types(
+async fn post_type(
     claims: Claims,
     State(pool): State<PgPool>,
     extract::Json(payload): extract::Json<HarvestType>,
@@ -47,6 +47,38 @@ async fn post_types(
     Ok(Json(result))
 }
 
+async fn patch_type(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Path(type_id): extract::Path<i32>,
+    extract::Json(payload): extract::Json<HarvestType>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result = query!(
+        "UPDATE harvest_type
+                SET name = $1
+                WHERE id = $2
+            ",
+        &payload.name,
+        &type_id
+    )
+    .execute(&pool)
+    .await?;
+
+    if result.rows_affected() == 0 {
+        tracing::info!("harvest_type {} not found", type_id);
+        return Err(SorjordetError::NotFound(format!(
+            "harvest_type with id {} not found",
+            type_id
+        )));
+    }
+
+    tracing::info!("harvest_type {type_id} updated by {}", claims.sub);
+
+    Ok(())
+}
+
 pub fn harvest_type_router() -> Router<PgPool> {
-    Router::new().route("/", get(get_types).post(post_types))
+    Router::new()
+        .route("/:type_id", patch(patch_type))
+        .route("/", get(get_types).post(post_type))
 }

@@ -118,6 +118,43 @@ async fn post_farm_field(
     Ok(Json(result))
 }
 
+async fn patch_farm_field(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Path(field_id): extract::Path<i32>,
+    extract::Json(payload): extract::Json<FarmField>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    if payload.name == "" {
+        return Err(SorjordetError::InvalidInput(
+            "name must not be empty".to_string(),
+        ));
+    }
+    let result = query!(
+        "UPDATE farm_field
+                SET name = $1, farm_field_group_id = $2, map_polygon_string = $3
+                WHERE id = $4
+            ",
+        &payload.name,
+        payload.farm_field_group_id,
+        &payload.map_polygon_string,
+        &field_id
+    )
+    .execute(&pool)
+    .await?;
+
+    if result.rows_affected() == 0 {
+        tracing::info!("field {} not found", field_id);
+        return Err(SorjordetError::NotFound(format!(
+            "field with id {} not found",
+            field_id
+        )));
+    }
+
+    tracing::info!("field {} updated by {}", field_id, claims.sub);
+
+    Ok(())
+}
+
 async fn delete_farm_field(
     claims: Claims,
     State(pool): State<PgPool>,
@@ -134,8 +171,12 @@ async fn delete_farm_field(
 
 pub fn farm_field_router() -> Router<PgPool> {
     Router::new()
-        .route("/:field_id", delete(delete_farm_field))
-        .route("/:field_id", get(get_farm_field_by_id))
+        .route(
+            "/:field_id",
+            delete(delete_farm_field)
+                .get(get_farm_field_by_id)
+                .patch(patch_farm_field),
+        )
         .route("/group/:group_id", get(get_farm_field_by_group_id))
         .route("/all", get(get_all_farm_fields))
         .route("/", get(get_farm_fields_meta).post(post_farm_field))
