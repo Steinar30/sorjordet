@@ -189,7 +189,6 @@ async fn patch_event(
 pub fn harvest_event_router() -> Router<PgPool> {
     Router::new()
         .route("/aggregated_harvests", get(get_aggregated_harvests))
-        .route("/:field_id", get(get_events))
-        .route("/:event_id", patch(patch_event))
+        .route("/:id", get(get_events).patch(patch_event))
         .route("/", post(post_event))
 }
