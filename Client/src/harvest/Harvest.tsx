@@ -20,6 +20,9 @@ import TractorIconOutlined from "@suid/icons-material/AgricultureOutlined";
 
 
 import styles from './Harvest.module.css';
+import { jwt_token } from "../App";
+
+/// TODO: this got very messy, should be refactored
 
 
 const postNewHarvestEvent = async (fieldId: number): Promise<HarvestEvent | undefined> => {
@@ -500,17 +503,21 @@ export default function Harvest() {
   return (
     <div style={{ display: 'flex', "flex-direction": 'column', "align-items": 'center', padding: '20px' }}>
 
-      {selectFieldModal()}
+      <Show when={jwt_token()}
+        fallback={<p>You don't have access to this page</p>}
+      >
+        {selectFieldModal()}
 
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={() => setIsOpen(true)}>
-        Choose or create harvest
-      </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => setIsOpen(true)}>
+          Choose or create harvest
+        </Button>
 
-      <Show when={getValidHarvestSelection(harvestSelector())}>
-        {(harvest) => renderSelectedHarvest(harvest)}
+        <Show when={getValidHarvestSelection(harvestSelector())}>
+          {(harvest) => renderSelectedHarvest(harvest)}
+        </Show>
       </Show>
     </div>
   );

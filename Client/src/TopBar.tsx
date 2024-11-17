@@ -40,7 +40,10 @@ export default function TopAppBar() {
       <a class={styles.headerLink} href="/admin">Admin</a>
     </Show>
   const navFields = <a class={styles.headerLink} href="/fields">Fields</a>
-  const navHarvest = <a class={styles.headerLink} href="/harvest">Harvest</a>
+  const navHarvest = 
+    <Show when={jwt_token() != null}>
+      <a class={styles.headerLink} href="/harvest">Harvest</a>
+    </Show>
   const navLogin =
     <Show when={jwt_token() != null}
       fallback={
