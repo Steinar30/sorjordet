@@ -1,0 +1,44 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH date_series AS (\n        SELECT \n            generate_series(\n            date_trunc('month', MIN(e.time)), \n            date_trunc('month', MAX(e.time)), \n            '1 month'::interval\n            )::date AS month_start\n        FROM \n            harvest_event AS e\n        )\n        SELECT \n        ht.id AS type_id, \n        ht.name AS type_name, \n        CAST(EXTRACT(YEAR FROM ds.month_start) AS INTEGER) AS year, \n        CAST(EXTRACT(MONTH FROM ds.month_start) AS INTEGER) AS month,\n        COALESCE(SUM(e.value), 0) AS total\n        FROM \n        harvest_type AS ht\n        CROSS JOIN \n        date_series AS ds\n        LEFT JOIN \n        harvest_event AS e \n            ON e.harvest_type_id = ht.id \n            AND date_trunc('month', e.time) = ds.month_start\n        GROUP BY \n        ht.id, ht.name, ds.month_start\n        ORDER BY \n        ds.month_start DESC, ht.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "type_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "type_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "month",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "total",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "f9797965d91d493058039f3431d9cbea10d90e3873a8476e3bde0dfc520998c1"
+}

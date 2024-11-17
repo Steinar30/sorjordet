@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE farm_field\n                SET name = $1, farm_field_group_id = $2, map_polygon_string = $3\n                WHERE id = $4\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Int4",
+        "Varchar",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cb1558c72a014fc6901453af97a9759daf65b0efc31430d1c942f0a2321bdfe1"
+}
