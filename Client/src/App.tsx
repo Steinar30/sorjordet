@@ -23,6 +23,8 @@ const farmTheme = createTheme({
   }
 })
 
+const LazyFields = lazy(() => import('./fields/Fields'));
+
 const App: Component = () => {
   return (
     <ThemeProvider theme={farmTheme}>
@@ -30,7 +32,7 @@ const App: Component = () => {
 
       <Router>
         <Route path="/" component={NoEditMap} />
-        <Route path="/fields" component={lazy(() => import('./Fields'))} />
+        <Route path="/fields"  component={() => <LazyFields />} />
         <Route path="/login" component={lazy(() => import('./login/Login'))} />
         <Route path="/admin" component={lazy(() => import('./admin/Admin'))} />
         <Route path="/harvest" component={lazy(() => import('./harvest/Harvest'))} />
