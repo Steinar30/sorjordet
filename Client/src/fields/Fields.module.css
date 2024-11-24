@@ -1,0 +1,16 @@
+.fieldsList {
+    gap: 16px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: start;
+    justify-content: space-evenly;
+}
+
+.fieldsHeader {
+    gap: 16px; 
+    display: flex; 
+    justify-content: space-between; 
+    width: 100%;
+    max-width: 800px;
+}

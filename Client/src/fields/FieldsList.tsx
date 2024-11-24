@@ -1,12 +1,13 @@
-import { Accessor, createMemo, createResource, createSignal, For, Show } from "solid-js";
-import { getFarmFieldGroups } from "../requests";
+import { Accessor, createMemo, createResource, createSignal, For, JSX, Show } from "solid-js";
+import { getFarmFieldGroups, prepareAuth } from "../requests";
 
-import { Table, TableCell, TableHead, TableRow, TextField } from "@suid/material";
+import { IconButton, Skeleton, Table, TableCell, TableContainer, TableHead, TableRow, TextField } from "@suid/material";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { FarmField } from "../../bindings/FarmField";
 import { formatArea, getMapPolygonArea } from "../maps/Map";
-import { ArrowUpward } from "@suid/icons-material";
+import { ArrowUpward, Delete } from "@suid/icons-material";
 
+import styles from "./Fields.module.css";
 
 type Sorting = {
   sortKey: "name" | "group-name" | "size";
@@ -21,7 +22,33 @@ type DisplayedField = {
   draw_color: string;
 }
 
-const RenderfieldsTable = (fields: FarmField[], groups: FarmFieldGroup[], textFilter: Accessor<string>, sorting: Accessor<Sorting>, setSorting: (s: Sorting) => void, maxItems?: number) => {
+
+const deleteField = async (id: number) => {
+  const authHeaders = prepareAuth(true);
+  if (authHeaders === null) {
+    console.log('not allowed to post without bearer token');
+    return false;
+  }
+  const response = await fetch(`/api/farm_fields/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders
+  });
+  if (response.status === 200) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const RenderfieldsTable = (
+    fields: FarmField[], 
+    groups: FarmFieldGroup[], 
+    textFilter: Accessor<string>, 
+    sorting: Accessor<Sorting>, 
+    setSorting: (s: Sorting) => void, 
+    onDelete: undefined | ((x: number) => Promise<void>),
+    maxItems?: number,
+  ) => {
   const groupMap = new Map(groups.map(g => [g.id, g]));
   const getFieldGroup = (id: number | null) => id === null ? null : groupMap.get(id);
 
@@ -82,7 +109,7 @@ const RenderfieldsTable = (fields: FarmField[], groups: FarmFieldGroup[], textFi
 
   const renderSortableHeader = (label: string, sortKey: "name" | "group-name" | "size") => {
     return (
-      <TableCell onClick={toggleSort(sortKey)}>
+      <TableCell sx={{ cursor: "pointer" }} onClick={toggleSort(sortKey)}>
         {label}
         {sorting().sortKey === sortKey && sorting().direction === "asc" &&
           <ArrowUpward sx={{ width: "1rem", height: "1rem", transition: "transform 300ms" }} />
@@ -95,55 +122,91 @@ const RenderfieldsTable = (fields: FarmField[], groups: FarmFieldGroup[], textFi
   }
 
   return (
-    <Table size="small">
-      <TableHead>
-        <TableRow>
-          <TableCell></TableCell>
-          {renderSortableHeader("Name", "name")}
-          {renderSortableHeader("Field Group", "group-name")}
-          {renderSortableHeader("Size", "size")}
-        </TableRow>
-      </TableHead>
-      <For each={getSortedFields(sorting())}>{(field) => {
-        return (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
           <TableRow>
-            <TableCell sx={{ width: "20px" }}>
-              <span style={{ display: "block", "background-color": field.draw_color, width: "20px", height: "20px", "border-radius": "50%", border: "1px solid gray" }} />
-            </TableCell>
-            <TableCell>{field.name}</TableCell>
-            <TableCell>{field.group_name}</TableCell>
-            <TableCell>{formatArea(field.size)}</TableCell>
+            <TableCell></TableCell>
+            {renderSortableHeader("Name", "name")}
+            {renderSortableHeader("Field Group", "group-name")}
+            {renderSortableHeader("Size", "size")}
+            {onDelete !== undefined && <TableCell></TableCell>}
           </TableRow>
-        )
-      }}
-      </For>
-    </Table>
+        </TableHead>
+        <For each={getSortedFields(sorting())}>{(field) => {
+          return (
+            <TableRow>
+              <TableCell sx={{ width: "20px" }}>
+                <span style={{ display: "block", "background-color": field.draw_color, width: "20px", height: "20px", "border-radius": "50%", border: "1px solid gray" }} />
+              </TableCell>
+              <TableCell>{field.name}</TableCell>
+              <TableCell>{field.group_name}</TableCell>
+              <TableCell>{formatArea(field.size)}</TableCell>
+              {onDelete !== undefined && 
+                <TableCell>
+                  <IconButton size="small" onClick={() => onDelete(field.id)}>
+                    <Delete /> 
+                  </IconButton>
+                </TableCell>
+              }
+            </TableRow>
+          )
+        }}
+        </For>
+      </Table>
+    </TableContainer>
   )
 }
 
-export default function FieldsList(props?: { "disableSearch"?: boolean, "maxItems"?: number }) {
+export default function FieldsList(props?: { 
+    disableSearch?: boolean, 
+    maxItems?: number, 
+    showDelete?: boolean,
+    addButton?: (() => JSX.Element) | undefined
+  }
+  ) {
   const [farmFieldGroups] = createResource(getFarmFieldGroups);
-  const [fields] = createResource(() => fetch('/api/farm_fields/all').then(a => a.json() as Promise<FarmField[]>));
+  const [fields, setFields] = createResource(() => fetch('/api/farm_fields/all').then(a => a.json() as Promise<FarmField[]>));
   const [sorting, setSorting] = createSignal<Sorting>({
     sortKey: "size",
     direction: "desc",
   });
   const [textFilter, setTextFilter] = createSignal("");
 
+  const deleteFunction = async (id: number) => {
+    const res = await deleteField(id);
+    if (res) {
+      setFields.mutate(x => x?.filter(x => x.id !== id));
+    }
+  }
+
   return (
-    <div style={{ gap: "16px", "display": "flex", "flex-direction": "row", "flex-wrap": "wrap", "align-items": "start", "justify-content": "space-evenly" }}>
-      <Show when={props?.disableSearch !== true}>
-        <TextField
-          size="small"
-          label="Search"
-          value={textFilter()}
-          onChange={(e) => setTextFilter(e.currentTarget.value)}
-        />
-      </Show>
-      <Show when={fields()}>
+    <div class={styles.fieldsList}>
+      <div class={styles.fieldsHeader}>
+        <Show when={props?.addButton}>
+          {props?.addButton && props?.addButton()}
+        </Show>
+        <Show when={props?.disableSearch !== true}>
+          <TextField
+            size="small"
+            label="Search"
+            value={textFilter()}
+            onChange={(e) => setTextFilter(e.currentTarget.value)}
+          />
+        </Show>
+      </div>
+      <Show when={fields()} fallback={<Skeleton />}>
         {(fields) =>
           <Show when={farmFieldGroups()}>
-            {(groups) => RenderfieldsTable(fields(), groups(), textFilter, sorting, setSorting, props?.maxItems)}
+            {(groups) => RenderfieldsTable(
+              fields(), 
+              groups(), 
+              textFilter, 
+              sorting, 
+              setSorting, 
+              props?.showDelete === true ? deleteFunction : undefined,
+              props?.maxItems
+            )}
           </Show>
         }
       </Show>
