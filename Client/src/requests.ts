@@ -2,6 +2,7 @@ import { jwt_token } from "./App"
 import { Farm } from "../bindings/Farm"
 import { FarmField } from "../bindings/FarmField"
 import { FarmFieldGroup } from "../bindings/FarmFieldGroup"
+import { FarmFieldGroupMeta } from "../bindings/FarmFieldGroupMeta";
 
 
 export function prepareAuth(isPost: boolean = false): Headers | null {
@@ -49,7 +50,7 @@ export async function getFarmFieldGroupsWithFields(): Promise<[FarmFieldGroup, F
         )
 }
 
-export async function tryPostNewFieldGroup(f: FarmFieldGroup): Promise<number | undefined> {
+export async function tryPostNewFieldGroup(f: FarmFieldGroupMeta): Promise<number | undefined> {
     const authHeaders = prepareAuth(true);
     if (authHeaders) {
         return fetch('/api/farm_field_groups', {
