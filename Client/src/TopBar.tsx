@@ -6,14 +6,13 @@ import {
   List,
   ListItem,
   Toolbar,
-  Typography
+  Typography,
 } from "@suid/material";
-import { createSignal, Show, createEffect } from 'solid-js';
+import { createSignal, Show, createEffect } from "solid-js";
 import { createMediaQuery } from "@solid-primitives/media";
 
-
-import logo from '/assets/farm-logo.svg';
-import styles from './TopBar.module.css';
+import logo from "/assets/farm-logo.svg";
+import styles from "./TopBar.module.css";
 import { jwt_localstore_key, jwt_token, set_jwt_token } from "./App";
 
 export default function TopAppBar() {
@@ -25,29 +24,48 @@ export default function TopAppBar() {
     if (isSmall()) {
       setIsOpen(false);
     }
-  })
+  });
 
-  const navHome = () =>
-    <a href="/" class={styles.headerImageButton} >
+  const navHome = () => (
+    <a href="/" class={styles.headerImageButton}>
       <img src={logo} alt="logo" />
       <Typography variant="h6" class={styles.headerImageText} component="div">
         Sørjordet
       </Typography>
     </a>
+  );
 
-  const navAdmin =
+  const navAdmin = (
     <Show when={jwt_token() != null}>
-      <a class={styles.headerLink} href="/admin">Admin</a>
+      <a class={styles.headerLink} href="/admin">
+        Admin
+      </a>
     </Show>
-  const navFields = <a class={styles.headerLink} href="/fields">Fields</a>
-  const navHarvest = 
+  );
+  const navStats = (
+    <a class={styles.headerLink} href="/stats">
+      Stats
+    </a>
+  );
+  const navFields = (
+    <a class={styles.headerLink} href="/fields">
+      Fields
+    </a>
+  );
+  const navHarvest = (
     <Show when={jwt_token() != null}>
-      <a class={styles.headerLink} href="/harvest">Harvest</a>
+      <a class={styles.headerLink} href="/harvest">
+        Harvest
+      </a>
     </Show>
-  const navLogin =
-    <Show when={jwt_token() != null}
+  );
+  const navLogin = (
+    <Show
+      when={jwt_token() != null}
       fallback={
-        <a class={styles.headerLink} href="/login">Log in</a>
+        <a class={styles.headerLink} href="/login">
+          Log in
+        </a>
       }
     >
       <button
@@ -55,13 +73,14 @@ export default function TopAppBar() {
           window.localStorage.removeItem(jwt_localstore_key);
           set_jwt_token(null);
         }}
-        class={styles.headerLink}>
+        class={styles.headerLink}
+      >
         Log out
       </button>
     </Show>
+  );
 
   return (
-
     <AppBar color="secondary" position="static" class={styles.headerContainer}>
       <Toolbar sx={{ minHeight: "64px" }}>
         {navHome()}
@@ -70,6 +89,7 @@ export default function TopAppBar() {
           when={isSmall()}
           fallback={
             <div style={{ "margin-left": "auto" }}>
+              {navStats}
               {navFields}
               {navHarvest}
               {navAdmin}
@@ -88,7 +108,6 @@ export default function TopAppBar() {
             sx={{ ml: "auto", mr: "-10px" }}
           >
             <MenuIcon />
-
           </IconButton>
           <Drawer
             class={styles.headerContainer}
@@ -99,28 +118,19 @@ export default function TopAppBar() {
             }}
             onClick={() => setIsOpen(false)}
           >
-            <div
-              class={styles.headerDrawerContainer}>
+            <div class={styles.headerDrawerContainer}>
               {navHome()}
               <List>
-                <ListItem>
-                  {navFields}
-                </ListItem>
-                <ListItem>
-                  {navHarvest}
-                </ListItem>
-                <ListItem>
-                  {navAdmin}
-                </ListItem>
-                <ListItem>
-                  {navLogin}
-                </ListItem>
+                <ListItem>{navStats}</ListItem>
+                <ListItem>{navFields}</ListItem>
+                <ListItem>{navHarvest}</ListItem>
+                <ListItem>{navAdmin}</ListItem>
+                <ListItem>{navLogin}</ListItem>
               </List>
             </div>
           </Drawer>
         </Show>
       </Toolbar>
     </AppBar>
-
   );
 }
