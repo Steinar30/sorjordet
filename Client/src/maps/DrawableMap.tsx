@@ -6,7 +6,6 @@ import { Vector as VectorSource } from "ol/source";
 import XYZ from "ol/source/XYZ";
 import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
 
-
 import "ol/ol.css";
 import "../maps/Map.css";
 
@@ -22,9 +21,9 @@ import { getFarmFieldGroupsWithFields } from "../requests";
 import { formatArea, fromGroupFieldsToLayer } from "./Map";
 
 export type MapFeature = {
-  feature: Signal<Feature<Geometry> | undefined>,
-  closed: Signal<boolean>,
-}
+  feature: Signal<Feature<Geometry> | undefined>;
+  closed: Signal<boolean>;
+};
 
 export function DrawableMap(featureState: MapFeature) {
   const [mapObj, setMapObj] = createSignal<Map | undefined>();
@@ -39,8 +38,7 @@ export function DrawableMap(featureState: MapFeature) {
         m.addLayer(new_layer);
       });
     }
-  })
-
+  });
 
   onMount(async () => {
     const worldImagery = new TileLayer({
@@ -74,16 +72,16 @@ export function DrawableMap(featureState: MapFeature) {
         return;
       }
 
-      let helpMsg: string = 'Trykk for å tegne';
+      let helpMsg: string = "Trykk for å tegne";
 
       if (sketch) {
-        helpMsg = '';
+        helpMsg = "";
       }
 
       helpTooltipElement.innerHTML = helpMsg;
       helpTooltip.setPosition(evt.coordinate);
 
-      helpTooltipElement.classList.remove('hidden');
+      helpTooltipElement.classList.remove("hidden");
     };
 
     const map = new Map({
@@ -98,8 +96,8 @@ export function DrawableMap(featureState: MapFeature) {
     });
 
     map.on("pointermove", pointerMoveHandler);
-    map.getViewport().addEventListener('mouseout', function () {
-      helpTooltipElement.classList.add('hidden');
+    map.getViewport().addEventListener("mouseout", function () {
+      helpTooltipElement.classList.add("hidden");
     });
 
     let snap, draw: Draw;
@@ -151,7 +149,7 @@ export function DrawableMap(featureState: MapFeature) {
 
       draw.on("drawend", function () {
         map.removeInteraction(draw);
-        measureTooltipElement.className = 'ol-tooltip ol-tooltip-static';
+        measureTooltipElement.className = "ol-tooltip ol-tooltip-static";
         measureTooltip.setOffset([0, -7]);
         featureState.closed[1](true);
       });
@@ -166,12 +164,12 @@ export function DrawableMap(featureState: MapFeature) {
       if (helpTooltipElement) {
         helpTooltipElement.parentNode?.removeChild(helpTooltipElement);
       }
-      helpTooltipElement = document.createElement('div');
-      helpTooltipElement.className = 'ol-tooltip hidden';
+      helpTooltipElement = document.createElement("div");
+      helpTooltipElement.className = "ol-tooltip hidden";
       helpTooltip = new Overlay({
         element: helpTooltipElement,
         offset: [15, 0],
-        positioning: 'center-left',
+        positioning: "center-left",
       });
       map.addOverlay(helpTooltip);
     }
@@ -196,10 +194,7 @@ export function DrawableMap(featureState: MapFeature) {
     }
 
     setMapObj(map);
-
   });
 
-  return (
-    <div id="map_container_small" class="map"></div>
-  );
+  return <div id="map_container_small" class="map"></div>;
 }
