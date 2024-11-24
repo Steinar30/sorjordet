@@ -1,4 +1,4 @@
-import { ArrowBack, Circle } from "@suid/icons-material";
+import { ArrowBack, Circle, Padding } from "@suid/icons-material";
 import { Button, IconButton, List, ListItem, ListItemIcon, Typography } from "@suid/material";
 import { createResource, createSignal, For, Match, Show, Switch } from "solid-js";
 
@@ -9,66 +9,30 @@ import { FieldGroupForm } from "./FarmFieldGroupForm";
 import { getFarmFieldGroupsWithFields } from "../requests";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { FarmField } from "../../bindings/FarmField";
+import FieldsAdmin from "./FieldsAdmin";
+import FieldGroupAdmin from "./FieldGroupAdmin";
+import UserAdmin from "./UserAdmin";
 
-function RenderFieldsList(fieldGroups: [FarmFieldGroup, FarmField[]][] | undefined) {
-  return (
-    <List>
-      <ListItem>All fields by group:</ListItem>
-      <For each={fieldGroups}>{([fg, fields]) => {
-        return (
-          <List>
-            <ListItem>
-              {fg.name}
-              <ListItemIcon>
-                <Circle sx={{ color: fg.draw_color, marginLeft: "10px" }} />
-              </ListItemIcon>
-            </ListItem>
-            <For each={fields}>{(field) => {
-              return (
-                <ListItem sx={{ marginLeft: "10px" }}>
-                  {field.name}
-                </ListItem>
-              )
-            }}
-            </For>
-          </List>
-        )
-      }}
-      </For>
-    </List>
-  )
-}
+
+type AdminNav = "fields" | "field-groups" | "users" | "harvests"
+const adminButtons: AdminNav[] = ["fields", "field-groups", "users", "harvests"]
+const toUpper = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
 export default function Admin() {
-  const [currentView, setCurrentView] = createSignal<string>("admin");
+  const [currentView, setCurrentView] = createSignal<AdminNav>("fields");
   const [farmFieldGroups, { refetch }] =
     createResource(getFarmFieldGroupsWithFields);
 
-  function navButton(label: string, navstring: string) {
+  function navButton(input: AdminNav) {
     return (
       <Button
         size="small"
-        variant="contained"
-        onClick={() => setCurrentView(navstring)}
+        
+        variant={currentView() === input ? "contained" : "outlined"}
+        onClick={() => setCurrentView(input)}
       >
-        {label}
+        {toUpper(input.replace("-", " "))}
       </Button>
-    )
-  }
-
-  function backButton() {
-    return (
-      <IconButton
-        size="large"
-        edge="start"
-        color="inherit"
-        aria-label="return"
-        sx={{ fontSize: "16px", borderRadius: "15px" }}
-        onClick={() => {
-          setCurrentView("admin");
-        }}>
-        <ArrowBack /> Back
-      </IconButton>
     )
   }
 
@@ -77,31 +41,22 @@ export default function Admin() {
       <Show when={jwt_token()}
         fallback={<p>You don't have access to this page</p>}
       >
-
-        <Typography variant="h6">Admin</Typography>
+        <div class={styles.adminButtonsOuter}>
+          <div class={styles.adminButtons}>
+            <For each={adminButtons}>
+              {input => navButton(input)}
+            </For>
+          </div>
+        </div>
         <Switch >
-          <Match when={currentView() === "admin"}>
-            <div class={styles.adminButtons}>
-              {navButton("New Field", "add-field")}
-              {navButton("New FieldGroup", "add-field-group")}
-              {RenderFieldsList(farmFieldGroups())}
-            </div>
+          <Match when={currentView() === "fields"}>
+            <FieldsAdmin />
           </Match>
-          <Match when={currentView() === "add-field"}>
-            {backButton()}
-
-            {FieldForm(() => {
-              setCurrentView("admin");
-              refetch();
-            })}
+          <Match when={currentView() === "field-groups"}>
+            <FieldGroupAdmin />
           </Match>
-          <Match when={currentView() === "add-field-group"}>
-            {backButton()}
-
-            {FieldGroupForm(() => {
-              setCurrentView("admin");
-              refetch();
-            })}
+          <Match when={currentView() === "users"}>
+            <UserAdmin />
           </Match>
         </Switch>
       </Show>

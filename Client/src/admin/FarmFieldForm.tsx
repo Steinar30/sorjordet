@@ -26,7 +26,7 @@ function validateFarmInput(field: FarmField, feature: Feature | undefined, valid
     )
 }
 
-export function FieldForm(onCreate: () => void) {
+export function FieldForm(props: { onCreate: () => void}) {
     const [farmFieldGroups] = createResource(
         getFarmFieldGroups
     );
@@ -110,7 +110,7 @@ export function FieldForm(onCreate: () => void) {
                                 console.log('created field');
                                 const res = form;
                                 res.id = result;
-                                onCreate();
+                                props.onCreate();
                             }
                         }
                     }}

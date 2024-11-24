@@ -2,8 +2,9 @@ import { Button, TextField, Typography } from "@suid/material";
 import { createStore } from "solid-js/store";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { tryPostNewFieldGroup } from "../requests";
+import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 
-function validateInput(group: FarmFieldGroup) {
+function validateInput(group: FarmFieldGroupMeta): boolean {
     return (group.name.length > 0 && group.draw_color.length > 0)
 }
 
@@ -25,25 +26,36 @@ function hexToRgbWithOpacity(hex: string, opacity: number) {
     }
 }
 
+function rgbToHex(rgba: string) {
+    if (rgba === "") {
+        return "#000";
+    }
+    const [r, g, b] = rgba.match(/\d+/g)!.map(Number);
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
 function colorPicker(val: string, callback: (x: string) => void) {
     return (<div>
         <label for="draw_color" style={{ "margin-right": "10px" }}>Groupcolor</label>
         <input
+            style={{ opacity: "0.4" }}
             onchange={(ev) => {
                 callback(ev.currentTarget.value);
             }}
             type="color"
             id="draw_color"
             name="draw_color"
-            placeholder="#64b5f6"
-            value={val}
+            value={rgbToHex(val)}
         />
     </div>)
 }
 
-export function FieldGroupForm(onCreate: () => void) {
+export function FieldGroupForm(props:{
+    onCreate: () => void,
+    toEdit?: FarmFieldGroupMeta
+}) {
 
-    const [form, setForm] = createStore<FarmFieldGroup>({
+    const [form, setForm] = createStore<FarmFieldGroupMeta>(props.toEdit || {
         id: -1,
         name: "",
         farm_id: 1,
@@ -84,14 +96,13 @@ export function FieldGroupForm(onCreate: () => void) {
                         if (result) {
                             const formRes = form;
                             formRes.id = result;
-                            onCreate();
+                            props.onCreate();
                         }
                     }}
                 >
                     Save Group
                 </Button>
             </div>
-            <div id="map_container_small" class="map"></div>
         </div>
     );
 }

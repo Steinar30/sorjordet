@@ -50,7 +50,7 @@
 
 #map_container_small {
     width: 100%;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 200px );
 }
 
 #map_form_container {
