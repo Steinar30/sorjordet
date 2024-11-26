@@ -22,7 +22,7 @@ import {
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { FarmField } from "../../bindings/FarmField";
 import { formatArea, getMapPolygonArea } from "../maps/Map";
-import { ArrowUpward, Delete } from "@suid/icons-material";
+import { ArrowUpward, Delete, Edit } from "@suid/icons-material";
 
 import styles from "./Fields.module.css";
 
@@ -64,6 +64,7 @@ const RenderfieldsTable = (
   setSorting: (s: Sorting) => void,
   onDelete: undefined | ((x: number) => Promise<void>),
   maxItems?: number,
+  setEdit?: (field: FarmField) => undefined,
 ) => {
   const groupMap = new Map(groups.map((g) => [g.id, g]));
   const getFieldGroup = (id: number | null) =>
@@ -169,7 +170,9 @@ const RenderfieldsTable = (
             {renderSortableHeader("Name", "name")}
             {renderSortableHeader("Field Group", "group-name")}
             {renderSortableHeader("Size", "size")}
-            {onDelete !== undefined && <TableCell></TableCell>}
+            {(onDelete !== undefined || setEdit !== undefined) && (
+              <TableCell></TableCell>
+            )}
           </TableRow>
         </TableHead>
         <For each={getSortedFields(sorting())}>
@@ -191,11 +194,31 @@ const RenderfieldsTable = (
                 <TableCell>{field.name}</TableCell>
                 <TableCell>{field.group_name}</TableCell>
                 <TableCell>{formatArea(field.size)}</TableCell>
-                {onDelete !== undefined && (
+                {(onDelete !== undefined || setEdit !== undefined) && (
                   <TableCell>
-                    <IconButton size="small" onClick={() => onDelete(field.id)}>
-                      <Delete />
-                    </IconButton>
+                    {setEdit !== undefined && (
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          const foundField = fields.find(
+                            (x) => x.id === field.id,
+                          );
+                          if (foundField) {
+                            setEdit(foundField);
+                          }
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    )}
+                    {onDelete !== undefined && (
+                      <IconButton
+                        size="small"
+                        onClick={() => onDelete(field.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    )}
                   </TableCell>
                 )}
               </TableRow>
@@ -211,6 +234,7 @@ export default function FieldsList(props?: {
   disableSearch?: boolean;
   maxItems?: number;
   showDelete?: boolean;
+  setEdit?: (field: FarmField) => undefined;
   addButton?: (() => JSX.Element) | undefined;
 }) {
   const [farmFieldGroups] = createResource(getFarmFieldGroups);
@@ -257,6 +281,7 @@ export default function FieldsList(props?: {
                 setSorting,
                 props?.showDelete === true ? deleteFunction : undefined,
                 props?.maxItems,
+                props?.setEdit,
               )
             }
           </Show>

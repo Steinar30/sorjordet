@@ -20,7 +20,7 @@ import { FarmField } from "../../bindings/FarmField";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { getFarmFieldGroupsWithFields } from "../requests";
 
-export function formatArea(polygon: Polygon | number): string {
+export function formatArea(polygon: Polygon | number | Geometry): string {
   if (typeof polygon === "number") {
     return Math.round(polygon) / 1000 + " " + "dekar";
   }
@@ -55,25 +55,29 @@ export function formatSelectedDiv(
   );
 }
 
+export function parseJsonIntoFeature(
+  field: FarmField,
+  groupName: string,
+): Feature<Geometry> | null {
+  try {
+    const json = JSON.parse(field.map_polygon_string);
+    const feature: Feature<Geometry> = new GeoJSON().readFeature(json);
+    feature.set("name", field.name);
+    feature.set("group-name", groupName);
+    return feature;
+  } catch (e) {
+    console.error(e);
+    console.log("failed to parse as json: ", field);
+    return null;
+  }
+}
+
 export function fromGroupFieldsToLayer(
   group: FarmFieldGroup,
   fields: FarmField[],
 ) {
   const fieldFeatures: Feature<Geometry>[] = fields
-    .map((f) => {
-      try {
-        const json = JSON.parse(f.map_polygon_string);
-        const feature: Feature<Geometry> = new GeoJSON().readFeature(json);
-        feature.set("name", f.name);
-        feature.set("group-name", group.name);
-
-        return feature;
-      } catch (e) {
-        console.error(e);
-        console.log("failed to parse as json: ", f.map_polygon_string);
-        return null;
-      }
-    })
+    .map((f) => parseJsonIntoFeature(f, group.name))
     .filter((x): x is Feature<Geometry> => {
       return x !== null;
     });

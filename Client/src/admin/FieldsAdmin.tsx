@@ -2,9 +2,14 @@ import { createSignal, Match, Switch } from "solid-js";
 import { Button } from "@suid/material";
 import FieldsList from "../fields/FieldsList";
 import { FieldForm } from "./FarmFieldForm";
+import { FarmField } from "../../bindings/FarmField";
+import { FieldUpdateForm } from "./FieldEditForm";
 
 export default function FieldsAdmin() {
   const [showForm, setShowForm] = createSignal(false);
+  const [editForm, setEditForm] = createSignal<FarmField | undefined>(
+    undefined,
+  );
 
   return (
     <main
@@ -22,6 +27,19 @@ export default function FieldsAdmin() {
           </Button>
           <FieldForm onCreate={() => setShowForm(false)} />
         </Match>
+        <Match when={editForm()}>
+          {(field) => (
+            <>
+              <Button variant="outlined" onClick={() => setEditForm(undefined)}>
+                Cancel
+              </Button>
+              <FieldUpdateForm
+                onSave={() => setEditForm(undefined)}
+                initial={field()}
+              />
+            </>
+          )}
+        </Match>
         <Match when={!showForm()}>
           <FieldsList
             showDelete
@@ -34,6 +52,7 @@ export default function FieldsAdmin() {
                 New field
               </Button>
             )}
+            setEdit={setEditForm}
           />
         </Match>
       </Switch>
