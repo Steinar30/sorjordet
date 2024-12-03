@@ -11,20 +11,25 @@ import { prepareAuth } from "../requests";
 import { UserInfo } from "../../bindings/UserInfo";
 import { createSignal, Show } from "solid-js";
 import { RestartAlt } from "@suid/icons-material";
+import { User } from "../../bindings/User";
 
 function validateInput(group: UserInfo): boolean {
   return group.name.length > 0 && group.email.length > 0;
 }
 
-const createUser = async (user: UserInfo): Promise<UserInfo | null> => {
+const createUser = async (user: UserInfo, password: string): Promise<UserInfo | null> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
     return null;
   }
+  const body: User = {
+    ...user,
+    password: password ?? ""
+  }
   const result = await fetch("/api/users", {
     method: "POST",
-    body: JSON.stringify(user),
+    body: JSON.stringify(body),
     headers: authHeaders,
   });
 
@@ -45,15 +50,19 @@ const generateRandomPassword = () => {
   return result;
 };
 
-const updateUser = async (user: UserInfo): Promise<UserInfo | null> => {
+const updateUser = async (user: UserInfo, password: string | undefined): Promise<UserInfo | null> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
     return null;
   }
+  const body: User = {
+    ...user,
+    password: password ?? ""
+  }
   const result = await fetch("/api/users/" + user.id, {
     method: "PATCH",
-    body: JSON.stringify(user),
+    body: JSON.stringify(body),
     headers: authHeaders,
   });
 
@@ -154,19 +163,19 @@ export function UserForm(props: {
           variant="contained"
           onClick={async () => {
             if (props.toEdit !== undefined) {
-              const result = await updateUser(form);
+              const result = await updateUser(form, newPassword() ? password() : undefined);
               if (result) {
                 props.onCreate(result);
               }
             } else {
-              const result = await createUser(form);
+              const result = await createUser(form, password());
               if (result) {
                 props.onCreate(result);
               }
             }
           }}
         >
-          Save Group
+          Save user
         </Button>
       </div>
     </div>
