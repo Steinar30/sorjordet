@@ -11,7 +11,7 @@ use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
 use ts_rs::TS;
 
 use crate::{
-    auth::{hash_password, Claims, User},
+    auth::{hash_password, validate_password, Claims, User},
     errors::SorjordetError,
 };
 lazy_static! {
@@ -35,6 +35,11 @@ pub async fn create_user(
     if payload.id != -1 {
         return Err(SorjordetError::InvalidInput(
             "User already exists".to_string(),
+        ));
+    }
+    if !validate_password(&payload.password) {
+        return Err(SorjordetError::InvalidInput(
+            "Password too weak".to_string(),
         ));
     }
     let hashed = hash_password(&payload.password)?;
@@ -81,19 +86,34 @@ async fn patch_user(
     claims: Claims,
     State(pool): State<PgPool>,
     extract::Path(user_id): extract::Path<i32>,
-    extract::Json(payload): extract::Json<UserInfo>,
+    extract::Json(payload): extract::Json<User>,
 ) -> Result<impl IntoResponse, SorjordetError> {
-    let result = query!(
-        "UPDATE user_info
+    // this is ok since username is unique in the database.
+    // TODO: Change sub to userid and add name for this check instead.
+    let query = if claims.sub == "steinar" && validate_password(&payload.password) {
+        let hashed = hash_password(&payload.password)?;
+        query!(
+            "UPDATE user_info
+                SET name = $1, email = $2, password = $3
+                WHERE id = $4
+            ",
+            &payload.name,
+            &payload.email,
+            &hashed,
+            user_id
+        )
+    } else {
+        query!(
+            "UPDATE user_info
                 SET name = $1, email = $2
                 WHERE id = $3
             ",
-        &payload.name,
-        &payload.email,
-        user_id
-    )
-    .execute(&pool)
-    .await?;
+            &payload.name,
+            &payload.email,
+            user_id
+        )
+    };
+    let result = query.execute(&pool).await?;
 
     if result.rows_affected() == 0 {
         return Err(SorjordetError::NotFound(format!(

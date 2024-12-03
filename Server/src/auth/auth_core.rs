@@ -37,6 +37,10 @@ impl Claims {
     }
 }
 
+pub fn validate_password(password: &str) -> bool {
+    password.len() >= 16
+}
+
 pub fn hash_password(password: &str) -> Result<String, SorjordetError> {
     let salt = SaltString::generate(&mut OsRng);
 
