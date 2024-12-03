@@ -16,7 +16,7 @@ import styles from "./TopBar.module.css";
 import { jwt_localstore_key, jwt_token, set_jwt_token } from "./App";
 
 export default function TopAppBar() {
-  const isSmall = createMediaQuery("(max-width:600px)");
+  const isSmall = createMediaQuery("(max-width:750px)");
 
   const [isOpen, setIsOpen] = createSignal(false);
 
