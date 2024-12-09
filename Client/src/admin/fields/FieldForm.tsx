@@ -13,13 +13,13 @@ import { createSignal, createResource, Show } from "solid-js";
 import GeoJSON from "ol/format/GeoJSON";
 
 import "ol/ol.css";
-import "../maps/Map.css";
+import "../../maps/Map.css";
 
-import { FarmField } from "../../bindings/FarmField";
+import { FarmField } from "../../../bindings/FarmField";
 import { Feature } from "ol";
 
-import { getFarmFieldGroups, tryPostNewField } from "../requests";
-import { DrawableMap } from "../maps/DrawableMap";
+import { getFarmFieldGroups, tryPostNewField } from "../../requests";
+import { DrawableMap } from "../../maps/DrawableMap";
 
 function validateFarmInput(
   field: FarmField,

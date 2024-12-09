@@ -11,9 +11,9 @@ import {
   TableRow,
 } from "@suid/material";
 import { Edit } from "@suid/icons-material";
-import { UserInfo } from "../../bindings/UserInfo";
+import { UserInfo } from "../../../bindings/UserInfo";
 import { UserForm } from "./UserForm";
-import { prepareAuth } from "../requests";
+import { prepareAuth } from "../../requests";
 
 const getUsers: () => Promise<UserInfo[]> = async () => {
   const authHeaders = prepareAuth(false);

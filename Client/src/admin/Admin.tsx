@@ -3,9 +3,9 @@ import { createSignal, For, Match, Show, Switch } from "solid-js";
 
 import styles from "./Admin.module.css";
 import { jwt_token } from "../App";
-import FieldsAdmin from "./FieldsAdmin";
-import FieldGroupAdmin from "./FieldGroupAdmin";
-import UserAdmin from "./UserAdmin";
+import FieldsAdmin from "./fields/FieldsAdmin";
+import FieldGroupAdmin from "./fieldgroups/FieldGroupAdmin";
+import UserAdmin from "./users/UserAdmin";
 
 type AdminNav = "fields" | "field-groups" | "users" | "harvests";
 const adminButtons: AdminNav[] = [

@@ -13,14 +13,14 @@ import { createSignal, createResource, Show, createEffect } from "solid-js";
 import GeoJSON from "ol/format/GeoJSON";
 
 import "ol/ol.css";
-import "../maps/Map.css";
+import "../../maps/Map.css";
 
-import { FarmField } from "../../bindings/FarmField";
+import { FarmField } from "../../../bindings/FarmField";
 import { Feature } from "ol";
 
-import { getFarmFieldGroups, prepareAuth } from "../requests";
-import { DrawableMap } from "../maps/DrawableMap";
-import { parseJsonIntoFeature } from "../maps/Map";
+import { getFarmFieldGroups, prepareAuth } from "../../requests";
+import { DrawableMap } from "../../maps/DrawableMap";
+import { parseJsonIntoFeature } from "../../maps/Map";
 
 const patchField = async (field: FarmField) => {
   const authHeaders = prepareAuth(true);

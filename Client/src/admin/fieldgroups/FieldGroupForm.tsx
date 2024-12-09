@@ -1,7 +1,7 @@
 import { Button, TextField, Typography } from "@suid/material";
 import { createStore } from "solid-js/store";
-import { tryPostNewFieldGroup } from "../requests";
-import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
+import { tryPostNewFieldGroup } from "../../requests";
+import { FarmFieldGroupMeta } from "../../../bindings/FarmFieldGroupMeta";
 
 function validateInput(group: FarmFieldGroupMeta): boolean {
   return group.name.length > 0 && group.draw_color.length > 0;

@@ -7,11 +7,11 @@ import {
   Typography,
 } from "@suid/material";
 import { createStore } from "solid-js/store";
-import { prepareAuth } from "../requests";
-import { UserInfo } from "../../bindings/UserInfo";
+import { prepareAuth } from "../../requests";
+import { UserInfo } from "../../../bindings/UserInfo";
 import { createSignal, Show } from "solid-js";
 import { RestartAlt } from "@suid/icons-material";
-import { User } from "../../bindings/User";
+import { User } from "../../../bindings/User";
 
 function validateInput(group: UserInfo): boolean {
   return group.name.length > 0 && group.email.length > 0;

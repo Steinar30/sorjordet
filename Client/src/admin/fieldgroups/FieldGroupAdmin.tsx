@@ -10,8 +10,8 @@ import {
   TableHead,
   TableRow,
 } from "@suid/material";
-import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
-import { FieldGroupForm } from "./FarmFieldGroupForm";
+import { FarmFieldGroupMeta } from "../../../bindings/FarmFieldGroupMeta";
+import { FieldGroupForm } from "./FieldGroupForm";
 import { Edit } from "@suid/icons-material";
 
 export default function FieldGroupAdmin() {

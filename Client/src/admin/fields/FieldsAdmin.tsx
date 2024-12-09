@@ -1,8 +1,8 @@
 import { createSignal, Match, Switch } from "solid-js";
 import { Button } from "@suid/material";
-import FieldsList from "../fields/FieldsList";
-import { FieldForm } from "./FarmFieldForm";
-import { FarmField } from "../../bindings/FarmField";
+import FieldsList from "../../fields/FieldsList";
+import { FieldForm } from "./FieldForm";
+import { FarmField } from "../../../bindings/FarmField";
 import { FieldUpdateForm } from "./FieldEditForm";
 
 export default function FieldsAdmin() {
