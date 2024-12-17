@@ -4,6 +4,7 @@ import { Router, Route } from "@solidjs/router";
 
 import TopAppBar from "./TopBar";
 import { NoEditMap } from "./maps/Map";
+import { FieldDetails } from "./fields/FieldDetails";
 
 import { createSignal } from "solid-js";
 
@@ -34,6 +35,7 @@ const App: Component = () => {
       <Router>
         <Route path="/" component={NoEditMap} />
         <Route path="/fields" component={() => <LazyFields />} />
+        <Route path="/fields/:id" component={x => <FieldDetails fieldId={Number(x.params.id)} />} />
         <Route path="/login" component={lazy(() => import("./login/Login"))} />
         <Route path="/stats" component={lazy(() => import("./stats/Stats"))} />
         <Route path="/admin" component={lazy(() => import("./admin/Admin"))} />

@@ -6,6 +6,7 @@ import { jwt_token } from "../App";
 import FieldsAdmin from "./fields/FieldsAdmin";
 import FieldGroupAdmin from "./fieldgroups/FieldGroupAdmin";
 import UserAdmin from "./users/UserAdmin";
+import HarvestEvents from "./harvest/HarvestEvents";
 
 type AdminNav = "fields" | "field-groups" | "users" | "harvests";
 const adminButtons: AdminNav[] = [
@@ -51,6 +52,9 @@ export default function Admin() {
           </Match>
           <Match when={currentView() === "users"}>
             <UserAdmin />
+          </Match>
+          <Match when={currentView() === "harvests"}>
+            <HarvestEvents />
           </Match>
         </Switch>
       </Show>

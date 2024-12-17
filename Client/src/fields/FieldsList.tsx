@@ -25,6 +25,7 @@ import { formatArea, getMapPolygonArea } from "../maps/Map";
 import { ArrowUpward, Delete, Edit } from "@suid/icons-material";
 
 import styles from "./Fields.module.css";
+import { ConfirmDeleteDialog } from "../Utils";
 
 type Sorting = {
   sortKey: "name" | "group-name" | "size";
@@ -246,6 +247,7 @@ export default function FieldsList(props?: {
     direction: "desc",
   });
   const [textFilter, setTextFilter] = createSignal("");
+  const [toDelete, setToDelete] = createSignal<number | undefined>(undefined);
 
   const deleteFunction = async (id: number) => {
     const res = await deleteField(id);
@@ -257,9 +259,11 @@ export default function FieldsList(props?: {
   return (
     <div class={styles.fieldsList}>
       <div class={styles.fieldsHeader}>
-        <Show when={props?.addButton}>
-          {props?.addButton && props?.addButton()}
-        </Show>
+        <div>
+          <Show when={props?.addButton}>
+            {props?.addButton && props?.addButton()}
+          </Show>
+        </div>
         <Show when={props?.disableSearch !== true}>
           <TextField
             size="small"
@@ -271,6 +275,18 @@ export default function FieldsList(props?: {
       </div>
       <Show when={fields()} fallback={<Skeleton />}>
         {(fields) => (
+          <>
+          <ConfirmDeleteDialog
+            open={toDelete() !== undefined}
+            onClose={() => setToDelete(undefined)}
+            onConfirm={() => {
+              if (toDelete() !== undefined) {
+                deleteFunction(toDelete()!);
+                setToDelete(undefined);
+              }
+            }}
+            title="Are you sure you want to delete this field?"
+          ></ConfirmDeleteDialog>
           <Show when={farmFieldGroups()}>
             {(groups) =>
               RenderfieldsTable(
@@ -285,6 +301,7 @@ export default function FieldsList(props?: {
               )
             }
           </Show>
+          </>
         )}
       </Show>
     </div>
