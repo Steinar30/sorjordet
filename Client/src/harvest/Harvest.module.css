@@ -19,3 +19,12 @@ div.harvestSelectBody {
 .datePickerContainer > div {
   width: 100%;
 }
+
+.addHarvestButton {
+  min-width: "56px";
+  width: "56px";
+  height: "56px";
+  border-color: "#c4c4c4";
+  text-transform: "none";
+  font-size: "14px";
+}
