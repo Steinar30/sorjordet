@@ -28,7 +28,7 @@ export default function FieldGroupAdmin() {
   const RenderGroupsList = () => {
     return (
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
@@ -76,7 +76,7 @@ export default function FieldGroupAdmin() {
       <>
         <Button
           variant="contained"
-          sx={{ textWrap: "nowrap" }}
+          sx={{ textWrap: "nowrap", marginBottom: "16px" }}
           onClick={() => setNewForm(true)}
         >
           New group
