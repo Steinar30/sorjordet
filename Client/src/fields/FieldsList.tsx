@@ -21,18 +21,28 @@ import {
 } from "@suid/material";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { FarmField } from "../../bindings/FarmField";
-import { formatArea, getMapPolygonArea } from "../maps/Map";
-import { ArrowUpward, Delete, Edit } from "@suid/icons-material";
+import {
+  formatArea,
+  getMapPolygonArea,
+  parseJsonIntoFeature,
+} from "../maps/Map";
+import {
+  ArrowUpward,
+  Delete,
+  Edit,
+  Map as MapIcon,
+} from "@suid/icons-material";
 
 import styles from "./Fields.module.css";
 import { ConfirmDeleteDialog } from "../Utils";
+import { PeekFieldMap } from "../maps/PeekFieldMap";
 
 type Sorting = {
   sortKey: "name" | "group-name" | "size";
   direction: "asc" | "desc";
 };
 
-type DisplayedField = {
+export type DisplayedField = {
   id: number;
   name: string;
   group_name: string;
@@ -65,8 +75,9 @@ const RenderfieldsTable = (
   setSorting: (s: Sorting) => void,
   onDelete: undefined | ((x: number) => Promise<void>),
   maxItems?: number,
-  setEdit?: (field: FarmField) => undefined,
+  setEdit?: (field: FarmField) => undefined
 ) => {
+  const [fieldPeek, setFieldPeek] = createSignal<DisplayedField | null>(null);
   const groupMap = new Map(groups.map((g) => [g.id, g]));
   const getFieldGroup = (id: number | null) =>
     id === null ? null : groupMap.get(id);
@@ -90,7 +101,7 @@ const RenderfieldsTable = (
             field.group_name.toLowerCase().includes(textFilter().toLowerCase())
           );
         }),
-    [fields, textFilter, getFieldGroup],
+    [fields, textFilter, getFieldGroup]
   );
 
   const getSortedFields = (f: Sorting) => {
@@ -134,7 +145,7 @@ const RenderfieldsTable = (
 
   const renderSortableHeader = (
     label: string,
-    sortKey: "name" | "group-name" | "size",
+    sortKey: "name" | "group-name" | "size"
   ) => {
     return (
       <TableCell sx={{ cursor: "pointer" }} onClick={toggleSort(sortKey)}>
@@ -162,47 +173,78 @@ const RenderfieldsTable = (
     );
   };
 
+  const tryGetFieldFeature = (id: number, groupName: string) => {
+    const field = fields.find((f) => f.id === id);
+    if (field) {
+      const f = parseJsonIntoFeature(field, groupName);
+      if (f) {
+        return f;
+      } else {
+        return undefined;
+      }
+    }
+    return undefined;
+  };
+
+  const actionRowSize =
+    (35 + (setEdit ? 35 : 0) + (onDelete ? 35 : 0)).toString() + "px";
+
   return (
-    <TableContainer>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell></TableCell>
-            {renderSortableHeader("Name", "name")}
-            {renderSortableHeader("Field Group", "group-name")}
-            {renderSortableHeader("Size", "size")}
-            {(onDelete !== undefined || setEdit !== undefined) && (
+    <>
+      <Show when={fieldPeek()}>
+        {(field) => (
+          <PeekFieldMap
+            field={field()}
+            onClose={() => setFieldPeek(null)}
+            initialFeature={tryGetFieldFeature(field().id, field().group_name)}
+          />
+        )}
+      </Show>
+      <TableContainer>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
               <TableCell></TableCell>
-            )}
-          </TableRow>
-        </TableHead>
-        <For each={getSortedFields(sorting())}>
-          {(field) => {
-            return (
-              <TableRow>
-                <TableCell sx={{ width: "20px" }}>
-                  <span
-                    style={{
-                      display: "block",
-                      "background-color": field.draw_color,
-                      width: "20px",
-                      height: "20px",
-                      "border-radius": "50%",
-                      border: "1px solid gray",
-                    }}
-                  />
-                </TableCell>
-                <TableCell>{field.name}</TableCell>
-                <TableCell>{field.group_name}</TableCell>
-                <TableCell>{formatArea(field.size)}</TableCell>
-                {(onDelete !== undefined || setEdit !== undefined) && (
+              {renderSortableHeader("Name", "name")}
+              {renderSortableHeader("Field Group", "group-name")}
+              {renderSortableHeader("Size", "size")}
+              <TableCell sx={{ width: actionRowSize }}></TableCell>
+            </TableRow>
+          </TableHead>
+          <For each={getSortedFields(sorting())}>
+            {(field) => {
+              return (
+                <TableRow>
+                  <TableCell sx={{ width: "20px" }}>
+                    <span
+                      style={{
+                        display: "block",
+                        "background-color": field.draw_color,
+                        width: "20px",
+                        height: "20px",
+                        "border-radius": "50%",
+                        border: "1px solid gray",
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>{field.name}</TableCell>
+                  <TableCell>{field.group_name}</TableCell>
+                  <TableCell>{formatArea(field.size)}</TableCell>
                   <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setFieldPeek(field);
+                      }}
+                    >
+                      <MapIcon />
+                    </IconButton>
                     {setEdit !== undefined && (
                       <IconButton
                         size="small"
                         onClick={() => {
                           const foundField = fields.find(
-                            (x) => x.id === field.id,
+                            (x) => x.id === field.id
                           );
                           if (foundField) {
                             setEdit(foundField);
@@ -221,13 +263,13 @@ const RenderfieldsTable = (
                       </IconButton>
                     )}
                   </TableCell>
-                )}
-              </TableRow>
-            );
-          }}
-        </For>
-      </Table>
-    </TableContainer>
+                </TableRow>
+              );
+            }}
+          </For>
+        </Table>
+      </TableContainer>
+    </>
   );
 };
 
@@ -240,7 +282,7 @@ export default function FieldsList(props?: {
 }) {
   const [farmFieldGroups] = createResource(getFarmFieldGroups);
   const [fields, setFields] = createResource(() =>
-    fetch("/api/farm_fields/all").then((a) => a.json() as Promise<FarmField[]>),
+    fetch("/api/farm_fields/all").then((a) => a.json() as Promise<FarmField[]>)
   );
   const [sorting, setSorting] = createSignal<Sorting>({
     sortKey: "size",
@@ -276,31 +318,31 @@ export default function FieldsList(props?: {
       <Show when={fields()} fallback={<Skeleton />}>
         {(fields) => (
           <>
-          <ConfirmDeleteDialog
-            open={toDelete() !== undefined}
-            onClose={() => setToDelete(undefined)}
-            onConfirm={() => {
-              if (toDelete() !== undefined) {
-                deleteFunction(toDelete()!);
-                setToDelete(undefined);
+            <ConfirmDeleteDialog
+              open={toDelete() !== undefined}
+              onClose={() => setToDelete(undefined)}
+              onConfirm={() => {
+                if (toDelete() !== undefined) {
+                  deleteFunction(toDelete()!);
+                  setToDelete(undefined);
+                }
+              }}
+              title="Are you sure you want to delete this field?"
+            ></ConfirmDeleteDialog>
+            <Show when={farmFieldGroups()}>
+              {(groups) =>
+                RenderfieldsTable(
+                  fields(),
+                  groups(),
+                  textFilter,
+                  sorting,
+                  setSorting,
+                  props?.showDelete === true ? deleteFunction : undefined,
+                  props?.maxItems,
+                  props?.setEdit
+                )
               }
-            }}
-            title="Are you sure you want to delete this field?"
-          ></ConfirmDeleteDialog>
-          <Show when={farmFieldGroups()}>
-            {(groups) =>
-              RenderfieldsTable(
-                fields(),
-                groups(),
-                textFilter,
-                sorting,
-                setSorting,
-                props?.showDelete === true ? deleteFunction : undefined,
-                props?.maxItems,
-                props?.setEdit,
-              )
-            }
-          </Show>
+            </Show>
           </>
         )}
       </Show>
