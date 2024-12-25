@@ -2,7 +2,7 @@ use axum::{
     self,
     extract::{self, State},
     response::IntoResponse,
-    routing::{get, patch, post},
+    routing::{get, post},
     Json, Router,
 };
 use chrono::{DateTime, Utc};
@@ -183,7 +183,7 @@ async fn patch_event(
 
     tracing::info!("harvest_event {event_id} updated by {}", claims.sub);
 
-    Ok(())
+    Ok(payload)
 }
 
 pub fn harvest_event_router() -> Router<PgPool> {
