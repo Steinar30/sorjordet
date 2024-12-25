@@ -183,7 +183,7 @@ async fn patch_event(
 
     tracing::info!("harvest_event {event_id} updated by {}", claims.sub);
 
-    Ok(payload)
+    Ok(Json(payload))
 }
 
 pub fn harvest_event_router() -> Router<PgPool> {
