@@ -30,25 +30,8 @@ const updateHarvestEvent = async (
     body: JSON.stringify(harvest),
   });
   if (response.status === 200) {
-    return harvest;
+    return response.json() as Promise<HarvestEvent>;
   }
-};
-
-const tractorModeAdd = async (
-  harvest: HarvestEvent
-): Promise<HarvestEvent | undefined> => {
-  const copy = { ...harvest, value: harvest.value + 1 };
-  return updateHarvestEvent(copy);
-};
-
-const tractorModeSub = async (
-  harvest: HarvestEvent
-): Promise<HarvestEvent | undefined> => {
-  if (harvest.value <= 0) {
-    return;
-  }
-  const copy = { ...harvest, value: harvest.value - 1 };
-  return updateHarvestEvent(copy);
 };
 
 export const renderHarvest = (h: HarvestEvent | undefined) => {
@@ -69,6 +52,58 @@ export default function Harvest() {
     localStorage.getItem("tractor_mode") === "true"
   );
   const selectedHarvest = createSignal<ValidHarvest>();
+  const [isLoading, setIsLoading] = createSignal(false);
+  const [syncTimer, setSyncTimer] = createSignal(0);
+
+  async function syncHarvestValue() {
+    const h = selectedHarvest[0]();
+    if (isLoading() || !h) return;
+    setIsLoading(true);
+    try {
+      const result = await updateHarvestEvent(h.harvest);
+      if (result) {
+        selectedHarvest[1]({
+          ...h,
+          harvest: result,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const tractorModeAdd = (harvest: ValidHarvest) => {
+    clearTimeout(syncTimer());
+    
+    selectedHarvest[1]({
+      ...harvest,
+      harvest: {
+        ...harvest.harvest,
+        value: harvest.harvest.value + 1,
+      },
+    })
+    
+    const timer = setTimeout(syncHarvestValue, 1000)
+    setSyncTimer(timer);
+  };
+
+  const tractorModeSub = (harvest: ValidHarvest) => {
+    if (harvest.harvest.value <= 0) {
+      return;
+    }
+    clearTimeout(syncTimer());
+    
+    selectedHarvest[1]({
+      ...harvest,
+      harvest: {
+        ...harvest.harvest,
+        value: harvest.harvest.value - 1,
+      },
+    })
+    
+    const timer = setTimeout(syncHarvestValue, 1000)
+    setSyncTimer(timer);
+  };
 
   const tractorModeButton = () => {
     return (
@@ -147,10 +182,9 @@ export default function Harvest() {
     );
   };
 
-  const renderSelectedHarvest = ([
-    harvest,
-    setHarvest,
-  ]: Signal<ValidHarvest>) => {
+  const renderSelectedHarvest = (
+    [harvest, setHarvest]: Signal<ValidHarvest>
+  ) => {
     const commitHarvest = (toCommit: HarvestEvent) => {
       setHarvest({ ...harvest(), harvest: toCommit });
     };
@@ -201,24 +235,14 @@ export default function Harvest() {
               <Button
                 variant="contained"
                 size="large"
-                onClick={async () => {
-                  const res = await tractorModeAdd(harvest().harvest);
-                  if (res !== undefined) {
-                    commitHarvest(res);
-                  }
-                }}
+                onClick={() => tractorModeAdd(harvest())}
               >
                 +
               </Button>
               <Button
                 variant="contained"
                 size="large"
-                onClick={async () => {
-                  const res = await tractorModeSub(harvest().harvest);
-                  if (res !== undefined) {
-                    commitHarvest(res);
-                  }
-                }}
+                onClick={() => tractorModeSub(harvest())}
               >
                 -
               </Button>
