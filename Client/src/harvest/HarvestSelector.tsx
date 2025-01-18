@@ -31,7 +31,9 @@ const trygetHarvest = async (fieldId: number) => {
 };
 
 const postNewHarvestEvent = async (
-  fieldId: number
+  fieldId: number,
+  time: string,
+  type: HarvestType
 ): Promise<HarvestEvent | undefined> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
@@ -41,10 +43,10 @@ const postNewHarvestEvent = async (
   const body: HarvestEvent = {
     id: -1,
     value: 0,
-    time: new Date().toISOString(),
+    time,
     field_id: fieldId,
-    type_id: 1,
-    type_name: "",
+    type_id: type.id,
+    type_name: type.name,
   };
   const response = await fetch(`/api/harvest_event`, {
     method: "POST",
@@ -293,14 +295,13 @@ export function HarvestSelector(props: {
 
   const addNewHarvest = () => {
     setshowInvalid(true);
-    if (
-      harvestSelector().selectedField == undefined ||
-      date().value.selected == undefined ||
-      harvestType() == undefined
-    ) {
+    const field = harvestSelector().selectedField;
+    const date_value = date().value.selected;
+    const harvest_type = harvestType();
+    if (!field || !date_value || !harvest_type) {
       return;
     }
-    postNewHarvestEvent(harvestSelector().selectedField?.id ?? -1).then(
+    postNewHarvestEvent(field.id, date_value, harvest_type).then(
       (harvest) => {
         const s = harvestSelector();
         if (
@@ -315,6 +316,7 @@ export function HarvestSelector(props: {
           ...s,
           selectedHarvestEvent: harvest,
         });
+        s.harvests?.push(harvest);
 
         props.selectHarvest({
           group: s.selectedGroup,
