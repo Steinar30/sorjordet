@@ -1,11 +1,13 @@
+use std::collections::HashMap;
+
 use axum::{
     self,
-    extract::{self, State},
+    extract::{self, Query, State},
     response::IntoResponse,
     routing::{get, post},
     Json, Router,
 };
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Datelike, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
 use ts_rs::TS;
@@ -24,20 +26,20 @@ pub struct HarvestEvent {
     pub type_id: i32,
 }
 
-#[derive(Deserialize, FromRow)]
-struct HarvestAgg {
-    type_id: i32,
-    type_name: String,
-    year: Option<i32>,
-    month: Option<i32>,
-    total: Option<i64>,
-}
-
 #[derive(Serialize, TS)]
 #[ts(export)]
 pub struct HarvestTimeseries {
     date: String,
     total: i64,
+}
+
+impl From<&HarvestTimeseriesRaw> for HarvestTimeseries {
+    fn from(row: &HarvestTimeseriesRaw) -> Self {
+        HarvestTimeseries {
+            total: row.value.unwrap_or(0),
+            date: format!("{}-{}", row.time_month.year(), row.time_month.month()),
+        }
+    }
 }
 
 #[derive(Serialize, TS)]
@@ -48,69 +50,73 @@ pub struct HarvestAggregated {
     harvests: Vec<HarvestTimeseries>,
 }
 
+impl From<HarvestTimeseriesRaw> for HarvestAggregated {
+    fn from(row: HarvestTimeseriesRaw) -> Self {
+        HarvestAggregated {
+            harvests: vec![HarvestTimeseries::from(&row)],
+            type_id: row.id,
+            type_name: row.name,
+        }
+    }
+}
+
+#[derive(Deserialize, FromRow)]
+struct HarvestTimeseriesRaw {
+    id: i32,
+    name: String,
+    value: Option<i64>,
+    time_month: DateTime<Utc>,
+}
+
+#[derive(Deserialize, Default)]
+pub struct HarvestAggParams {
+    from: Option<DateTime<Utc>>,
+    to: Option<DateTime<Utc>>,
+}
+
+impl HarvestAggParams {
+    fn get_from_to(self: &Self) -> (DateTime<Utc>, DateTime<Utc>) {
+        let to = self.to.unwrap_or(chrono::Utc::now());
+        let from = self.from.unwrap_or(to - chrono::Months::new(5 * 12));
+        (from, to)
+    }
+}
+
 async fn get_aggregated_harvests(
     State(pool): State<PgPool>,
+    harvest_params: Option<Query<HarvestAggParams>>,
 ) -> Result<impl IntoResponse, SorjordetError> {
-    let result: Vec<HarvestAgg> = query_as!(
-        HarvestAgg,
-        "WITH date_series AS (
-        SELECT 
-            generate_series(
-            date_trunc('month', MIN(e.time)), 
-            date_trunc('month', MAX(e.time)), 
-            '1 month'::interval
-            )::date AS month_start
-        FROM 
-            harvest_event AS e
-        )
-        SELECT 
-        ht.id AS type_id, 
-        ht.name AS type_name, 
-        CAST(EXTRACT(YEAR FROM ds.month_start) AS INTEGER) AS year, 
-        CAST(EXTRACT(MONTH FROM ds.month_start) AS INTEGER) AS month,
-        COALESCE(SUM(e.value), 0) AS total
-        FROM 
-        harvest_type AS ht
-        CROSS JOIN 
-        date_series AS ds
-        LEFT JOIN 
-        harvest_event AS e 
-            ON e.harvest_type_id = ht.id 
-            AND date_trunc('month', e.time) = ds.month_start
-        GROUP BY 
-        ht.id, ht.name, ds.month_start
-        ORDER BY 
-        ds.month_start DESC, ht.id
-"
+    let (from, to) = harvest_params.unwrap_or_default().get_from_to();
+
+    let timeseries: Vec<HarvestTimeseriesRaw> = query_as!(
+        HarvestTimeseriesRaw,
+        r#"
+        SELECT t.id, t.name, SUM(value) as value, DATE_TRUNC('month', time) as "time_month!" FROM
+        harvest_event e JOIN harvest_type t ON  t.id=e.harvest_type_id
+        WHERE time BETWEEN $1 AND $2
+        GROUP BY t.id, 4
+        ORDER BY 4
+    "#,
+        from,
+        to
     )
     .fetch_all(&pool)
     .await?;
 
-    let mut result: Vec<HarvestAggregated> = result.into_iter().fold(Vec::new(), |mut acc, agg| {
-        let matching = acc.iter_mut().find(|x| x.type_id == agg.type_id);
-        if let Some(sametype) = matching {
-            sametype.harvests.push(HarvestTimeseries {
-                date: format!("{}-{}", agg.year.unwrap(), agg.month.unwrap()),
-                total: agg.total.unwrap(),
-            });
-        } else {
-            acc.push(HarvestAggregated {
-                type_id: agg.type_id,
-                type_name: agg.type_name,
-                harvests: vec![HarvestTimeseries {
-                    date: format!("{}-{}", agg.year.unwrap(), agg.month.unwrap()),
-                    total: agg.total.unwrap(),
-                }],
-            });
-        }
-        acc
-    });
+    let results: Vec<HarvestAggregated> = timeseries
+        .into_iter()
+        .fold(HashMap::<i32, HarvestAggregated>::new(), |mut m, row| {
+            if let Some(x) = m.get_mut(&row.id) {
+                x.harvests.push(HarvestTimeseries::from(&row));
+            } else {
+                m.insert(row.id, HarvestAggregated::from(row));
+            }
+            m
+        })
+        .into_values()
+        .collect();
 
-    for event in result.iter_mut() {
-        event.harvests.sort_by(|a, b| a.date.cmp(&b.date));
-    }
-
-    Ok(Json(result))
+    Ok(Json(results))
 }
 
 async fn get_events(

@@ -38,9 +38,7 @@ async fn main() {
         .map(|x| x.parse::<u16>().unwrap())
         .unwrap_or(8000);
 
-    let db_connection_str = var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgresql://postgres:Demo123123@host.docker.internal:54321/sorjordet".to_string()
-    });
+    let db_connection_str = var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let options: PgConnectOptions = db_connection_str
         .parse::<PgConnectOptions>()
@@ -51,7 +49,7 @@ async fn main() {
         )
         .log_statements(tracing::log::LevelFilter::Trace);
 
-    println!("Connecting to database: {}", &db_connection_str);
+    println!("Connecting to database: {}", options.get_host());
 
     let pool: PgPool = PgPoolOptions::new()
         .max_connections(5)
@@ -61,7 +59,6 @@ async fn main() {
         .await
         .expect("can't connect to database");
 
-    // build our application with some routes
     let app = Router::new()
         .fallback_service(
             ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")),
