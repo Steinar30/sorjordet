@@ -21,7 +21,7 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 
 export function PeekFieldMap(props: {
-  field: DisplayedField 
+  field: DisplayedField
   initialFeature?: Feature<Geometry>;
   onClose?: () => void;
 }) {
@@ -30,20 +30,18 @@ export function PeekFieldMap(props: {
   createEffect(() => {
     const m = mapObj();
     if (m != undefined && props.initialFeature != undefined) {
-      
+
       const new_layer = new VectorLayer({
         source: new VectorSource({
           features: [props.initialFeature],
         }),
         style: {
           "fill-color": props.field.draw_color,
-          "stroke-color": props.field.draw_color,
+          "stroke-color": "white",
         },
       });
-      new_layer.setProperties({ "group-name": props.field.group_name});
-      
+      new_layer.setProperties({ "group-name": props.field.group_name });
       m.addLayer(new_layer);
-    
     }
   });
 
@@ -87,7 +85,6 @@ export function PeekFieldMap(props: {
       }),
     });
 
-    let select: Select;
     const selectElement: HTMLElement = document.createElement("div");
     const selectOverlay: Overlay = new Overlay({
       element: selectElement,
@@ -95,40 +92,33 @@ export function PeekFieldMap(props: {
     });
     map.addOverlay(selectOverlay);
 
-    // eslint-disable-next-line prefer-const
-    select = new Select({
+    const select = new Select({
       style: selectedStyle,
     });
     map.addInteraction(select);
-    select.on("select", (e) => {
-      if (e.selected.length == 1) {
-        const selected: Feature<Geometry> = e.selected[0];
-        const x = selected.getProperties();
-        const y: Polygon = selected
-          .getGeometry()
-          ?.simplifyTransformedInternal();
-        const selectedCoords = y.getInteriorPoint().getCoordinates();
-
-        selectElement.className = "ol-tooltip";
-        selectElement.innerHTML = formatSelectedDiv(
-          x["name"],
-          x["group-name"],
-          formatArea(y)
-        );
-        selectOverlay.setPosition(selectedCoords);
-      } else {
-        console.log("unselecting");
-        selectOverlay.setPosition(undefined);
-      }
-    });
+    if (props.initialFeature) {
+      const x = props.initialFeature.getProperties();
+      const y: Polygon = props.initialFeature.getGeometry()?.simplifyTransformedInternal();
+      const [cx, cy] = y.getInteriorPoint().getCoordinates();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [minx, miny, maxx, maxy] = y.getExtent();
+      selectElement.className = "ol-tooltip";
+      selectElement.innerHTML = formatSelectedDiv(
+        x["name"],
+        x["group-name"],
+        formatArea(y)
+      );
+      selectOverlay.setPosition([cx, maxy + (Math.abs(maxy - cy)) / 2]);
+    }
 
     setMapObj(map);
   });
 
   return (
-    <Dialog open={true} sx={{width: "100%"}} onClose={props.onClose}>
-      <DialogContent>
-        <div id="map_container" style={{height: "600px", width: "50vw","min-width": "300px", "max-width": "550px"}} class="map"></div>
+    <Dialog open={true} sx={{ width: "100%" }} onClose={props.onClose}>
+      <DialogContent sx={{ padding: "0" }}>
+        <p style={{ margin: "1rem" }}>{props.field.group_name} - {props.field.name} - {(props.field.size / 1000).toFixed(3)} dekar</p>
+        <div id="map_container" style={{ height: "600px", width: "50vw", "min-width": "300px", "max-width": "550px" }} class="map"></div>
       </DialogContent>
     </Dialog>
   );
