@@ -1,10 +1,10 @@
 import { createQuery } from "@tanstack/solid-query";
-import { createSignal, Show} from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { HarvestType } from "../../../bindings/HarvestType";
 import { Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@suid/material";
 import { Edit } from "@suid/icons-material";
 
-export default function HarvestEvents() {
+export default function HarvestTypes() {
   const [showAddForm, setShowAddForm] = createSignal(false);
   const [editForm, setEditForm] = createSignal<HarvestType | undefined>(undefined);
 
@@ -23,10 +23,11 @@ export default function HarvestEvents() {
       }}
     >
       <div style={{ display: "flex", "justify-content": "space-between" }}>
-        <Button 
+        <Button
           variant="contained"
           sx={{ textWrap: "nowrap" }}
           onClick={() => setShowAddForm(true)}
+          disabled
         >
           New type
         </Button>
@@ -47,7 +48,7 @@ export default function HarvestEvents() {
                   <TableCell>{harvestType.id}</TableCell>
                   <TableCell>{harvestType.name}</TableCell>
                   <TableCell>
-                    <IconButton onClick={() => setEditForm(harvestType)}>
+                    <IconButton disabled onClick={() => setEditForm(harvestType)}>
                       <Edit />
                     </IconButton>
                   </TableCell>
