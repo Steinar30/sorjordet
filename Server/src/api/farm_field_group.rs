@@ -137,8 +137,49 @@ async fn post_farm_field_group(
     Ok(Json(result))
 }
 
+async fn patch_farm_field_group(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Json(payload): extract::Json<FarmFieldGroup>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    if payload.id <= 0 {
+        return Err(SorjordetError::NotFound(format!(
+            "farm_field_group with id {} not found",
+            payload.id
+        )));
+    }
+
+    let result = query!(
+        r#"UPDATE farm_field_group
+            SET name = $1, draw_color = $2
+            WHERE id = $3
+        "#,
+        &payload.name,
+        &payload.draw_color,
+        &payload.id
+    )
+    .execute(&pool)
+    .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(SorjordetError::NotFound(format!(
+            "farm_field_group with id {} not found",
+            payload.id
+        )));
+    }
+
+    tracing::info!("farm_field_group {} updated by {}", payload.id, claims.sub);
+
+    Ok(Json(payload))
+}
+
 pub fn farm_field_group_router() -> Router<PgPool> {
     Router::new()
         .route("/meta", get(get_farm_field_groups_meta))
-        .route("/", get(get_farm_field_groups).post(post_farm_field_group))
+        .route(
+            "/",
+            get(get_farm_field_groups)
+                .post(post_farm_field_group)
+                .patch(patch_farm_field_group),
+        )
 }

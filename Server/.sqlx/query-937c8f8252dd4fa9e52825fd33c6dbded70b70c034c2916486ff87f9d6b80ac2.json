@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE farm_field_group\n            SET name = $1, draw_color = $2\n            WHERE id = $3\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "937c8f8252dd4fa9e52825fd33c6dbded70b70c034c2916486ff87f9d6b80ac2"
+}
