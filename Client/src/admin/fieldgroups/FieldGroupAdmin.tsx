@@ -103,7 +103,10 @@ export default function FieldGroupAdmin() {
                 Cancel
               </Button>
               <FieldGroupForm
-                onCreate={() => setEditForm(undefined)}
+                onSave={() =>{
+                  setEditForm(undefined); 
+                  groups.refetch();
+                }}
                 toEdit={form()}
               />
             </>
@@ -113,7 +116,7 @@ export default function FieldGroupAdmin() {
           <Button variant="outlined" onClick={() => setNewForm(false)}>
             Cancel
           </Button>
-          <FieldGroupForm onCreate={() => setNewForm(false)} />
+          <FieldGroupForm onSave={() => setNewForm(false)} />
         </Match>
       </Switch>
     </main>

@@ -2,7 +2,6 @@ import { jwt_token } from "./App";
 import { Farm } from "../bindings/Farm";
 import { FarmField } from "../bindings/FarmField";
 import { FarmFieldGroup } from "../bindings/FarmFieldGroup";
-import { FarmFieldGroupMeta } from "../bindings/FarmFieldGroupMeta";
 
 export function prepareAuth(isPost: boolean = false): Headers | null {
   const token = jwt_token();
@@ -47,12 +46,27 @@ export async function getFarmFieldGroupsWithFields(): Promise<
 }
 
 export async function tryPostNewFieldGroup(
-  f: FarmFieldGroupMeta,
+  f: FarmFieldGroup,
 ): Promise<number | undefined> {
   const authHeaders = prepareAuth(true);
   if (authHeaders) {
     return fetch("/api/farm_field_groups", {
       method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify(f),
+    }).then((a) => a.json());
+  } else {
+    console.log("not allowed to post without bearer token");
+  }
+}
+
+export async function tryPatchNewFieldGroup(
+  f: FarmFieldGroup,
+): Promise<number | undefined> {
+  const authHeaders = prepareAuth(true);
+  if (authHeaders) {
+    return fetch("/api/farm_field_groups", {
+      method: "PATCH",
       headers: authHeaders,
       body: JSON.stringify(f),
     }).then((a) => a.json());

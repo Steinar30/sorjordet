@@ -1,7 +1,8 @@
 import { Button, TextField, Typography } from "@suid/material";
 import { createStore } from "solid-js/store";
-import { tryPostNewFieldGroup } from "../../requests";
+import { tryPatchNewFieldGroup, tryPostNewFieldGroup } from "../../requests";
 import { FarmFieldGroupMeta } from "../../../bindings/FarmFieldGroupMeta";
+import { Show } from "solid-js";
 
 function validateInput(group: FarmFieldGroupMeta): boolean {
   return group.name.length > 0 && group.draw_color.length > 0;
@@ -44,7 +45,7 @@ function colorPicker(val: string, callback: (x: string) => void) {
       <input
         style={{ opacity: "0.4" }}
         onchange={(ev) => {
-          callback(ev.currentTarget.value);
+          callback(hexToRgbWithOpacity(ev.currentTarget.value, 0.2));
         }}
         type="color"
         id="draw_color"
@@ -56,7 +57,7 @@ function colorPicker(val: string, callback: (x: string) => void) {
 }
 
 export function FieldGroupForm(props: {
-  onCreate: () => void;
+  onSave: () => void;
   toEdit?: FarmFieldGroupMeta;
 }) {
   const [form, setForm] = createStore<FarmFieldGroupMeta>(
@@ -79,7 +80,12 @@ export function FieldGroupForm(props: {
   return (
     <div id="map_form_container">
       <div id="field_form">
-        <Typography variant="h6">Add new field group</Typography>
+        <Show 
+          when={props.toEdit} 
+          fallback={<Typography variant="h6">Add new field group</Typography>}
+        >
+          <Typography variant="h6">Edit field group</Typography>
+        </Show>
 
         <TextField
           id="field-group-name"
@@ -97,14 +103,15 @@ export function FieldGroupForm(props: {
           size="small"
           variant="contained"
           onClick={async () => {
-            setForm({
-              ["draw_color"]: hexToRgbWithOpacity(form.draw_color, 0.2),
-            });
-            const result = await tryPostNewFieldGroup(form);
+            const groupForm = { ...form, fields: [] };
+            let result;
+            if (props.toEdit) {
+              result = await tryPatchNewFieldGroup(groupForm);
+            } else {
+              result = await tryPostNewFieldGroup(groupForm);
+            }
             if (result) {
-              const formRes = form;
-              formRes.id = result;
-              props.onCreate();
+              props.onSave();
             }
           }}
         >
