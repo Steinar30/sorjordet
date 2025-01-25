@@ -1,39 +1,12 @@
-import { Button, TextField, Typography } from "@suid/material";
+import { Button, rgbToHex, TextField, Typography } from "@suid/material";
 import { createStore } from "solid-js/store";
 import { tryPatchNewFieldGroup, tryPostNewFieldGroup } from "../../requests";
 import { FarmFieldGroupMeta } from "../../../bindings/FarmFieldGroupMeta";
 import { Show } from "solid-js";
+import { hexToRgbWithOpacity } from "../../Utils";
 
 function validateInput(group: FarmFieldGroupMeta): boolean {
   return group.name.length > 0 && group.draw_color.length > 0;
-}
-
-function hexToRgb(hex: string) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
-}
-
-function hexToRgbWithOpacity(hex: string, opacity: number) {
-  const x = hexToRgb(hex);
-  if (x) {
-    return "rgba(" + x.r + "," + x.g + "," + x.b + "," + opacity + ")";
-  } else {
-    return hex;
-  }
-}
-
-function rgbToHex(rgba: string) {
-  if (rgba === "") {
-    return "#000";
-  }
-  const [r, g, b] = rgba.match(/\d+/g)!.map(Number);
-  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
 function colorPicker(val: string, callback: (x: string) => void) {
@@ -80,8 +53,8 @@ export function FieldGroupForm(props: {
   return (
     <div id="map_form_container">
       <div id="field_form">
-        <Show 
-          when={props.toEdit} 
+        <Show
+          when={props.toEdit}
           fallback={<Typography variant="h6">Add new field group</Typography>}
         >
           <Typography variant="h6">Edit field group</Typography>
