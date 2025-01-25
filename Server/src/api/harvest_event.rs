@@ -7,7 +7,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use chrono::{DateTime, Datelike, Utc};
+use chrono::{DateTime, Datelike, Days, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
 use ts_rs::TS;
@@ -60,6 +60,15 @@ impl From<HarvestTimeseriesRaw> for HarvestAggregated {
     }
 }
 
+#[derive(Deserialize, FromRow, Serialize, TS)]
+#[ts(export)]
+pub struct GroupHarvestAgg {
+    group_id: i32,
+    group_name: String,
+    group_color: String,
+    value: i64,
+}
+
 #[derive(Deserialize, FromRow)]
 struct HarvestTimeseriesRaw {
     id: i32,
@@ -76,7 +85,9 @@ pub struct HarvestAggParams {
 
 impl HarvestAggParams {
     fn get_from_to(self: &Self) -> (DateTime<Utc>, DateTime<Utc>) {
-        let to = self.to.unwrap_or(chrono::Utc::now());
+        let to = self
+            .to
+            .unwrap_or(chrono::Utc::now().checked_add_days(Days::new(1)).unwrap());
         let from = self.from.unwrap_or(to - chrono::Months::new(5 * 12));
         (from, to)
     }
@@ -117,6 +128,31 @@ async fn get_aggregated_harvests(
         .collect();
 
     Ok(Json(results))
+}
+
+async fn get_agged_group_harvests(
+    State(pool): State<PgPool>,
+    harvest_params: Option<Query<HarvestAggParams>>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let (from, to) = harvest_params.unwrap_or_default().get_from_to();
+
+    let timeseries: Vec<GroupHarvestAgg> = query_as!(
+        GroupHarvestAgg,
+        r#"
+        SELECT coalesce(SUM(value), 0) as "value!", g.id as group_id, g.name as group_name, g.draw_color as group_color FROM
+        harvest_event e JOIN farm_field f ON  f.id = e.field_id
+        JOIN farm_field_group g ON g.id = f.farm_field_group_id
+        WHERE time BETWEEN $1 AND $2
+        GROUP BY g.id
+        ORDER BY 4
+    "#,
+        from,
+        to
+    )
+    .fetch_all(&pool)
+    .await?;
+
+    Ok(Json(timeseries))
 }
 
 async fn get_events(
@@ -194,6 +230,7 @@ async fn patch_event(
 
 pub fn harvest_event_router() -> Router<PgPool> {
     Router::new()
+        .route("/aggregated_group_harvests", get(get_agged_group_harvests))
         .route("/aggregated_harvests", get(get_aggregated_harvests))
         .route("/:id", get(get_events).patch(patch_event))
         .route("/", post(post_event))
