@@ -9,7 +9,7 @@ export default function HarvestChart() {
 
   const getAllDates = (x: HarvestAggregated[]) => {
     const dates: Set<string> = new Set();
-    x.forEach(a => a.harvests.forEach(h => dates.add(h.date)))
+    x.forEach((a) => a.harvests.forEach((h) => dates.add(h.date)));
     // Sort date strings numerically
     return Array.from(dates).sort((a, b) => {
       const [ay, am] = a.split("-", 2);
@@ -19,25 +19,30 @@ export default function HarvestChart() {
       } else {
         return Number(ay) - Number(by);
       }
-    })
-  }
+    });
+  };
 
   const alignSeriesToDates = (dates: string[], series: HarvestAggregated[]) => {
-    return series.sort((a, b) => a.type_id - b.type_id).map((agg) => {
-      return {
-        name: agg.type_name,
-        data: dates.map((date) =>
-          agg.harvests.find(a => a.date == date)?.total ?? 0
-        )
-      }
-    });
-  }
+    return series
+      .sort((a, b) => a.type_id - b.type_id)
+      .map((agg) => {
+        return {
+          name: agg.type_name,
+          data: dates.map(
+            (date) => agg.harvests.find((a) => a.date == date)?.total ?? 0,
+          ),
+        };
+      });
+  };
 
-  const dates = createMemo(() =>
-    getAllDates(harvestsByYear() ?? []), [harvestsByYear]
+  const dates = createMemo(
+    () => getAllDates(harvestsByYear() ?? []),
+    [harvestsByYear],
   );
-  const chartSeries = createMemo(() =>
-    alignSeriesToDates(dates(), harvestsByYear() ?? []), [dates, harvestsByYear]
+
+  const chartSeries = createMemo(
+    () => alignSeriesToDates(dates(), harvestsByYear() ?? []),
+    [dates, harvestsByYear],
   );
 
   return (

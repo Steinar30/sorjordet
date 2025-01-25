@@ -1,12 +1,23 @@
 import { createQuery } from "@tanstack/solid-query";
 import { createSignal, Show } from "solid-js";
 import { HarvestType } from "../../../bindings/HarvestType";
-import { Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@suid/material";
+import {
+  Button,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@suid/material";
 import { Edit } from "@suid/icons-material";
 
 export default function HarvestTypes() {
   const [showAddForm, setShowAddForm] = createSignal(false);
-  const [editForm, setEditForm] = createSignal<HarvestType | undefined>(undefined);
+  const [editForm, setEditForm] = createSignal<HarvestType | undefined>(
+    undefined,
+  );
 
   const harvestTypes = createQuery<HarvestType[]>(() => ({
     queryKey: ["harvest_types"],
@@ -48,7 +59,10 @@ export default function HarvestTypes() {
                   <TableCell>{harvestType.id}</TableCell>
                   <TableCell>{harvestType.name}</TableCell>
                   <TableCell>
-                    <IconButton disabled onClick={() => setEditForm(harvestType)}>
+                    <IconButton
+                      disabled
+                      onClick={() => setEditForm(harvestType)}
+                    >
                       <Edit />
                     </IconButton>
                   </TableCell>

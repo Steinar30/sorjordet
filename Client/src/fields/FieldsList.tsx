@@ -75,7 +75,7 @@ const RenderfieldsTable = (
   setSorting: (s: Sorting) => void,
   onDelete: undefined | ((x: number) => Promise<void>),
   maxItems?: number,
-  setEdit?: (field: FarmField) => undefined
+  setEdit?: (field: FarmField) => undefined,
 ) => {
   const [fieldPeek, setFieldPeek] = createSignal<DisplayedField | null>(null);
   const groupMap = new Map(groups.map((g) => [g.id, g]));
@@ -101,7 +101,7 @@ const RenderfieldsTable = (
             field.group_name.toLowerCase().includes(textFilter().toLowerCase())
           );
         }),
-    [fields, textFilter, getFieldGroup]
+    [fields, textFilter, getFieldGroup],
   );
 
   const getSortedFields = (f: Sorting) => {
@@ -145,7 +145,7 @@ const RenderfieldsTable = (
 
   const renderSortableHeader = (
     label: string,
-    sortKey: "name" | "group-name" | "size"
+    sortKey: "name" | "group-name" | "size",
   ) => {
     return (
       <TableCell sx={{ cursor: "pointer" }} onClick={toggleSort(sortKey)}>
@@ -244,7 +244,7 @@ const RenderfieldsTable = (
                         size="small"
                         onClick={() => {
                           const foundField = fields.find(
-                            (x) => x.id === field.id
+                            (x) => x.id === field.id,
                           );
                           if (foundField) {
                             setEdit(foundField);
@@ -282,7 +282,7 @@ export default function FieldsList(props?: {
 }) {
   const [farmFieldGroups] = createResource(getFarmFieldGroups);
   const [fields, setFields] = createResource(() =>
-    fetch("/api/farm_fields/all").then((a) => a.json() as Promise<FarmField[]>)
+    fetch("/api/farm_fields/all").then((a) => a.json() as Promise<FarmField[]>),
   );
   const [sorting, setSorting] = createSignal<Sorting>({
     sortKey: "size",
@@ -339,7 +339,7 @@ export default function FieldsList(props?: {
                   setSorting,
                   props?.showDelete === true ? deleteFunction : undefined,
                   props?.maxItems,
-                  props?.setEdit
+                  props?.setEdit,
                 )
               }
             </Show>

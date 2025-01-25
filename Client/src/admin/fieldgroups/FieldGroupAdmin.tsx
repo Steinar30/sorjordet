@@ -103,8 +103,8 @@ export default function FieldGroupAdmin() {
                 Cancel
               </Button>
               <FieldGroupForm
-                onSave={() =>{
-                  setEditForm(undefined); 
+                onSave={() => {
+                  setEditForm(undefined);
                   groups.refetch();
                 }}
                 toEdit={form()}

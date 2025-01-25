@@ -35,7 +35,10 @@ const App: Component = () => {
       <Router>
         <Route path="/" component={NoEditMap} />
         <Route path="/fields" component={() => <LazyFields />} />
-        <Route path="/fields/:id" component={x => <FieldDetails fieldId={Number(x.params.id)} />} />
+        <Route
+          path="/fields/:id"
+          component={(x) => <FieldDetails fieldId={Number(x.params.id)} />}
+        />
         <Route path="/login" component={lazy(() => import("./login/Login"))} />
         <Route path="/stats" component={lazy(() => import("./stats/Stats"))} />
         <Route path="/admin" component={lazy(() => import("./admin/Admin"))} />

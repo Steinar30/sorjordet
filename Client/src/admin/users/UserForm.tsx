@@ -17,7 +17,10 @@ function validateInput(group: UserInfo): boolean {
   return group.name.length > 0 && group.email.length > 0;
 }
 
-const createUser = async (user: UserInfo, password: string): Promise<UserInfo | null> => {
+const createUser = async (
+  user: UserInfo,
+  password: string,
+): Promise<UserInfo | null> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
@@ -25,8 +28,8 @@ const createUser = async (user: UserInfo, password: string): Promise<UserInfo | 
   }
   const body: User = {
     ...user,
-    password: password ?? ""
-  }
+    password: password ?? "",
+  };
   const result = await fetch("/api/users", {
     method: "POST",
     body: JSON.stringify(body),
@@ -50,7 +53,10 @@ const generateRandomPassword = () => {
   return result;
 };
 
-const updateUser = async (user: UserInfo, password: string | undefined): Promise<UserInfo | null> => {
+const updateUser = async (
+  user: UserInfo,
+  password: string | undefined,
+): Promise<UserInfo | null> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
@@ -58,8 +64,8 @@ const updateUser = async (user: UserInfo, password: string | undefined): Promise
   }
   const body: User = {
     ...user,
-    password: password ?? ""
-  }
+    password: password ?? "",
+  };
   const result = await fetch("/api/users/" + user.id, {
     method: "PATCH",
     body: JSON.stringify(body),
@@ -163,7 +169,10 @@ export function UserForm(props: {
           variant="contained"
           onClick={async () => {
             if (props.toEdit !== undefined) {
-              const result = await updateUser(form, newPassword() ? password() : undefined);
+              const result = await updateUser(
+                form,
+                newPassword() ? password() : undefined,
+              );
               if (result) {
                 props.onCreate(result);
               }

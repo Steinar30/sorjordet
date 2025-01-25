@@ -21,7 +21,7 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 
 export function PeekFieldMap(props: {
-  field: DisplayedField
+  field: DisplayedField;
   initialFeature?: Feature<Geometry>;
   onClose?: () => void;
 }) {
@@ -30,7 +30,6 @@ export function PeekFieldMap(props: {
   createEffect(() => {
     const m = mapObj();
     if (m != undefined && props.initialFeature != undefined) {
-
       const new_layer = new VectorLayer({
         source: new VectorSource({
           features: [props.initialFeature],
@@ -62,7 +61,7 @@ export function PeekFieldMap(props: {
       } else {
         return [1721600, 10692300];
       }
-    }
+    };
 
     const map = new Map({
       layers: [worldImagery],
@@ -98,7 +97,9 @@ export function PeekFieldMap(props: {
     map.addInteraction(select);
     if (props.initialFeature) {
       const x = props.initialFeature.getProperties();
-      const y: Polygon = props.initialFeature.getGeometry()?.simplifyTransformedInternal();
+      const y: Polygon = props.initialFeature
+        .getGeometry()
+        ?.simplifyTransformedInternal();
       const [cx, cy] = y.getInteriorPoint().getCoordinates();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [minx, miny, maxx, maxy] = y.getExtent();
@@ -106,9 +107,9 @@ export function PeekFieldMap(props: {
       selectElement.innerHTML = formatSelectedDiv(
         x["name"],
         x["group-name"],
-        formatArea(y)
+        formatArea(y),
       );
-      selectOverlay.setPosition([cx, maxy + (Math.abs(maxy - cy)) / 2]);
+      selectOverlay.setPosition([cx, maxy + Math.abs(maxy - cy) / 2]);
     }
 
     setMapObj(map);
@@ -117,8 +118,20 @@ export function PeekFieldMap(props: {
   return (
     <Dialog open={true} sx={{ width: "100%" }} onClose={props.onClose}>
       <DialogContent sx={{ padding: "0" }}>
-        <p style={{ margin: "1rem" }}>{props.field.group_name} - {props.field.name} - {(props.field.size / 1000).toFixed(3)} dekar</p>
-        <div id="map_container" style={{ height: "600px", width: "50vw", "min-width": "300px", "max-width": "550px" }} class="map"></div>
+        <p style={{ margin: "1rem" }}>
+          {props.field.group_name} - {props.field.name} -{" "}
+          {(props.field.size / 1000).toFixed(3)} dekar
+        </p>
+        <div
+          id="map_container"
+          style={{
+            height: "600px",
+            width: "50vw",
+            "min-width": "300px",
+            "max-width": "550px",
+          }}
+          class="map"
+        ></div>
       </DialogContent>
     </Dialog>
   );

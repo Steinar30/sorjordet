@@ -26,14 +26,14 @@ import { renderHarvest } from "./Harvest";
 
 const trygetHarvest = async (fieldId: number) => {
   return fetch(`/api/harvest_event/${fieldId}`).then(
-    (a) => a.json() as Promise<HarvestEvent[]>
+    (a) => a.json() as Promise<HarvestEvent[]>,
   );
 };
 
 const postNewHarvestEvent = async (
   fieldId: number,
   time: string,
-  type: HarvestType
+  type: HarvestType,
 ): Promise<HarvestEvent | undefined> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
@@ -75,7 +75,7 @@ export type ValidHarvest = {
 
 function datePicker(
   [date, setDate]: Signal<PickerValue>,
-  showInvalid: Accessor<boolean>
+  showInvalid: Accessor<boolean>,
 ) {
   return (
     <div class={styles.datePickerContainer}>
@@ -116,7 +116,7 @@ function datePicker(
 function harvestTypeSelect(
   [harvestType, setHarvestType]: Signal<HarvestType | undefined>,
   harvestTypes: HarvestType[],
-  showInvalid: Accessor<boolean>
+  showInvalid: Accessor<boolean>,
 ) {
   return (
     <FormControl fullWidth>
@@ -131,7 +131,7 @@ function harvestTypeSelect(
         error={showInvalid() && harvestType() == undefined}
         onChange={(value) => {
           setHarvestType(
-            harvestTypes.find((h) => h.name === value.target.value)
+            harvestTypes.find((h) => h.name === value.target.value),
           );
         }}
         label="Select Type"
@@ -147,7 +147,7 @@ function harvestTypeSelect(
 
 const groupSelect = (
   groups: FarmFieldGroupMeta[],
-  [harvestSelector, setHarvestSelector]: Signal<HarvestSelector>
+  [harvestSelector, setHarvestSelector]: Signal<HarvestSelector>,
 ) => {
   return (
     <FormControl fullWidth>
@@ -181,7 +181,7 @@ const groupSelect = (
 
 function fieldSelect(
   group: FarmFieldGroupMeta,
-  [harvestSelector, setHarvestSelector]: Signal<HarvestSelector>
+  [harvestSelector, setHarvestSelector]: Signal<HarvestSelector>,
 ) {
   return (
     <FormControl fullWidth>
@@ -232,7 +232,7 @@ function addHarvestButton(addHarvest: () => void) {
 const harvestSelect = (
   selectedHarvest: HarvestEvent | undefined,
   harvests: () => HarvestEvent[],
-  onSelect: (harvest: HarvestEvent) => void
+  onSelect: (harvest: HarvestEvent) => void,
 ) => {
   return (
     <FormControl fullWidth>
@@ -275,7 +275,7 @@ export function HarvestSelector(props: {
     harvests: undefined,
   });
   const [harvestType, setHarvestType] = createSignal<HarvestType | undefined>(
-    undefined
+    undefined,
   );
   const [date, setDate] = createSignal<PickerValue>({
     value: {},
@@ -301,30 +301,28 @@ export function HarvestSelector(props: {
     if (!field || !date_value || !harvest_type) {
       return;
     }
-    postNewHarvestEvent(field.id, date_value, harvest_type).then(
-      (harvest) => {
-        const s = harvestSelector();
-        if (
-          harvest == undefined ||
-          s.selectedGroup == undefined ||
-          s.selectedField == undefined
-        ) {
-          return;
-        }
-        setshowInvalid(false);
-        setHarvestSelector({
-          ...s,
-          selectedHarvestEvent: harvest,
-        });
-        s.harvests?.push(harvest);
-
-        props.selectHarvest({
-          group: s.selectedGroup,
-          field: s.selectedField,
-          harvest: harvest,
-        });
+    postNewHarvestEvent(field.id, date_value, harvest_type).then((harvest) => {
+      const s = harvestSelector();
+      if (
+        harvest == undefined ||
+        s.selectedGroup == undefined ||
+        s.selectedField == undefined
+      ) {
+        return;
       }
-    );
+      setshowInvalid(false);
+      setHarvestSelector({
+        ...s,
+        selectedHarvestEvent: harvest,
+      });
+      s.harvests?.push(harvest);
+
+      props.selectHarvest({
+        group: s.selectedGroup,
+        field: s.selectedField,
+        harvest: harvest,
+      });
+    });
   };
 
   return (
@@ -381,7 +379,7 @@ export function HarvestSelector(props: {
                             harvest: harvest,
                           });
                         }
-                      }
+                      },
                     )}
                   </Show>
 
@@ -401,7 +399,7 @@ export function HarvestSelector(props: {
                     {harvestTypeSelect(
                       [harvestType, setHarvestType],
                       harvestTypes.data ?? [],
-                      showInvalid
+                      showInvalid,
                     )}
                     {addHarvestButton(addNewHarvest)}
                   </div>

@@ -17,7 +17,7 @@ import { jwt_token } from "../App";
 import { HarvestSelector, ValidHarvest } from "./HarvestSelector";
 
 const updateHarvestEvent = async (
-  harvest: HarvestEvent
+  harvest: HarvestEvent,
 ): Promise<HarvestEvent | undefined> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
@@ -49,7 +49,7 @@ const renderDateTime = (t: string) => {
 export default function Harvest() {
   const [isOpen, setIsOpen] = createSignal(false);
   const [tractorMode, setTractorMode] = createSignal(
-    localStorage.getItem("tractor_mode") === "true"
+    localStorage.getItem("tractor_mode") === "true",
   );
   const selectedHarvest = createSignal<ValidHarvest>();
   const [isLoading, setIsLoading] = createSignal(false);
@@ -74,16 +74,16 @@ export default function Harvest() {
 
   const tractorModeAdd = (harvest: ValidHarvest) => {
     clearTimeout(syncTimer());
-    
+
     selectedHarvest[1]({
       ...harvest,
       harvest: {
         ...harvest.harvest,
         value: harvest.harvest.value + 1,
       },
-    })
-    
-    const timer = setTimeout(syncHarvestValue, 1000)
+    });
+
+    const timer = setTimeout(syncHarvestValue, 1000);
     setSyncTimer(timer);
   };
 
@@ -92,16 +92,16 @@ export default function Harvest() {
       return;
     }
     clearTimeout(syncTimer());
-    
+
     selectedHarvest[1]({
       ...harvest,
       harvest: {
         ...harvest.harvest,
         value: harvest.harvest.value - 1,
       },
-    })
-    
-    const timer = setTimeout(syncHarvestValue, 1000)
+    });
+
+    const timer = setTimeout(syncHarvestValue, 1000);
     setSyncTimer(timer);
   };
 
@@ -122,10 +122,10 @@ export default function Harvest() {
 
   const renderEditHarvest = (
     initialHarvest: ValidHarvest,
-    commit: (harvest: HarvestEvent) => void
+    commit: (harvest: HarvestEvent) => void,
   ) => {
     const [editHarvest, setEditHarvest] = createSignal<HarvestEvent>(
-      initialHarvest.harvest
+      initialHarvest.harvest,
     );
     return (
       <div
@@ -182,9 +182,10 @@ export default function Harvest() {
     );
   };
 
-  const renderSelectedHarvest = (
-    [harvest, setHarvest]: Signal<ValidHarvest>
-  ) => {
+  const renderSelectedHarvest = ([
+    harvest,
+    setHarvest,
+  ]: Signal<ValidHarvest>) => {
     const commitHarvest = (toCommit: HarvestEvent) => {
       setHarvest({ ...harvest(), harvest: toCommit });
     };
