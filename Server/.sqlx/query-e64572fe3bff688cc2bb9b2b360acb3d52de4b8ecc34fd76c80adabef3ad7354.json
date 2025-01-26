@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT coalesce(SUM(value), 0) as \"value!\", g.id as group_id, g.name as group_name, g.draw_color as group_color FROM\n        harvest_event e JOIN farm_field f ON  f.id = e.field_id\n        JOIN farm_field_group g ON g.id = f.farm_field_group_id\n        WHERE time BETWEEN $1 AND $2\n        GROUP BY g.id\n        ORDER BY 4\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "value!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "group_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "group_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "group_color",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e64572fe3bff688cc2bb9b2b360acb3d52de4b8ecc34fd76c80adabef3ad7354"
+}
