@@ -55,3 +55,12 @@ export function rgbToHex(rgba: string) {
   const [r, g, b] = rgba.match(/\d+/g)!.map(Number);
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
+
+export function formatDate(date: string) {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}

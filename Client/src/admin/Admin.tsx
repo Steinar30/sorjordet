@@ -7,14 +7,16 @@ import FieldsAdmin from "./fields/FieldsAdmin";
 import FieldGroupAdmin from "./fieldgroups/FieldGroupAdmin";
 import UserAdmin from "./users/UserAdmin";
 import HarvestTypes from "./harvest/HarvestTypes";
+import HarvestAdmin from "./harvest/HarvestAdmin";
 
-type AdminNav = "fields" | "field-groups" | "users" | "harvests";
-const adminButtons: AdminNav[] = [
+const adminButtons: string[] = [
   "fields",
   "field-groups",
   "users",
   "harvests",
+  "harvest-types",
 ];
+type AdminNav = typeof adminButtons[number];
 const toUpper = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function Admin() {
@@ -54,6 +56,9 @@ export default function Admin() {
             <UserAdmin />
           </Match>
           <Match when={currentView() === "harvests"}>
+            <HarvestAdmin />
+          </Match>
+          <Match when={currentView() === "harvest-types"}>
             <HarvestTypes />
           </Match>
         </Switch>
