@@ -1,5 +1,5 @@
 # Sørjordet
-> https://sørjordet.no
+> https://sorjordet.fly.dev
 
 Sorjordet is a web app for my family farm, where we can track harvest data in an interactive manner. It allows us to plot the fields we harvest onto a map, and group the fields by area.
 
