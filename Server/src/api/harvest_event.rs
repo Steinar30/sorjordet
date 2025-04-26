@@ -228,10 +228,54 @@ async fn patch_event(
     Ok(Json(payload))
 }
 
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export)]
+struct HarvestParams {
+    year: i32,
+    page: i32,
+    page_size: i32,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+#[ts(export)]
+struct HarvestPagination {
+    params: HarvestParams,
+    events: Vec<HarvestEvent>,
+}
+
+async fn paginated_events(
+    _claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Query(params): extract::Query<HarvestParams>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let page_offset = (params.page - 1) * params.page_size;
+    let result: Vec<HarvestEvent> = query_as!(
+        HarvestEvent,
+        "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id
+                FROM harvest_event AS e JOIN harvest_type AS h ON e.harvest_type_id = h.id
+                WHERE CAST(EXTRACT(year from time) as integer) = $1
+                ORDER BY time DESC
+                LIMIT $2 OFFSET $3
+            ",
+        params.year,
+        params.page_size as i64,
+        page_offset as i64
+    )
+    .fetch_all(&pool)
+    .await?;
+
+    let paginated = HarvestPagination {
+        params,
+        events: result,
+    };
+
+    Ok(Json(paginated))
+}
+
 pub fn harvest_event_router() -> Router<PgPool> {
     Router::new()
         .route("/aggregated_group_harvests", get(get_agged_group_harvests))
         .route("/aggregated_harvests", get(get_aggregated_harvests))
         .route("/:id", get(get_events).patch(patch_event))
-        .route("/", post(post_event))
+        .route("/", post(post_event).get(paginated_events))
 }

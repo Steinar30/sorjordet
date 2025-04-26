@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id\n                FROM harvest_event AS e JOIN harvest_type AS h ON e.harvest_type_id = h.id\n                WHERE CAST(EXTRACT(year from time) as integer) = $1\n                ORDER BY time DESC\n                LIMIT $2 OFFSET $3\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "value",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "time",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "field_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "type_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "type_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "40bfebdb1ad7a80acbea4f2e64f18e4e809dccf606b095b925a8390635412969"
+}
