@@ -26,6 +26,7 @@
   "dependencies": {
     "@rnwonder/solid-date-picker": "^1.4.1",
     "@solid-primitives/media": "^2.2.9",
+    "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.14.10",
     "@suid/icons-material": "^0.8.1",
     "@suid/material": "^0.18.0",

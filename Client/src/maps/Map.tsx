@@ -19,6 +19,7 @@ import "./Map.css";
 import { FarmField } from "../../bindings/FarmField";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { getFarmFieldGroupsWithFields } from "../requests";
+import { Meta, MetaProvider } from "@solidjs/meta";
 
 export function formatArea(polygon: Polygon | number | Geometry): string {
   if (typeof polygon === "number") {
@@ -181,8 +182,13 @@ export function NoEditMap() {
   });
 
   return (
-    <main style={{ display: "flex", height: "calc( 100vh - 64px )" }}>
-      <div id="map_container" class="map"></div>
-    </main>
+    <>
+      <MetaProvider>
+        <Meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <main style={{ display: "flex", height: "calc( 100vh - 64px )" }}>
+          <div id="map_container" class="map"></div>
+        </main>
+      </MetaProvider>
+    </>
   );
 }
