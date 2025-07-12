@@ -4,11 +4,10 @@ import { HarvestEvent } from "../../../bindings/HarvestEvent";
 import { Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow } from "@suid/material";
 import { prepareAuth } from "../../requests";
 import { HarvestPagination } from "../../../bindings/HarvestPagination";
-import { formatDate } from "../../Utils";
+import { formatDate, getYearRangeSinceYearToCurrent } from "../../Utils";
 import { FarmFieldMeta } from "../../../bindings/FarmFieldMeta";
 
-// https://stackoverflow.com/questions/1575271/range-of-years-in-javascript-for-a-select-box
-const years = Array.from({ length: (new Date().getFullYear() - 2022) / 1 + 1 }, (_, i) => 2022 + (i * 1));
+const years = getYearRangeSinceYearToCurrent(2022);
 
 // todo make this configurable maybe
 const page_size = 100;
@@ -27,7 +26,7 @@ export default function HarvestAdmin() {
   const [year, setYear] = createSignal(new Date().getFullYear());
 
   const fields = createQuery<FarmFieldMeta[]>(() => ({
-    queryKey: ["fields_meta"], 
+    queryKey: ["fields_meta"],
     queryFn: () => fetch("/api/farm_fields").then((a) => a.json())
   }));
 
@@ -96,7 +95,7 @@ export default function HarvestAdmin() {
                       <Show when={fields.data} fallback={<span>{harvestEvent.id}</span>}>
                         {fields.data?.find((f) => f.id === harvestEvent.field_id)?.name}
                       </Show>
-                      </TableCell>
+                    </TableCell>
                     <TableCell>{harvestEvent.type_name}</TableCell>
                   </TableRow>
                 )}

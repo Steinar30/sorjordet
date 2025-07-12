@@ -44,7 +44,7 @@ const App: Component = () => {
         <Route path="/admin" component={lazy(() => import("./admin/Admin"))} />
         <Route
           path="/harvest"
-          component={lazy(() => import("./harvest/Harvest"))}
+          component={lazy(() => import("./harvest/HarvestList"))}
         />
       </Router>
     </ThemeProvider>

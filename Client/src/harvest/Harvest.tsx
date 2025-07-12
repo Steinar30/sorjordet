@@ -1,4 +1,4 @@
-import { createSignal, Show, Signal } from "solid-js";
+import { Accessor, createSignal, Setter, Show } from "solid-js";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 import {
   Button,
@@ -13,8 +13,7 @@ import { prepareAuth } from "../requests";
 import TractorIcon from "@suid/icons-material/Agriculture";
 import TractorIconOutlined from "@suid/icons-material/AgricultureOutlined";
 
-import { jwt_token } from "../App";
-import { HarvestSelector, ValidHarvest } from "./HarvestSelector";
+import { ValidHarvest } from "./HarvestForm";
 
 const updateHarvestEvent = async (
   harvest: HarvestEvent,
@@ -46,23 +45,25 @@ const renderDateTime = (t: string) => {
   return time.toLocaleDateString("nb-NO");
 };
 
-export default function Harvest() {
-  const [isOpen, setIsOpen] = createSignal(false);
+export function Harvest({ selectedHarvest, setSelectedHarvest }: {
+  selectedHarvest: Accessor<ValidHarvest>;
+  setSelectedHarvest: Setter<ValidHarvest | undefined>
+}
+) {
   const [tractorMode, setTractorMode] = createSignal(
     localStorage.getItem("tractor_mode") === "true",
   );
-  const selectedHarvest = createSignal<ValidHarvest>();
   const [isLoading, setIsLoading] = createSignal(false);
   const [syncTimer, setSyncTimer] = createSignal(0);
 
   async function syncHarvestValue() {
-    const h = selectedHarvest[0]();
+    const h = selectedHarvest();
     if (isLoading() || !h) return;
     setIsLoading(true);
     try {
       const result = await updateHarvestEvent(h.harvest);
       if (result) {
-        selectedHarvest[1]({
+        setSelectedHarvest({
           ...h,
           harvest: result,
         });
@@ -75,7 +76,7 @@ export default function Harvest() {
   const tractorModeAdd = (harvest: ValidHarvest) => {
     clearTimeout(syncTimer());
 
-    selectedHarvest[1]({
+    setSelectedHarvest({
       ...harvest,
       harvest: {
         ...harvest.harvest,
@@ -93,7 +94,7 @@ export default function Harvest() {
     }
     clearTimeout(syncTimer());
 
-    selectedHarvest[1]({
+    setSelectedHarvest({
       ...harvest,
       harvest: {
         ...harvest.harvest,
@@ -116,6 +117,7 @@ export default function Harvest() {
         }}
         icon={<TractorIconOutlined />}
         checkedIcon={<TractorIcon />}
+        style={{ height: "fit-content" }}
       />
     );
   };
@@ -182,10 +184,7 @@ export default function Harvest() {
     );
   };
 
-  const renderSelectedHarvest = ([
-    harvest,
-    setHarvest,
-  ]: Signal<ValidHarvest>) => {
+  function RenderSelectedHarvest({ harvest, setHarvest }: { harvest: Accessor<ValidHarvest>, setHarvest: Setter<ValidHarvest | undefined> }) {
     const commitHarvest = (toCommit: HarvestEvent) => {
       setHarvest({ ...harvest(), harvest: toCommit });
     };
@@ -252,7 +251,7 @@ export default function Harvest() {
         </CardContent>
       </Card>
     );
-  };
+  }
 
   return (
     <div
@@ -263,30 +262,17 @@ export default function Harvest() {
         padding: "20px",
       }}
     >
-      <Show
-        when={jwt_token()}
-        fallback={<p>You don't have access to this page</p>}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => setSelectedHarvest(undefined)}
       >
-        <HarvestSelector
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          selectHarvest={(x) => {
-            selectedHarvest[1](x);
-            setIsOpen(false);
-          }}
-        />
-
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => setIsOpen(true)}
-        >
-          Choose or create harvest
-        </Button>
-        <Show when={selectedHarvest[0]() != undefined}>
-          {renderSelectedHarvest(selectedHarvest as Signal<ValidHarvest>)}
-        </Show>
-      </Show>
+        Back
+      </Button>
+      <RenderSelectedHarvest harvest={selectedHarvest} setHarvest={setSelectedHarvest} />
     </div>
   );
 }
+// note to self, make sure the filters are persisted between back and forth.
+// probably easiest to do this by switching the render order? 
+// either way we need the state to be changed so the fetching/filters is always rendered when on the page
