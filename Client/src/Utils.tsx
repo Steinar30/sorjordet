@@ -20,8 +20,8 @@ export function ConfirmDeleteDialog(props: {
         <DialogContentText>{props.title}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => props.onClose}>Cancel</Button>
-        <Button onClick={() => props.onConfirm}>Delete</Button>
+        <Button onClick={() => props.onClose()}>Cancel</Button>
+        <Button onClick={() => props.onConfirm()}>Delete</Button>
       </DialogActions>
     </Dialog>
   );

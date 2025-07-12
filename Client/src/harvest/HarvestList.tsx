@@ -1,14 +1,16 @@
 import { createInfiniteQuery, createQuery, InfiniteData, useQueryClient } from "@tanstack/solid-query";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
-import { Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow } from "@suid/material";
+import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow } from "@suid/material";
 import { HarvestPagination } from "../../bindings/HarvestPagination";
-import { formatDate, getYearRangeSinceYearToCurrent } from "../Utils";
+import { ConfirmDeleteDialog, formatDate, getYearRangeSinceYearToCurrent } from "../Utils";
 import { FarmFieldMeta } from "../../bindings/FarmFieldMeta";
 import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 import { jwt_token } from "../App";
 import { HarvestForm, ValidHarvest } from "./HarvestForm";
-import { Harvest } from "./Harvest";
+import { Harvest } from "./SelectedHarvest";
+import { Delete } from "@suid/icons-material";
+import { prepareAuth } from "../requests";
 
 const years = getYearRangeSinceYearToCurrent(2022);
 
@@ -30,6 +32,23 @@ const getHarvestEvents = async (page: number, year: number, field_id?: number, g
   return (await result).events;
 }
 
+const deleteHarvestEvent = async (id: number) => {
+  const authHeaders = prepareAuth(true);
+  if (authHeaders === null) {
+    console.log("not allowed to post without bearer token");
+    return false;
+  }
+  const response = await fetch(`/api/harvest_event/${id}`, {
+    method: "DELETE",
+    headers: authHeaders,
+  });
+  if (response.status === 200) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 export default function HarvestList() {
   const isAdmin = jwt_token() !== null;
   const [year, setYear] = createSignal(new Date().getFullYear());
@@ -38,6 +57,7 @@ export default function HarvestList() {
   const queryClient = useQueryClient();
   const [createNew, setCreateNew] = createSignal(false);
   const [selectedHarvest, setSelectedHarvest] = createSignal<ValidHarvest>();
+  const [toDelete, setToDelete] = createSignal<number | undefined>(undefined);
 
   const groups = createQuery<FarmFieldGroupMeta[]>(() => ({
     queryKey: ["field_groups"],
@@ -79,6 +99,19 @@ export default function HarvestList() {
     });
   }
 
+  function handleDeleteSuccess() {
+    setToDelete(undefined);
+    queryClient.invalidateQueries({
+      queryKey: ["harvestEventsInfinite", year(), field(), fieldGroup()],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["harvestEventsInfinite", year(), -1, fieldGroup()],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["harvestEventsInfinite", year(), -1, -1],
+    });
+  }
+
   function RenderHarvestList() {
     return (
       <main
@@ -96,6 +129,19 @@ export default function HarvestList() {
           field={field()}
           group={fieldGroup()}
         />
+        <Show when={isAdmin}>
+          <ConfirmDeleteDialog
+            open={toDelete() !== undefined}
+            onClose={() => setToDelete(undefined)}
+            onConfirm={() => {
+              const id = toDelete();
+              if (id !== undefined) {
+                deleteHarvestEvent(id).then(handleDeleteSuccess);
+              }
+            }}
+            title="Are you sure you want to delete this harvest?"
+          />
+        </Show>
         <div style={{ display: "flex", "justify-content": "space-between" }}>
           <FormControl style={{ width: "150px" }} size="small">
             <InputLabel shrink id="yearSelect">
@@ -232,6 +278,15 @@ export default function HarvestList() {
                       <TableCell>{harvestEvent.type_name}</TableCell>
                       <Show when={isAdmin}>
                         <TableCell>
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setToDelete(harvestEvent.id)
+                            }}
+                          >
+                            <Delete />
+                          </IconButton>
 
                         </TableCell>
                       </Show>
