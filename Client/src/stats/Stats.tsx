@@ -4,6 +4,7 @@ import HarvestChart from "./HarvestChart";
 
 import styles from "./Stats.module.css";
 import GroupHarvestChart from "./GroupHarvestChart";
+import BalesPerAreaChart from "./BalesPerAreaChart";
 
 export default function Stats() {
   return (
@@ -27,6 +28,12 @@ export default function Stats() {
           Harvests by field group
         </h2>
         <GroupHarvestChart />
+      </Card>
+      <Card class={styles.card} variant="outlined">
+        <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
+          Bales / Dekar
+        </h2>
+        <BalesPerAreaChart />
       </Card>
     </main>
   );
