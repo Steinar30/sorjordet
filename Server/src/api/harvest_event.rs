@@ -228,12 +228,28 @@ async fn patch_event(
     Ok(Json(payload))
 }
 
+async fn delete_event(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Path(event_id): extract::Path<i32>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    query!("DELETE FROM harvest_event WHERE id = $1", event_id)
+        .execute(&pool)
+        .await?;
+
+    tracing::info!("harvest_event {} deleted by {}", event_id, claims.sub);
+
+    Ok(())
+}
+
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export)]
 struct HarvestParams {
     year: i32,
     page: i32,
     page_size: i32,
+    field_id: Option<i32>,
+    group_id: Option<i32>,
 }
 
 #[derive(Deserialize, Serialize, TS)]
@@ -244,7 +260,6 @@ struct HarvestPagination {
 }
 
 async fn paginated_events(
-    _claims: Claims,
     State(pool): State<PgPool>,
     extract::Query(params): extract::Query<HarvestParams>,
 ) -> Result<impl IntoResponse, SorjordetError> {
@@ -252,14 +267,21 @@ async fn paginated_events(
     let result: Vec<HarvestEvent> = query_as!(
         HarvestEvent,
         "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id
-                FROM harvest_event AS e JOIN harvest_type AS h ON e.harvest_type_id = h.id
-                WHERE CAST(EXTRACT(year from time) as integer) = $1
+                FROM harvest_event AS e 
+                    JOIN harvest_type AS h ON e.harvest_type_id = h.id
+                    JOIN farm_field f ON f.id = e.field_id
+                    JOIN farm_field_group fg ON f.farm_field_group_id = fg.id
+                WHERE CAST(EXTRACT(year from time) as integer) = $1 
+                    AND ($4 = -1 OR f.id = $4)
+                    AND ($5 = -1 OR fg.id = $5)
                 ORDER BY time DESC
                 LIMIT $2 OFFSET $3
             ",
         params.year,
         params.page_size as i64,
-        page_offset as i64
+        page_offset as i64,
+        params.field_id.unwrap_or(-1),
+        params.group_id.unwrap_or(-1)
     )
     .fetch_all(&pool)
     .await?;
@@ -276,6 +298,9 @@ pub fn harvest_event_router() -> Router<PgPool> {
     Router::new()
         .route("/aggregated_group_harvests", get(get_agged_group_harvests))
         .route("/aggregated_harvests", get(get_aggregated_harvests))
-        .route("/:id", get(get_events).patch(patch_event))
+        .route(
+            "/:id",
+            get(get_events).patch(patch_event).delete(delete_event),
+        )
         .route("/", post(post_event).get(paginated_events))
 }

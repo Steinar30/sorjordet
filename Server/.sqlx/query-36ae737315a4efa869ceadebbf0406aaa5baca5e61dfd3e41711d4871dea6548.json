@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id\n                FROM harvest_event AS e JOIN harvest_type AS h ON e.harvest_type_id = h.id\n                WHERE CAST(EXTRACT(year from time) as integer) = $1\n                ORDER BY time DESC\n                LIMIT $2 OFFSET $3\n            ",
+  "query": "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id\n                FROM harvest_event AS e \n                    JOIN harvest_type AS h ON e.harvest_type_id = h.id\n                    JOIN farm_field f ON f.id = e.field_id\n                    JOIN farm_field_group fg ON f.farm_field_group_id = fg.id\n                WHERE CAST(EXTRACT(year from time) as integer) = $1 \n                    AND ($4 = -1 OR f.id = $4)\n                    AND ($5 = -1 OR fg.id = $5)\n                ORDER BY time DESC\n                LIMIT $2 OFFSET $3\n            ",
   "describe": {
     "columns": [
       {
@@ -38,7 +38,9 @@
       "Left": [
         "Int4",
         "Int8",
-        "Int8"
+        "Int8",
+        "Int4",
+        "Int4"
       ]
     },
     "nullable": [
@@ -50,5 +52,5 @@
       false
     ]
   },
-  "hash": "40bfebdb1ad7a80acbea4f2e64f18e4e809dccf606b095b925a8390635412969"
+  "hash": "36ae737315a4efa869ceadebbf0406aaa5baca5e61dfd3e41711d4871dea6548"
 }
