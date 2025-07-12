@@ -7,13 +7,11 @@ import FieldsAdmin from "./fields/FieldsAdmin";
 import FieldGroupAdmin from "./fieldgroups/FieldGroupAdmin";
 import UserAdmin from "./users/UserAdmin";
 import HarvestTypes from "./harvest/HarvestTypes";
-import HarvestAdmin from "./harvest/HarvestAdmin";
 
 const adminButtons: string[] = [
   "fields",
   "field-groups",
   "users",
-  "harvests",
   "harvest-types",
 ];
 type AdminNav = typeof adminButtons[number];
@@ -54,9 +52,6 @@ export default function Admin() {
           </Match>
           <Match when={currentView() === "users"}>
             <UserAdmin />
-          </Match>
-          <Match when={currentView() === "harvests"}>
-            <HarvestAdmin />
           </Match>
           <Match when={currentView() === "harvest-types"}>
             <HarvestTypes />
