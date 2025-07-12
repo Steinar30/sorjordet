@@ -24,7 +24,7 @@ export default function Stats() {
 
       <Card class={styles.card} variant="outlined">
         <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
-          Harvests by year
+          Harvests by field group
         </h2>
         <GroupHarvestChart />
       </Card>
