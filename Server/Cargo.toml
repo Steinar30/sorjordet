@@ -1,25 +1,25 @@
 [package]
 name = "sorjordet"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["..."]
 [[bin]]
 name = "sorjordet"
 path = "src/main.rs"
 
 [dependencies]
-tokio = {version = "1.41.1", features = ["full"]}
-axum = "0.7.9"
-axum-extra = {version = "0.9.3", features = ["typed-header"]}
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-sqlx = {version = "0.8.3", features = ["runtime-tokio-rustls", "postgres", "chrono"]}
+tokio = {version = "1.46.1", features = ["full"]}
+axum = "0.8.4"
+axum-extra = {version = "0.10.1", features = ["typed-header"]}
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+sqlx = {version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "chrono"]}
 serde = "1.0"
 serde_json = "1.0"
-tower-http = {version = "0.6.1", features = ["fs", "cors", "trace", "compression-full", "timeout"]}
+tower-http = {version = "0.6.6", features = ["fs", "cors", "trace", "compression-full", "timeout"]}
 ts-rs = {version= "8.1.0", features = ["chrono-impl","no-serde-warnings"]}
 argon2 = "0.5.3"
-jsonwebtoken = "9.3.0"
+jsonwebtoken = "9.3.1"
 lazy_static = "1.5.0"
-rand_core = { version = "0.6", features = ["std"] }
-chrono = { version = "0.4", features = ["serde"] }
+rand_core = { version = "0.9.3", features = ["std"] }
+chrono = { version = "0.4.41", features = ["serde"] }

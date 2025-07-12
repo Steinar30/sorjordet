@@ -1,15 +1,14 @@
 use std::collections::HashMap;
 
 use axum::{
-    self,
+    self, Json, Router,
     extract::{self, Query, State},
     response::IntoResponse,
     routing::{get, post},
-    Json, Router,
 };
 use chrono::{DateTime, Datelike, Days, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
+use sqlx::{FromRow, PgPool, query, query_as, query_scalar};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -95,9 +94,9 @@ impl HarvestAggParams {
 
 async fn get_aggregated_harvests(
     State(pool): State<PgPool>,
-    harvest_params: Option<Query<HarvestAggParams>>,
+    harvest_params: Query<HarvestAggParams>,
 ) -> Result<impl IntoResponse, SorjordetError> {
-    let (from, to) = harvest_params.unwrap_or_default().get_from_to();
+    let (from, to) = harvest_params.get_from_to();
 
     let timeseries: Vec<HarvestTimeseriesRaw> = query_as!(
         HarvestTimeseriesRaw,
@@ -132,9 +131,9 @@ async fn get_aggregated_harvests(
 
 async fn get_agged_group_harvests(
     State(pool): State<PgPool>,
-    harvest_params: Option<Query<HarvestAggParams>>,
+    harvest_params: Query<HarvestAggParams>,
 ) -> Result<impl IntoResponse, SorjordetError> {
-    let (from, to) = harvest_params.unwrap_or_default().get_from_to();
+    let (from, to) = harvest_params.get_from_to();
 
     let timeseries: Vec<GroupHarvestAgg> = query_as!(
         GroupHarvestAgg,
@@ -299,7 +298,7 @@ pub fn harvest_event_router() -> Router<PgPool> {
         .route("/aggregated_group_harvests", get(get_agged_group_harvests))
         .route("/aggregated_harvests", get(get_aggregated_harvests))
         .route(
-            "/:id",
+            "/{id}",
             get(get_events).patch(patch_event).delete(delete_event),
         )
         .route("/", post(post_event).get(paginated_events))

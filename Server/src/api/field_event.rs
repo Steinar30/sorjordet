@@ -1,13 +1,12 @@
 use axum::{
-    self,
+    self, Json, Router,
     extract::{self, State},
     response::IntoResponse,
     routing::{get, post},
-    Json, Router,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
+use sqlx::{FromRow, PgPool, query, query_as, query_scalar};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -100,6 +99,6 @@ async fn patch_event(
 
 pub fn field_event_router() -> Router<PgPool> {
     Router::new()
-        .route("/:field_id", get(get_events).patch(patch_event))
+        .route("/{field_id}", get(get_events).patch(patch_event))
         .route("/", post(post_event))
 }

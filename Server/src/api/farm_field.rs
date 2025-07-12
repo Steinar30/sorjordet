@@ -1,13 +1,12 @@
 use axum::{
-    self,
+    self, Json, Router,
     extract::{self, State},
     response::IntoResponse,
     routing::{delete, get},
-    Json, Router,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{query, FromRow};
-use sqlx::{query_as, query_scalar, PgPool};
+use sqlx::{FromRow, query};
+use sqlx::{PgPool, query_as, query_scalar};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -172,12 +171,12 @@ async fn delete_farm_field(
 pub fn farm_field_router() -> Router<PgPool> {
     Router::new()
         .route(
-            "/:field_id",
+            "/{field_id}",
             delete(delete_farm_field)
                 .get(get_farm_field_by_id)
                 .patch(patch_farm_field),
         )
-        .route("/group/:group_id", get(get_farm_field_by_group_id))
+        .route("/group/{group_id}", get(get_farm_field_by_group_id))
         .route("/all", get(get_all_farm_fields))
         .route("/", get(get_farm_fields_meta).post(post_farm_field))
 }

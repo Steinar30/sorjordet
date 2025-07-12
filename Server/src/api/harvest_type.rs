@@ -1,12 +1,11 @@
 use axum::{
-    self,
+    self, Json, Router,
     extract::{self, State},
     response::IntoResponse,
     routing::{get, patch},
-    Json, Router,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
+use sqlx::{FromRow, PgPool, query, query_as, query_scalar};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -79,6 +78,6 @@ async fn patch_type(
 
 pub fn harvest_type_router() -> Router<PgPool> {
     Router::new()
-        .route("/:type_id", patch(patch_type))
+        .route("/{type_id}", patch(patch_type))
         .route("/", get(get_types).post(post_type))
 }

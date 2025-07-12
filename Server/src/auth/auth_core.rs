@@ -1,13 +1,13 @@
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordVerifier, SaltString},
     Argon2, PasswordHasher,
+    password_hash::{PasswordHash, PasswordVerifier, SaltString, rand_core::OsRng},
 };
-use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
+use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
     TypedHeader,
+    headers::{Authorization, authorization::Bearer},
 };
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -86,7 +86,6 @@ pub fn generate_jwt(claims: &Claims) -> Result<String, SorjordetError> {
 }
 
 /// defines how to extract the claims from the request
-#[async_trait]
 impl<B> FromRequestParts<B> for Claims
 where
     B: Send + Sync,

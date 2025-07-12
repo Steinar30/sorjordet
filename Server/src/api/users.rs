@@ -1,17 +1,16 @@
 use axum::{
-    self,
+    self, Json, Router,
     extract::{self, State},
     response::IntoResponse,
     routing::{get, patch},
-    Json, Router,
 };
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, query_scalar, FromRow, PgPool};
+use sqlx::{FromRow, PgPool, query, query_as, query_scalar};
 use ts_rs::TS;
 
 use crate::{
-    auth::{hash_password, validate_password, Claims, User},
+    auth::{Claims, User, hash_password, validate_password},
     errors::SorjordetError,
 };
 lazy_static! {
@@ -129,6 +128,6 @@ async fn patch_user(
 
 pub fn users_router() -> Router<PgPool> {
     Router::new()
-        .route("/:user_id", patch(patch_user))
+        .route("/{user_id}", patch(patch_user))
         .route("/", get(get_users).post(create_user))
 }
