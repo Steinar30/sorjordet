@@ -1,3 +1,11 @@
+.harvestListRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  padding-top: 25px;
+}
+
 div.harvestSelectBody {
   display: flex;
   flex-direction: column;
@@ -32,4 +40,17 @@ div.harvestSelectBody {
   border-color: "#c4c4c4";
   text-transform: "none";
   font-size: "14px";
+}
+
+.listFilterContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.filterComponent {
+  flex-grow: 1;
+  max-width: 150px;
+  width: 100%;
 }
