@@ -81,6 +81,7 @@ export default function HarvestList() {
   }))
 
   function handleCreateNewEvent(event: ValidHarvest) {
+    setCreateNew(false);
     const date = new Date(event.harvest.time);
     const year = date.getFullYear();
     const fieldId = event.field.id;
