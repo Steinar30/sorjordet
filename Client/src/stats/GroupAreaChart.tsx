@@ -1,24 +1,29 @@
-import { createMemo, createResource, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { SolidApexCharts } from "solid-apexcharts";
-import { GroupHarvestAgg } from "../../bindings/GroupHarvestAgg";
 import { rgbToHex } from "../Utils";
 import { createQuery } from "@tanstack/solid-query";
 import { FarmField } from "../../bindings/FarmField";
 import { getMapPolygonArea } from "../maps/Map";
+import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 
-export default function BalesPerAreaChart() {
-  const [harvestsByYear] = createResource<GroupHarvestAgg[]>(() =>
-    fetch("/api/harvest_event/aggregated_group_harvests").then((a) => a.json()),
-  );
+export default function GroupAreaChart() {
 
   const fields = createQuery<FarmField[]>(() => ({
     queryKey: ["fields_all"],
     queryFn: () => fetch("/api/farm_fields/all").then((a) => a.json() as Promise<FarmField[]>),
   }));
 
-  const groupArea = createMemo<Map<number, number>>(() => {
-    // make mapping from groupId to 
-    const m = fields.data?.reduce((acc, field) => {
+  const groups = createQuery<FarmFieldGroupMeta[]>(() => ({
+    queryKey: ["field_groups"],
+    queryFn: () => fetch("/api/farm_field_groups/meta").then((a) => a.json()),
+  }));
+
+  const chartSeries = createMemo(() => {
+    if (!fields.data || !groups.data) {
+      return [];
+    }
+
+    const m = fields.data.reduce((acc, field) => {
       const groupId = field.farm_field_group_id;
       if (!groupId) return acc;
 
@@ -27,48 +32,33 @@ export default function BalesPerAreaChart() {
       return acc;
     }, new Map<number, number>());
 
-    return m || new Map();
-  });
-
-  const chartSeries = createMemo(() => {
-    if (!harvestsByYear()) {
-      return [];
-    }
     return [
       {
-        name: "Bales",
-        data: harvestsByYear()!.map((agg) => {
-          const area = groupArea().get(agg.group_id);
-          const y = area ? Number(agg.value) / area : 0;
-
+        name: "Dekar",
+        data: groups.data.map(group => {
+          const area = m.get(group.id) ?? 0;
           return ({
-            x: agg.group_name,
-            y: y.toPrecision(2),
-            fillColor: rgbToHex(agg.group_color),
+            x: group.name,
+            y: area.toFixed(2),
+            fillColor: rgbToHex(group.draw_color),
           })
-        }
-        ),
+        }),
       },
     ];
   })
 
   return (
-    <Show when={harvestsByYear()}>
+    <Show when={fields.data && groups.data}>
       <SolidApexCharts
         options={{
           plotOptions: {
             bar: {
-              horizontal: false,
+              horizontal: true,
             },
           },
           chart: {
             type: "bar",
-            height: 350,
-          },
-          yaxis: {
-            title: {
-              text: "Bales per Dekar",
-            },
+            height: 400,
           },
           fill: {
             opacity: 0.8,
@@ -76,7 +66,6 @@ export default function BalesPerAreaChart() {
         }}
         series={chartSeries()}
         type="bar"
-        vertical
         width="100%"
         height="100%"
       />

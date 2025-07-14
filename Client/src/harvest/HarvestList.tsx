@@ -123,13 +123,15 @@ export default function HarvestList() {
           width: "calc(100% - 40px)",
         }}
       >
-        <HarvestForm
-          isOpen={createNew}
-          selectHarvest={handleCreateNewEvent}
-          onClose={() => setCreateNew(false)}
-          field={field()}
-          group={fieldGroup()}
-        />
+        <Show when={createNew()} >
+          <HarvestForm
+            isOpen={createNew}
+            selectHarvest={handleCreateNewEvent}
+            onClose={() => setCreateNew(false)}
+            field={field}
+            group={fieldGroup}
+          />
+        </Show>
         <Show when={isAdmin}>
           <ConfirmDeleteDialog
             open={toDelete() !== undefined}

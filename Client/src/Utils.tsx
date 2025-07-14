@@ -27,8 +27,13 @@ export function ConfirmDeleteDialog(props: {
   );
 }
 
+type HexResult = {
+  r: number;
+  g: number;
+  b: number;
+}
 
-export function hexToRgb(hex: string) {
+export function hexToRgb(hex: string): HexResult | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
@@ -49,7 +54,7 @@ export function hexToRgbWithOpacity(hex: string, opacity: number) {
 }
 
 export function rgbToHex(rgba: string) {
-  if (rgba === "") {
+  if (!rgba || rgba === "") {
     return "#000";
   }
   const [r, g, b] = rgba.match(/\d+/g)!.map(Number);

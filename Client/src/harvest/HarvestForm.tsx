@@ -65,12 +65,12 @@ export function HarvestForm(props: {
   isOpen: Accessor<boolean>;
   selectHarvest: (event: ValidHarvest) => void;
   onClose: () => void;
-  group: FarmFieldGroupMeta | undefined;
-  field: FarmFieldMeta | undefined;
+  group: Accessor<FarmFieldGroupMeta | undefined>;
+  field: Accessor<FarmFieldMeta | undefined>;
 }) {
 
-  const [selectedGroup, setSelectedGroup] = createSignal<FarmFieldGroupMeta | undefined>(props.group)
-  const [selectedField, setSelectedField] = createSignal<FarmFieldMeta | undefined>(props.field)
+  const [selectedGroup, setSelectedGroup] = createSignal<FarmFieldGroupMeta | undefined>(props.group())
+  const [selectedField, setSelectedField] = createSignal<FarmFieldMeta | undefined>(props.field())
   const [harvestType, setHarvestType] = createSignal<HarvestType | undefined>();
   const [date, setDate] = createSignal<PickerValue>({
     value: {},
