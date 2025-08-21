@@ -23,7 +23,7 @@ export default function BalesPerAreaChart() {
       if (!groupId) return acc;
 
       const current = acc.get(groupId) ?? 0;
-      acc.set(groupId, current + getMapPolygonArea(field.map_polygon_string));
+      acc.set(groupId, current + getMapPolygonArea(field.map_polygon_string) / 1000);
       return acc;
     }, new Map<number, number>());
 
