@@ -14,7 +14,7 @@ export default function GroupHarvestChart() {
     }
     return [
       {
-        name: "Bales",
+        name: "Bales",        
         data: harvestsByYear()!.map((agg) => ({
           x: agg.group_name,
           y: agg.value,
@@ -28,6 +28,11 @@ export default function GroupHarvestChart() {
     <Show when={harvestsByYear()}>
       <SolidApexCharts
         options={{
+          dataLabels: {
+            style: {
+              colors: ["#333"],              
+            }
+          },
           plotOptions: {
             bar: {
               horizontal: false,

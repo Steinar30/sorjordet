@@ -51,6 +51,11 @@ export default function GroupAreaChart() {
     <Show when={fields.data && groups.data}>
       <SolidApexCharts
         options={{
+          dataLabels: {
+            style: {
+              colors: ["#333"],
+            }
+          },
           plotOptions: {
             bar: {
               horizontal: true,

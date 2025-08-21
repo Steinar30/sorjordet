@@ -56,6 +56,11 @@ export default function BalesPerAreaChart() {
     <Show when={harvestsByYear()}>
       <SolidApexCharts
         options={{
+          dataLabels: {
+            style: {
+              colors: ["#333"],
+            }
+          },
           plotOptions: {
             bar: {
               horizontal: false,

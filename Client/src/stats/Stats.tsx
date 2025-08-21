@@ -10,11 +10,11 @@ import GroupAreaChart from "./GroupAreaChart";
 export default function Stats() {
   return (
     <main class={styles.wrappingContainer}>
-      <Card class={styles.card} variant="outlined">
+      <Card style={{overflow: "auto"}} class={styles.card} variant="outlined">
         <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
           Fields
         </h2>
-        <FieldsList maxItems={7} disableSearch />
+        <FieldsList disableSearch />
       </Card>
 
       <Card class={styles.card} variant="outlined">

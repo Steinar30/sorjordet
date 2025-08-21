@@ -29,8 +29,8 @@ export default function HarvestChart() {
         return {
           name: agg.type_name,
           data: dates.map(
-            (date) => agg.harvests.find((a) => a.date == date)?.total ?? 0,
-          ),
+            (date) => (agg.harvests.find((a) => a.date == date)?.total) ?? 0,
+          ) as number[],
         };
       });
   };
@@ -51,10 +51,12 @@ export default function HarvestChart() {
         options={{
           chart: {
             type: "bar",
-            height: 300,
+            height: 400,
           },
           dataLabels: {
-            enabled: true,
+            style: {
+              colors: ["#333"],
+            }
           },
           xaxis: {
             categories: dates(),
