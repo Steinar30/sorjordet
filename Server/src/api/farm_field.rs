@@ -66,7 +66,7 @@ async fn get_farm_field_by_id(
     let result: FarmField = query_as!(
         FarmField,
         "SELECT id, name, map_polygon_string, farm_field_group_id, farm_id
-                FROM farm_field WHERE farm_id = $1
+                FROM farm_field WHERE field_id = $1
             ",
         field_id
     )
