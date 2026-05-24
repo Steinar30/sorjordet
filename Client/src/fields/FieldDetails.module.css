@@ -1,0 +1,52 @@
+.page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content {
+  display: grid;
+  gap: 20px;
+}
+
+.summary {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(260px, 1.1fr) minmax(0, 1fr);
+}
+
+.summaryInfo {
+  display: grid;
+  gap: 12px;
+}
+
+.mapShell {
+  min-width: 0;
+}
+
+.mapPreview {
+  height: 360px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+@media (max-width: 900px) {
+  .summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 12px;
+  }
+
+  .mapPreview {
+    height: 260px;
+  }
+}

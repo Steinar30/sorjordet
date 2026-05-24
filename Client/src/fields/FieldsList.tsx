@@ -8,6 +8,7 @@ import {
   Show,
 } from "solid-js";
 import { getFarmFieldGroups, prepareAuth } from "../requests";
+import { A } from "@solidjs/router";
 
 import {
   IconButton,
@@ -227,7 +228,9 @@ const RenderfieldsTable = (
                       }}
                     />
                   </TableCell>
-                  <TableCell>{field.name}</TableCell>
+                  <TableCell>
+                    <A href={`/fields/${field.id}`}>{field.name}</A>
+                  </TableCell>
                   <TableCell>{field.group_name}</TableCell>
                   <TableCell>{formatArea(field.size)}</TableCell>
                   <TableCell>
