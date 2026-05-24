@@ -1,5 +1,3 @@
-import FieldsList from "../fields/FieldsList";
-import { Card } from "@suid/material";
 import HarvestChart from "./HarvestChart";
 
 import styles from "./Stats.module.css";
@@ -8,40 +6,48 @@ import BalesPerAreaChart from "./BalesPerAreaChart";
 import GroupAreaChart from "./GroupAreaChart";
 
 export default function Stats() {
+  const charts = [
+    {
+      title: "Harvests by year",
+      eyebrow: "Season timeline",
+      chart: <HarvestChart />,
+    },
+    {
+      title: "Harvests by field group",
+      eyebrow: "Group totals",
+      chart: <GroupHarvestChart />,
+    },
+    {
+      title: "Bales / Dekar",
+      eyebrow: "Yield density",
+      chart: <BalesPerAreaChart />,
+    },
+    {
+      title: "Dekar per Group",
+      eyebrow: "Field coverage",
+      chart: <GroupAreaChart />,
+      wide: true,
+    },
+  ];
+
   return (
-    <main class={styles.wrappingContainer}>
-      <Card style={{overflow: "auto"}} class={styles.card} variant="outlined">
-        <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
-          Fields
-        </h2>
-        <FieldsList disableSearch />
-      </Card>
+    <main class={styles.page}>
+      <section class={styles.hero}>
+        <p class={styles.eyebrow}>Farm analytics</p>
+        <h1>Harvest overview</h1>
+      </section>
 
-      <Card class={styles.card} variant="outlined">
-        <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
-          Harvests by year
-        </h2>
-        <HarvestChart />
-      </Card>
-
-      <Card class={styles.card} variant="outlined">
-        <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
-          Harvests by field group
-        </h2>
-        <GroupHarvestChart />
-      </Card>
-      <Card class={styles.card} variant="outlined">
-        <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
-          Bales / Dekar
-        </h2>
-        <BalesPerAreaChart />
-      </Card>
-      <Card class={styles.card} style={{ height: "500px" }} variant="outlined">
-        <h2 style={{ "text-align": "center", "font-weight": "normal" }}>
-          Dekar per Group
-        </h2>
-        <GroupAreaChart />
-      </Card>
+      <section class={styles.chartGrid} aria-label="Farm statistics charts">
+        {charts.map((item) => (
+          <article class={`${styles.card} ${item.wide ? styles.wideCard : ""}`}>
+            <div class={styles.cardHeader}>
+              <p>{item.eyebrow}</p>
+              <h2>{item.title}</h2>
+            </div>
+            <div class={styles.chartFrame}>{item.chart}</div>
+          </article>
+        ))}
+      </section>
     </main>
   );
 }

@@ -1,20 +1,13 @@
-import {
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  Alert,
-} from "@suid/material";
+import { Alert, Box, Button, Paper, TextField } from "@suid/material";
+import { createSignal, Show } from "solid-js";
 import { createStore } from "solid-js/store";
+import { useNavigate } from "@solidjs/router";
 
 import logo from "/assets/farm-logo.svg";
 import styles from "./Login.module.css";
 import { LoginRequest } from "../../bindings/LoginRequest";
 import { LoginResponse } from "../../bindings/LoginResponse";
 import { jwt_localstore_key, set_jwt_token } from "../App";
-import { createSignal, Show } from "solid-js";
-import { useNavigate } from "@solidjs/router";
 
 const submit = async (
   form: LoginRequest,
@@ -72,14 +65,18 @@ export default function Login() {
   return (
     <div class={styles.loginContainer}>
       <Paper class={styles.loginPaper}>
-        <img src={logo} class={styles.loginLogo} alt="logo" />
+        <div class={styles.logoFrame}>
+          <img src={logo} class={styles.loginLogo} alt="logo" />
+        </div>
 
-        <Typography variant="h5">Sørjordet gård</Typography>
+        <div class={styles.loginHeader}>
+          <p>Welcome back</p>
+          <h1>Sørjordet gård</h1>
+        </div>
 
         <Box
           component="form"
-          class={styles.loginPaper}
-          sx={{ margin: 0, p: 0, pb: "1rem", pt: "1rem" }}
+          class={styles.loginForm}
           onsubmit={handleSubmit}
         >
           <TextField
@@ -88,7 +85,7 @@ export default function Login() {
             variant="outlined"
             size="small"
             onChange={updateField("username")}
-          ></TextField>
+          />
           <TextField
             id="password-field"
             label="Passord"
@@ -96,7 +93,7 @@ export default function Login() {
             size="small"
             type="password"
             onChange={updateField("password")}
-          ></TextField>
+          />
           <Button id="login-button" variant="contained" type="submit">
             Logg inn
           </Button>

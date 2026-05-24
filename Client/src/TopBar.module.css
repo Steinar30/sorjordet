@@ -1,58 +1,203 @@
 .headerContainer {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
   color: var(--dark-text-color);
-  border-bottom: solid 1px rgba(40, 50, 50, 0.1);
-  height: 64px;
+  background: rgba(250, 252, 248, 0.86);
+  border-bottom: 1px solid rgba(29, 47, 43, 0.08);
+  box-shadow: 0 8px 26px rgba(21, 38, 35, 0.06);
+  backdrop-filter: blur(18px) saturate(140%);
 }
 
-.headerContainer a {
+.toolbar {
+  width: min(1180px, calc(100vw - 24px));
+  min-height: 64px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.brandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 0 1 auto;
+  color: inherit;
   text-decoration: none;
 }
 
-.headerDrawerContainer {
-  padding: 10px;
+.brandMark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(32, 48, 43, 0.08);
+  box-shadow: 0 8px 18px rgba(25, 43, 39, 0.1);
 }
 
-.headerDrawerContainer a {
-  width: 100%;
+.brandMark img {
+  width: 31px;
+  height: 31px;
 }
 
-.headerLink {
-  margin-right: 10px;
+.brandTextWrap {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.brandEyebrow {
+  color: rgba(40, 52, 52, 0.58);
+  font-size: 0.72rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.brandTitle {
   color: var(--dark-text-color);
-  font-size: 1.25rem;
+  font-size: 1.12rem;
+  font-weight: 650;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.desktopNav {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(32, 48, 43, 0.08);
+}
+
+.navLink,
+.drawerNavItem {
+  appearance: none;
+  border: 0;
+  color: rgba(28, 45, 41, 0.86);
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 550;
   text-decoration: none;
-  padding: 5px 12px 8px 12px;
-  border-radius: 5px;
-  transition: all 300ms;
-  border: none;
-  background-color: transparent;
+  background: transparent;
   cursor: pointer;
 }
 
-.headerLink:hover {
-  background-color: rgba(40, 50, 50, 0.1);
+.navLink {
+  border-radius: var(--radius-pill);
+  padding: 9px 12px;
+  white-space: nowrap;
 }
 
-.headerImageButton {
+.navLink:hover,
+.drawerNavItem:hover {
+  background: rgba(34, 66, 59, 0.08);
+  color: var(--dark-text-color);
+}
+
+.mobileMenuButton {
+  display: none;
+  width: 42px;
+  height: 42px;
+  margin-left: auto;
+  place-items: center;
+  gap: 4px;
+  padding: 11px;
+  border: 1px solid rgba(32, 48, 43, 0.1);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 8px 18px rgba(20, 33, 30, 0.08);
+  cursor: pointer;
+}
+
+.menuLine {
+  width: 18px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--dark-text-color);
+}
+
+.drawerLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 1101;
+  background: rgba(16, 24, 22, 0.18);
+}
+
+.drawerPanel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: min(316px, calc(100vw - 20px));
+  max-height: calc(100dvh - 20px);
+  overflow: auto;
+  padding: 12px;
+  border-radius: var(--radius-xl);
+  background: rgba(252, 253, 250, 0.98);
+  border: 1px solid rgba(32, 48, 43, 0.1);
+  box-shadow: 0 24px 54px rgba(20, 33, 30, 0.18);
+}
+
+.drawerHeader {
+  padding: 4px 4px 12px;
+  border-bottom: 1px solid rgba(31, 51, 45, 0.08);
+}
+
+.drawerNav {
+  display: grid;
+  gap: 6px;
+  padding-top: 12px;
+}
+
+.drawerNavItem {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  flex-grow: 1;
-  max-width: 200px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.68);
+  text-align: left;
 }
 
-.headerImageButton img {
-  max-height: 48px;
-  max-width: 48px;
-  padding-left: 5px;
-}
+@media (max-width: 760px) {
+  .toolbar {
+    width: calc(100vw - 20px);
+    min-height: 58px;
+    padding: 7px 0;
+  }
 
-.headerImageText {
-  flex-grow: 1;
-  font-size: 2rem;
-  color: var(--dark-text-color);
-  padding: 0 10px;
-  text-transform: uppercase;
-  text-decoration: none;
+  .brandMark {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
+  }
+
+  .brandMark img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .brandEyebrow {
+    display: none;
+  }
+
+  .brandTitle {
+    font-size: 1rem;
+  }
+
+  .desktopNav {
+    display: none;
+  }
+
+  .mobileMenuButton {
+    display: grid;
+  }
 }

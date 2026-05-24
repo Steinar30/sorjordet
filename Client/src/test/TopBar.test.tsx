@@ -5,7 +5,6 @@ import { set_jwt_token, jwt_localstore_key } from "../App";
 
 describe("TopAppBar Component", () => {
   beforeEach(() => {
-    // Reset state before each test
     set_jwt_token(null);
     window.localStorage.clear();
   });
@@ -13,7 +12,7 @@ describe("TopAppBar Component", () => {
   it("renders Sørjordet logo and main brand name", () => {
     render(() => <TopAppBar />);
     expect(screen.getByText("Sørjordet")).toBeInTheDocument();
-    expect(screen.getByAltText("logo")).toBeInTheDocument();
+    expect(screen.getByAltText("Sørjordet logo")).toBeInTheDocument();
   });
 
   it("always shows public navigation links (Fields, Stats)", () => {
@@ -29,10 +28,9 @@ describe("TopAppBar Component", () => {
     expect(screen.queryByText("Harvest")).not.toBeInTheDocument();
   });
 
-  it("shows Admin, Harvest, and Log Out buttons when logged in", async () => {
+  it("shows Admin, Harvest, and Log Out buttons when logged in", () => {
     render(() => <TopAppBar />);
 
-    // Simulate logging in by setting the signal
     set_jwt_token("test-mock-jwt-token");
 
     expect(screen.queryByText("Log in")).not.toBeInTheDocument();
@@ -41,7 +39,7 @@ describe("TopAppBar Component", () => {
     expect(screen.getByText("Log out")).toBeInTheDocument();
   });
 
-  it("clears token and redirects to logged out view when Log Out is clicked", async () => {
+  it("clears token and redirects to logged out view when Log Out is clicked", () => {
     set_jwt_token("test-mock-jwt-token");
     window.localStorage.setItem(jwt_localstore_key, "test-mock-jwt-token");
 
@@ -50,10 +48,22 @@ describe("TopAppBar Component", () => {
     const logOutBtn = screen.getByText("Log out");
     fireEvent.click(logOutBtn);
 
-    // Verify localStorage was cleared
     expect(window.localStorage.removeItem).toHaveBeenCalledWith(jwt_localstore_key);
-    // Verify signal was set to null
     expect(screen.getByText("Log in")).toBeInTheDocument();
     expect(screen.queryByText("Admin")).not.toBeInTheDocument();
+  });
+
+  it("keeps the mobile menu open for inside clicks and closes it from the backdrop", () => {
+    render(() => <TopAppBar />);
+
+    fireEvent.click(screen.getByLabelText("Open menu"));
+    const drawer = screen.getByLabelText("Mobile navigation");
+    expect(drawer).toBeInTheDocument();
+
+    fireEvent.click(drawer);
+    expect(screen.getByLabelText("Mobile navigation")).toBeInTheDocument();
+
+    fireEvent.click(drawer.parentElement!);
+    expect(screen.queryByLabelText("Mobile navigation")).not.toBeInTheDocument();
   });
 });

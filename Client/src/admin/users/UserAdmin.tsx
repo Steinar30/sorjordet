@@ -14,6 +14,7 @@ import { Edit } from "@suid/icons-material";
 import { UserInfo } from "../../../bindings/UserInfo";
 import { UserForm } from "./UserForm";
 import { prepareAuth } from "../../requests";
+import styles from "../AdminSurface.module.css";
 
 const getUsers: () => Promise<UserInfo[]> = async () => {
   const authHeaders = prepareAuth(false);
@@ -37,59 +38,89 @@ export default function UserAdmin() {
 
   const RenderUsersList = () => {
     return (
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Username</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <For each={users.data}>
-              {(user) => (
+      <>
+        <div class={styles.tableCard}>
+          <TableContainer class={styles.tableWrap}>
+            <Table class={styles.table}>
+              <TableHead>
                 <TableRow>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => setEditForm(user)}>
-                      <Edit />
-                    </IconButton>
-                  </TableCell>
+                  <TableCell>Username</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell class={styles.mobileActionCell}></TableCell>
                 </TableRow>
-              )}
-            </For>
-          </TableBody>
-        </Table>
-      </TableContainer>
+              </TableHead>
+              <TableBody>
+                <For each={users.data}>
+                  {(user) => (
+                    <TableRow
+                      class={`${styles.row} ${styles.clickableRow}`}
+                      onClick={() => setEditForm(user)}
+                    >
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell class={styles.mobileActionCell}>
+                        <IconButton
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setEditForm(user);
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </For>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+        <div class={styles.mobileCards}>
+          <For each={users.data}>
+            {(user) => (
+              <article
+                class={styles.mobileCard}
+                onClick={() => setEditForm(user)}
+              >
+                <div class={styles.mobileCardTop}>
+                  <div>
+                    <h3 class={styles.mobileCardTitle}>{user.name}</h3>
+                    <p class={styles.mobileCardMeta}>Tap to edit account</p>
+                  </div>
+                </div>
+                <div class={styles.mobileCardFacts}>
+                  <div>
+                    <p>Email</p>
+                    <span>{user.email}</span>
+                  </div>
+                </div>
+              </article>
+            )}
+          </For>
+        </div>
+      </>
     );
   };
 
   const RenderUsers = () => {
     return (
-      <>
-        <Button
-          variant="contained"
-          sx={{ textWrap: "nowrap" }}
-          onClick={() => setNewForm(true)}
-        >
-          New user
-        </Button>
+      <div class={styles.page}>
+        <section class={styles.hero}>
+          <p class={styles.eyebrow}>Admin editor</p>
+          <h2>Users</h2>
+        </section>
+        <section class={styles.toolbar}>
+          <Button variant="contained" onClick={() => setNewForm(true)}>
+            New user
+          </Button>
+        </section>
         <RenderUsersList />
-      </>
+      </div>
     );
   };
 
   return (
-    <main
-      style={{
-        padding: "10px",
-        "max-width": "800px",
-        margin: "0 auto",
-        width: "calc(100% - 40px)",
-      }}
-    >
+    <main class={styles.page}>
       <Switch fallback={<RenderUsers />}>
         <Match when={editForm()}>
           {(form) => (
@@ -98,8 +129,8 @@ export default function UserAdmin() {
                 Cancel
               </Button>
               <UserForm
-                onCreate={(x) => {
-                  users.data?.map((u) => (u.id === x.id ? x : u));
+                onCreate={() => {
+                  users.refetch();
                   setEditForm(undefined);
                 }}
                 toEdit={form()}
@@ -112,8 +143,8 @@ export default function UserAdmin() {
             Cancel
           </Button>
           <UserForm
-            onCreate={(x) => {
-              users.data?.push(x);
+            onCreate={() => {
+              users.refetch();
               setNewForm(false);
             }}
           />

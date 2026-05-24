@@ -1,9 +1,10 @@
-import { Button, rgbToHex, TextField, Typography } from "@suid/material";
+import { Button, rgbToHex, TextField } from "@suid/material";
 import { createStore } from "solid-js/store";
 import { tryPatchNewFieldGroup, tryPostNewFieldGroup } from "../../requests";
 import { FarmFieldGroupMeta } from "../../../bindings/FarmFieldGroupMeta";
 import { Show } from "solid-js";
 import { hexToRgbWithOpacity } from "../../Utils";
+import formStyles from "../AdminForm.module.css";
 
 function validateInput(group: FarmFieldGroupMeta): boolean {
   return group.name.length > 0 && group.draw_color.length > 0;
@@ -11,12 +12,10 @@ function validateInput(group: FarmFieldGroupMeta): boolean {
 
 function colorPicker(val: string, callback: (x: string) => void) {
   return (
-    <div>
-      <label for="draw_color" style={{ "margin-right": "10px" }}>
-        Groupcolor
-      </label>
+    <div class={formStyles.colorRow}>
+      <label for="draw_color">Group color</label>
       <input
-        style={{ opacity: "0.4" }}
+        class={formStyles.colorSwatch}
         onchange={(ev) => {
           callback(hexToRgbWithOpacity(ev.currentTarget.value, 0.2));
         }}
@@ -51,46 +50,47 @@ export function FieldGroupForm(props: {
   };
 
   return (
-    <div id="map_form_container">
-      <div id="field_form">
+    <div class={formStyles.formShell}>
+      <div class={formStyles.header}>
+        <p class={formStyles.eyebrow}>Admin editor</p>
         <Show
           when={props.toEdit}
-          fallback={<Typography variant="h6">Add new field group</Typography>}
+          fallback={<h2>Add new field group</h2>}
         >
-          <Typography variant="h6">Edit field group</Typography>
+          <h2>Edit field group</h2>
         </Show>
-
-        <TextField
-          id="field-group-name"
-          label="Group name"
-          variant="outlined"
-          size="small"
-          value={form.name}
-          onChange={updateField("name")}
-        ></TextField>
-
-        {colorPicker(form.draw_color, (z) => setForm({ ["draw_color"]: z }))}
-
-        <Button
-          disabled={!validateInput(form)}
-          size="small"
-          variant="contained"
-          onClick={async () => {
-            const groupForm = { ...form, fields: [] };
-            let result;
-            if (props.toEdit) {
-              result = await tryPatchNewFieldGroup(groupForm);
-            } else {
-              result = await tryPostNewFieldGroup(groupForm);
-            }
-            if (result) {
-              props.onSave();
-            }
-          }}
-        >
-          Save Group
-        </Button>
       </div>
+
+      <TextField
+        id="field-group-name"
+        label="Group name"
+        variant="outlined"
+        size="small"
+        value={form.name}
+        onChange={updateField("name")}
+      ></TextField>
+
+      {colorPicker(form.draw_color, (z) => setForm({ ["draw_color"]: z }))}
+
+      <Button
+        disabled={!validateInput(form)}
+        size="small"
+        variant="contained"
+        onClick={async () => {
+          const groupForm = { ...form, fields: [] };
+          let result;
+          if (props.toEdit) {
+            result = await tryPatchNewFieldGroup(groupForm);
+          } else {
+            result = await tryPostNewFieldGroup(groupForm);
+          }
+          if (result) {
+            props.onSave();
+          }
+        }}
+      >
+        Save Group
+      </Button>
     </div>
   );
 }

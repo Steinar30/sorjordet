@@ -1,38 +1,185 @@
 .page {
-  padding: 20px;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1180px;
   margin: 0 auto;
+  padding: 20px 14px 40px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .content {
   display: grid;
-  gap: 20px;
+  gap: 16px;
+  min-width: 0;
+}
+
+.backRow {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.card {
+  border: 1px solid rgba(26, 46, 40, 0.08) !important;
+  border-radius: var(--radius-xl) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06) !important;
+  overflow: hidden;
+}
+
+.editPanel {
+  display: grid;
+  gap: 12px;
+}
+
+.editOnlyPage {
+  display: grid;
+  gap: 12px;
+}
+
+.editPanelHeader {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+}
+
+.editContextCard {
+  padding: 16px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top left, rgba(223, 236, 226, 0.82), transparent 42%),
+    rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+}
+
+.editContextEyebrow {
+  margin: 0;
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.editContextCard h1 {
+  margin: 4px 0 0;
+  color: var(--dark-text-color);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  line-height: 1.02;
+}
+
+.editContextMeta {
+  margin: 6px 0 0;
+  color: rgba(40, 52, 52, 0.64);
+  font-size: 0.98rem;
+}
+
+.editPanelHeader h2 {
+  margin: 4px 0 0;
+  color: var(--dark-text-color);
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
 }
 
 .summary {
   display: grid;
   gap: 20px;
-  grid-template-columns: minmax(260px, 1.1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  min-width: 0;
 }
 
 .summaryInfo {
   display: grid;
+  align-content: start;
   gap: 12px;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  margin: 0;
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fieldTitle {
+  color: var(--dark-text-color);
+  font-weight: 760 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.03 !important;
+}
+
+.fieldGroup {
+  color: rgba(40, 52, 52, 0.64);
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.statTile {
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--radius-lg);
+  background: rgba(247, 250, 246, 0.78);
+}
+
+.statTile p {
+  margin: 0 0 5px;
+  color: rgba(35, 50, 47, 0.54);
+  font-size: 0.66rem;
+  font-weight: 720;
+  text-transform: uppercase;
+}
+
+.statTile strong {
+  display: block;
+  color: var(--dark-text-color);
+  font-size: 1rem;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mapShell {
   min-width: 0;
+  padding-top: 2px;
 }
 
 .mapPreview {
   height: 360px;
   width: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
+.sectionTitle {
+  color: var(--dark-text-color);
+  font-weight: 720 !important;
+}
+
 .tableContainer {
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 900px) {
@@ -43,7 +190,39 @@
 
 @media (max-width: 640px) {
   .page {
-    padding: 12px;
+    padding-top: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .summary {
+    padding: 14px !important;
+  }
+
+  .editPanelHeader,
+  .titleRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .statGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .statTile {
+    padding: 8px 7px;
+  }
+
+  .statTile p {
+    margin-bottom: 4px;
+    font-size: 0.58rem;
+    letter-spacing: -0.01em;
+  }
+
+  .statTile strong {
+    font-size: 0.88rem;
+    letter-spacing: -0.03em;
   }
 
   .mapPreview {

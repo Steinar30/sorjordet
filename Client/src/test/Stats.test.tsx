@@ -110,7 +110,6 @@ describe("Stats Component", () => {
     ));
 
     // Assert that the container header cards render properly
-    expect(screen.getByRole("heading", { name: "Fields" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Harvests by year" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Harvests by field group" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Bales / Dekar" })).toBeInTheDocument();

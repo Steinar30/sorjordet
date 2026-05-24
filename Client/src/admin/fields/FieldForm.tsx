@@ -1,5 +1,4 @@
 import {
-  Typography,
   TextField,
   Button,
   Select,
@@ -20,6 +19,7 @@ import { Feature } from "ol";
 
 import { getFarmFieldGroups, tryPostNewField } from "../../requests";
 import { DrawableMap } from "../../maps/DrawableMap";
+import styles from "./FieldForm.module.css";
 
 function validateFarmInput(
   field: FarmField,
@@ -90,9 +90,12 @@ export function FieldForm(props: { onCreate: () => void }) {
   };
 
   return (
-    <div id="map_form_container">
-      <div id="field_form">
-        <Typography variant="h6">Add new field</Typography>
+    <div class={styles.fieldEditor}>
+      <div class={styles.formPanel}>
+        <div class={styles.formHeader}>
+          <p>Field editor</p>
+          <h2>Add new field</h2>
+        </div>
 
         <TextField
           id="field-name"
@@ -105,25 +108,22 @@ export function FieldForm(props: { onCreate: () => void }) {
 
         {selectComponent()}
 
-        <Typography variant="body2">
+        <p class={styles.hint}>
           Draw an outline of the field in the map below to show it in maps.
-        </Typography>
+        </p>
 
         <Button
           disabled={!validateFarmInput(form, feature[0](), validFeature[0]())}
           size="small"
           variant="contained"
           onClick={async () => {
-            console.log("click of button");
             const f = feature[0]();
             if (f) {
               const json = new GeoJSON().writeFeature(f);
+              const newField = { ...form, map_polygon_string: json };
               setForm({ ["map_polygon_string"]: json });
-              const result = await tryPostNewField(form);
+              const result = await tryPostNewField(newField);
               if (result) {
-                console.log("created field");
-                const res = form;
-                res.id = result;
                 props.onCreate();
               }
             }
@@ -132,7 +132,9 @@ export function FieldForm(props: { onCreate: () => void }) {
           Save field
         </Button>
       </div>
-      <DrawableMap feature={feature} closed={validFeature} />
+      <div class={styles.mapPanel}>
+        <DrawableMap feature={feature} closed={validFeature} />
+      </div>
     </div>
   );
 }

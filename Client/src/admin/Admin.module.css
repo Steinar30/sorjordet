@@ -1,42 +1,86 @@
 .container {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px 14px 38px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.adminHero,
+.adminButtonsOuter,
+.accessCard {
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+}
+
+.adminHero {
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.adminHero p {
+  margin: 0;
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.adminHero h1 {
+  margin: 4px 0 0;
+  color: var(--dark-text-color);
+  font-size: clamp(1.45rem, 4vw, 2.1rem);
+  line-height: 1.08;
 }
 
 .adminButtonsOuter {
-  padding: 8px 16px;
-  max-width: max-content;
-  margin: 0 auto;
-  width: calc(100% - 32px);
-  overflow: auto;
+  padding: 8px;
+  margin-bottom: 12px;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .adminButtons {
   display: flex;
   width: max-content;
-  gap: 16px;
-  margin: 10px 0;
+  min-width: 0;
+  gap: 8px;
 }
 
 .adminButtons button {
+  border-radius: var(--radius-pill);
+  text-transform: none;
   text-wrap: nowrap;
+}
+
+.accessCard {
+  width: min(520px, 100%);
+  margin: 48px auto 0;
+  padding: 18px;
+  text-align: center;
+}
+
+.accessCard p {
+  margin: 0;
+  color: rgba(32, 52, 50, 0.74);
+  font-weight: 650;
 }
 
 @media (max-width: 640px) {
   .container {
-    align-items: stretch;
+    padding-top: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .adminButtonsOuter {
-    padding: 8px 12px;
-    width: calc(100% - 24px);
-  }
-
-  .adminButtons {
-    gap: 10px;
-    margin: 6px 0;
+    padding: 6px;
   }
 }

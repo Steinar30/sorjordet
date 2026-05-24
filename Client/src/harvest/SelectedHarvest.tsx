@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@suid/material";
 import { prepareAuth } from "../requests";
+import styles from "./Harvest.module.css";
 
 import TractorIcon from "@suid/icons-material/Agriculture";
 import TractorIconOutlined from "@suid/icons-material/AgricultureOutlined";
@@ -117,7 +118,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
         }}
         icon={<TractorIconOutlined />}
         checkedIcon={<TractorIcon />}
-        style={{ height: "fit-content" }}
+        class={styles.tractorToggle}
       />
     );
   };
@@ -130,21 +131,13 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
       initialHarvest.harvest,
     );
     return (
-      <div
-        style={{
-          display: "flex",
-          "flex-direction": "column",
-          gap: "16px",
-          "margin-top": "16px",
-        }}
-      >
+      <div class={styles.selectedEditForm}>
         <TextField
           fullWidth
           id="outlined-basic"
           label="Value"
           variant="outlined"
           type="number"
-          sx={{ marginTop: "20px" }}
           value={editHarvest().value}
           onChange={(x) => {
             const parsed = parseInt(x.currentTarget.value);
@@ -155,7 +148,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
             }
           }}
         />
-        <div style={{ display: "flex", "justify-content": "space-evenly" }}>
+        <div class={styles.selectedActions}>
           <Button
             disabled={
               editHarvest().value === initialHarvest.harvest.value &&
@@ -191,14 +184,10 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
     return (
       <Card
         variant="outlined"
-        sx={{
-          padding: "20px",
-          marginTop: "40px",
-          width: "300px",
-        }}
+        class={styles.selectedHarvestCard}
       >
         <CardContent>
-          <div style={{ display: "flex", "justify-content": "space-between" }}>
+          <div class={styles.selectedHarvestTop}>
             <Typography variant="h4">{harvest().field.name}</Typography>
 
             {tractorModeButton()}
@@ -207,7 +196,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
             {harvest().group.name}
           </Typography>
           <Typography
-            sx={{ marginTop: "10px" }}
+            class={styles.selectedHarvestSubtitle}
             variant="h6"
             color="text.primary"
           >
@@ -219,19 +208,13 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
             fallback={renderEditHarvest(harvest(), commitHarvest)}
           >
             <Typography
-              sx={{ marginTop: "20px", textAlign: "center" }}
+              class={styles.tractorValue}
               variant="h1"
               color="text.primary"
             >
               {harvest().harvest.value}
             </Typography>
-            <div
-              style={{
-                display: "flex",
-                "justify-content": "space-evenly",
-                "margin-top": "20px",
-              }}
-            >
+            <div class={styles.tractorActions}>
               <Button
                 variant="contained"
                 size="large"
@@ -254,14 +237,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        "flex-direction": "column",
-        "align-items": "center",
-        padding: "20px",
-      }}
-    >
+    <div class={styles.selectedHarvestPage}>
       <Button
         variant="outlined"
         color="primary"

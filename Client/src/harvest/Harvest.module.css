@@ -1,9 +1,48 @@
 .harvestListRoot {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 18px 14px 36px;
+  box-sizing: border-box;
+}
+
+.harvestPage {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.harvestHero,
+.listFilterContainer,
+.tableCard,
+.accessCard {
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+}
+
+.harvestHero {
   display: flex;
-  flex-direction: column;
+  gap: 12px;
   align-items: center;
-  padding: 10px;
-  padding-top: 25px;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.harvestHero h1 {
+  margin: 4px 0 0;
+  color: var(--dark-text-color);
+  font-size: clamp(1.45rem, 4vw, 2.1rem);
+  line-height: 1.08;
 }
 
 div.harvestSelectBody {
@@ -15,6 +54,11 @@ div.harvestSelectBody {
   max-width: 300px;
   min-width: 200px;
   width: calc(80vw - 40px);
+}
+
+.harvestDialog {
+  width: min(420px, calc(100vw - 20px));
+  border-radius: var(--radius-xl) !important;
 }
 
 .harvestSelectBody > :first-child {
@@ -45,12 +89,234 @@ div.harvestSelectBody {
 .listFilterContainer {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
+  padding: 12px;
 }
 
 .filterComponent {
-  flex-grow: 1;
-  max-width: 150px;
+  flex: 1 1 180px;
   width: 100%;
+}
+
+.newHarvestButton {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.tableCard {
+  overflow: hidden;
+}
+
+.mobileHarvestCards {
+  display: none;
+  gap: 10px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.harvestTable {
+  min-width: 720px;
+}
+
+.harvestRow {
+  cursor: pointer;
+}
+
+.harvestRow:hover {
+  background: rgba(241, 247, 244, 0.88);
+}
+
+.harvestCard {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+  cursor: pointer;
+}
+
+.harvestCardTop {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.harvestCardLabel,
+.harvestCardFacts p {
+  margin: 0 0 3px;
+  color: rgba(35, 50, 47, 0.54);
+  font-size: 0.62rem;
+  font-weight: 720;
+  text-transform: uppercase;
+}
+
+.harvestCardTop strong {
+  display: block;
+  color: var(--dark-text-color);
+  font-size: 1.04rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.harvestCardGroupName {
+  display: block;
+  margin-top: 4px;
+  color: rgba(40, 52, 52, 0.64);
+  font-size: 0.85rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.harvestCardFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.harvestCardFacts div {
+  min-width: 0;
+  padding: 8px;
+  border-radius: var(--radius-lg);
+  background: rgba(247, 250, 246, 0.78);
+}
+
+.harvestCardFacts span {
+  display: block;
+  color: var(--dark-text-color);
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.loadMoreButton {
+  justify-self: center;
+}
+
+.accessCard {
+  width: min(520px, 100%);
+  margin: 48px auto 0;
+  padding: 18px;
+  text-align: center;
+}
+
+.accessCard p {
+  margin: 0;
+  color: rgba(32, 52, 50, 0.74);
+  font-weight: 650;
+}
+
+.selectedHarvestPage {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+
+.selectedHarvestCard {
+  width: min(420px, 100%);
+  border: 1px solid rgba(26, 46, 40, 0.08) !important;
+  border-radius: var(--radius-xl) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 18px 42px rgba(18, 33, 28, 0.1) !important;
+}
+
+.selectedHarvestTop {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.tractorToggle {
+  flex: 0 0 auto;
+  height: fit-content;
+}
+
+.selectedHarvestSubtitle {
+  margin-top: 10px !important;
+}
+
+.selectedEditForm {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.selectedActions,
+.tractorActions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.selectedActions button,
+.tractorActions button {
+  min-width: 96px;
+}
+
+.tractorValue {
+  margin-top: 18px !important;
+  text-align: center;
+  font-weight: 760 !important;
+}
+
+@media (max-width: 640px) {
+  .harvestListRoot {
+    padding: 12px 10px 28px;
+  }
+
+  .harvestHero {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .newHarvestButton {
+    width: 100%;
+  }
+
+  .listFilterContainer {
+    padding: 10px;
+  }
+
+  .filterComponent {
+    flex-basis: 100%;
+  }
+
+  .tableCard {
+    display: none;
+  }
+
+  .mobileHarvestCards {
+    display: grid;
+  }
+
+  div.harvestSelectBody {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 12px 16px;
+  }
+
+  .datePickerContainer {
+    flex-direction: column;
+  }
+
+  .selectedHarvestCard {
+    width: 100%;
+  }
+
+  .selectedHarvestTop,
+  .selectedActions,
+  .tractorActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }

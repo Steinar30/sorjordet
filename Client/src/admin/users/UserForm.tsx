@@ -12,6 +12,7 @@ import { UserInfo } from "../../../bindings/UserInfo";
 import { createSignal, Show } from "solid-js";
 import { RestartAlt } from "@suid/icons-material";
 import { User } from "../../../bindings/User";
+import styles from "../AdminForm.module.css";
 
 function validateInput(group: UserInfo): boolean {
   return group.name.length > 0 && group.email.length > 0;
@@ -105,8 +106,11 @@ export function UserForm(props: {
 
   const PasswordContainer = () => {
     return (
-      <div style={{ display: "flex", "justify-content": "space-between" }}>
-        <p>Password: {password()}</p>
+      <div class={styles.passwordRow}>
+        <div class={styles.passwordHeader}>
+          <p class={styles.passwordLabel}>Generated password</p>
+          <p class={styles.passwordValue}>{password()}</p>
+        </div>
         <IconButton
           sx={{ width: "40px", height: "40px" }}
           onClick={() => {
@@ -120,73 +124,81 @@ export function UserForm(props: {
   };
 
   return (
-    <div id="map_form_container">
-      <div id="field_form">
-        <Typography variant="h6">Add user</Typography>
-
-        <TextField
-          id="username"
-          label="Username"
-          variant="outlined"
-          size="small"
-          value={form.name}
-          onChange={updateField("name")}
-        />
-
-        <TextField
-          id="email"
-          label="Email"
-          variant="outlined"
-          size="small"
-          value={form.email}
-          onChange={updateField("email")}
-        />
-
-        <Show
-          when={props.toEdit !== undefined}
-          fallback={<PasswordContainer />}
-        >
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={newPassword()}
-                onChange={() => {
-                  setNewPassword(!newPassword());
-                }}
-              />
-            }
-            label="New Password"
-          />
-
-          <Show when={newPassword()}>
-            <PasswordContainer />
-          </Show>
-        </Show>
-
-        <Button
-          disabled={!validateInput(form)}
-          size="small"
-          variant="contained"
-          onClick={async () => {
-            if (props.toEdit !== undefined) {
-              const result = await updateUser(
-                form,
-                newPassword() ? password() : undefined,
-              );
-              if (result) {
-                props.onCreate(result);
-              }
-            } else {
-              const result = await createUser(form, password());
-              if (result) {
-                props.onCreate(result);
-              }
-            }
-          }}
-        >
-          Save user
-        </Button>
+    <div class={styles.formShell}>
+      <div class={styles.header}>
+        <p class={styles.eyebrow}>Admin editor</p>
+        <Typography variant="h6">
+          {props.toEdit ? "Edit user" : "Add user"}
+        </Typography>
       </div>
+      <p class={styles.intro}>
+        {props.toEdit
+          ? "Update the account details and optionally roll a fresh password."
+          : "Create a new account with a generated password you can hand off right away."}
+      </p>
+
+      <TextField
+        id="username"
+        label="Username"
+        variant="outlined"
+        size="small"
+        value={form.name}
+        onChange={updateField("name")}
+      />
+
+      <TextField
+        id="email"
+        label="Email"
+        variant="outlined"
+        size="small"
+        value={form.email}
+        onChange={updateField("email")}
+      />
+
+      <Show
+        when={props.toEdit !== undefined}
+        fallback={<PasswordContainer />}
+      >
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={newPassword()}
+              onChange={() => {
+                setNewPassword(!newPassword());
+              }}
+            />
+          }
+          label="Generate new password"
+        />
+
+        <Show when={newPassword()}>
+          <PasswordContainer />
+        </Show>
+      </Show>
+
+      <Button
+        disabled={!validateInput(form)}
+        size="small"
+        variant="contained"
+        onClick={async () => {
+          if (props.toEdit !== undefined) {
+            const result = await updateUser(
+              form,
+              newPassword() ? password() : undefined,
+            );
+            if (result) {
+              props.onCreate(result);
+            }
+          } else {
+            const result = await createUser(form, password());
+            if (result) {
+              props.onCreate(result);
+            }
+          }
+        }}
+      >
+        Save user
+      </Button>
     </div>
   );
 }

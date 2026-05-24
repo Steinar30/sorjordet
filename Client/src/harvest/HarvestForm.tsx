@@ -156,6 +156,7 @@ export function HarvestForm(props: {
         setshowInvalid(false);
         props.onClose();
       }}
+      PaperProps={{ class: styles.harvestDialog }}
     >
       <DialogTitle>New harvest</DialogTitle>
       <DialogContent class={styles.harvestSelectBody}>

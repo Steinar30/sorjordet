@@ -187,6 +187,12 @@ export default function HarvestEvents() {
     });
   };
 
+  const fieldLabel = (fieldId: number) =>
+    fieldLookup().get(fieldId)?.fieldName ?? fieldId.toString();
+
+  const groupLabel = (fieldId: number) =>
+    fieldLookup().get(fieldId)?.groupName ?? "-";
+
   return (
     <main class={styles.page}>
       <Dialog
@@ -291,6 +297,11 @@ export default function HarvestEvents() {
         </DialogActions>
       </Dialog>
 
+      <section class={styles.hero}>
+        <p class={styles.eyebrow}>Admin editor</p>
+        <h2>Harvest events</h2>
+      </section>
+
       <div class={styles.toolbar}>
         <FormControl size="small" class={styles.yearFilter}>
           <InputLabel shrink id="harvest-year-filter">
@@ -315,61 +326,110 @@ export default function HarvestEvents() {
       </div>
 
       <Show when={harvestEvents.data}>
-        <TableContainer class={styles.tableContainer}>
-          <Table size="small" class={styles.table}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Field</TableCell>
-                <TableCell>Group</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell align="right">Value</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <For each={harvestEvents.data?.pages}>
-                {(page) => (
-                  <For each={page}>
-                    {(event) => (
-                      <TableRow>
-                        <TableCell class={styles.cell}>
-                          {formatDate(event.time)}
-                        </TableCell>
-                        <TableCell
-                          class={`${styles.cell} ${styles.fieldCell}`}
+        <>
+          <div class={styles.tableCard}>
+            <TableContainer class={styles.tableContainer}>
+            <Table size="small" class={styles.table}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Field</TableCell>
+                  <TableCell>Group</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell align="right">Value</TableCell>
+                  <TableCell class={styles.mobileActionCell}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <For each={harvestEvents.data?.pages}>
+                  {(page) => (
+                    <For each={page}>
+                      {(event) => (
+                        <TableRow
+                          class={`${styles.row} ${styles.clickableRow}`}
+                          onClick={() => openEditForm(event)}
                         >
-                          {fieldLookup().get(event.field_id)?.fieldName ?? event.field_id}
-                        </TableCell>
-                        <TableCell
-                          class={`${styles.cell} ${styles.groupCell}`}
-                        >
-                          {fieldLookup().get(event.field_id)?.groupName ?? "-"}
-                        </TableCell>
-                        <TableCell
-                          class={`${styles.cell} ${styles.typeCell}`}
-                        >
-                          {event.type_name}
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          class={`${styles.cell} ${styles.valueCell}`}
-                        >
-                          {event.value}
-                        </TableCell>
-                        <TableCell align="right" class={styles.cell}>
-                          <IconButton size="small" onClick={() => openEditForm(event)}>
-                            <Edit />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </For>
-                )}
-              </For>
-            </TableBody>
-          </Table>
-        </TableContainer>
+                          <TableCell class={styles.cell}>
+                            {formatDate(event.time)}
+                          </TableCell>
+                          <TableCell
+                            class={`${styles.cell} ${styles.fieldCell}`}
+                          >
+                            {fieldLabel(event.field_id)}
+                          </TableCell>
+                          <TableCell
+                            class={`${styles.cell} ${styles.groupCell}`}
+                          >
+                            {groupLabel(event.field_id)}
+                          </TableCell>
+                          <TableCell
+                            class={`${styles.cell} ${styles.typeCell}`}
+                          >
+                            {event.type_name}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            class={`${styles.cell} ${styles.valueCell}`}
+                          >
+                            {event.value}
+                          </TableCell>
+                          <TableCell align="right" class={`${styles.cell} ${styles.mobileActionCell}`}>
+                            <IconButton
+                              size="small"
+                              onClick={(rowEvent) => {
+                                rowEvent.stopPropagation();
+                                openEditForm(event);
+                              }}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </For>
+                  )}
+                </For>
+              </TableBody>
+            </Table>
+          </TableContainer>
+          </div>
+
+          <div class={styles.mobileCards}>
+            <For each={harvestEvents.data?.pages}>
+              {(page) => (
+                <For each={page}>
+                  {(event) => (
+                    <article
+                      class={styles.mobileCard}
+                      onClick={() => openEditForm(event)}
+                    >
+                      <div class={styles.mobileCardTop}>
+                        <div>
+                          <h3 class={styles.mobileCardTitle}>{fieldLabel(event.field_id)}</h3>
+                          <p class={styles.mobileCardMeta}>{groupLabel(event.field_id)}</p>
+                        </div>
+                      </div>
+                      <div class={styles.mobileCardFacts}>
+                        <div>
+                          <p>Date</p>
+                          <span>{formatDate(event.time)}</span>
+                        </div>
+                        <div>
+                          <p>Type</p>
+                          <span>{event.type_name}</span>
+                        </div>
+                        <div>
+                          <p>Value</p>
+                          <span>{event.value}</span>
+                        </div>
+                      </div>
+                    </article>
+                  )}
+                </For>
+              )}
+            </For>
+          </div>
+        </>
 
         <Show when={harvestEvents.hasNextPage}>
           <Button

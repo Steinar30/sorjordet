@@ -80,6 +80,10 @@ vi.mock("ol/Map", () => {
       addLayer = vi.fn();
       addOverlay = vi.fn();
       addInteraction = vi.fn();
+      getView = vi.fn().mockReturnValue({
+        fit: vi.fn(),
+      });
+      setTarget = vi.fn();
     },
   };
 });
@@ -103,6 +107,22 @@ vi.mock("ol/source", () => {
   };
 });
 
+vi.mock("ol/source/Vector", () => {
+  return {
+    default: class MockVectorSource {
+      constructor() {}
+    },
+  };
+});
+
+vi.mock("ol/source/XYZ", () => {
+  return {
+    default: class MockXYZSource {
+      constructor() {}
+    },
+  };
+});
+
 vi.mock("ol/layer", () => {
   return {
     Tile: class MockTileLayer {
@@ -115,13 +135,29 @@ vi.mock("ol/layer", () => {
   };
 });
 
+vi.mock("ol/layer/Vector", () => {
+  return {
+    default: class MockVectorLayer {
+      constructor() {}
+      setProperties = vi.fn();
+    },
+  };
+});
+
 vi.mock("ol/format/GeoJSON", () => {
   return {
     default: class MockGeoJSON {
       readFeature = vi.fn().mockImplementation(() => {
         return {
+          getId: () => undefined,
           getGeometry: () => {
             return {
+              getInteriorPoint: () => {
+                return {
+                  getCoordinates: () => [1721600, 10692300],
+                };
+              },
+              getExtent: () => [0, 0, 1, 1],
               simplifyTransformedInternal: () => {
                 return {
                   getInteriorPoint: () => {
@@ -185,6 +221,7 @@ vi.mock("ol", () => {
   return {
     Feature: class MockFeature {
       constructor() {}
+      getId = vi.fn().mockReturnValue(undefined);
       set = vi.fn();
       getProperties = vi.fn().mockReturnValue({});
     },

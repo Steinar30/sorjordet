@@ -1,9 +1,96 @@
+import {
+  createMemo,
+  createResource,
+  createSignal,
+  For,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
+import { Button } from "@suid/material";
+import { FarmField } from "../../bindings/FarmField";
+import { getFarmFieldGroups } from "../requests";
+import { formatArea, getMapPolygonArea } from "../maps/Map";
+import styles from "./Fields.module.css";
 import FieldsList from "./FieldsList";
+import { jwt_token } from "../App";
+import { FieldForm } from "../admin/fields/FieldForm";
 
 export default function Fields() {
+  const [showCreateForm, setShowCreateForm] = createSignal(false);
+  const [groups] = createResource(getFarmFieldGroups);
+  const [fields] = createResource(() =>
+    fetch("/api/farm_fields/all").then((response) =>
+      response.json() as Promise<FarmField[]>,
+    ),
+  );
+
+  const fieldAreas = createMemo(() =>
+    (fields() ?? []).map((field) => ({
+      ...field,
+      area: getMapPolygonArea(field.map_polygon_string),
+    })),
+  );
+
+  const totalArea = createMemo(() =>
+    fieldAreas().reduce((sum, field) => sum + Math.max(field.area, 0), 0),
+  );
+
+  const stats = createMemo(() => [
+    { label: "Fields", value: (fields()?.length ?? "...").toString() },
+    { label: "Groups", value: (groups()?.length ?? "...").toString() },
+    { label: "Total area", value: fields() ? formatArea(totalArea()) : "..." },
+  ]);
+
   return (
-    <main style={{ padding: "20px", "max-width": "1200px", margin: "0 auto" }}>
-      <FieldsList />
+    <main class={styles.page}>
+      <section class={styles.summaryBar} aria-label="Field summary">
+        <For each={stats()}>
+          {(stat) => (
+            <article class={styles.statTile}>
+              <p class={styles.statLabel}>{stat.label}</p>
+              <p class={styles.statValue}>{stat.value}</p>
+            </article>
+          )}
+        </For>
+      </section>
+
+      <Switch>
+        <Match when={showCreateForm()}>
+          <section class={styles.managementPanel}>
+            <div class={styles.managementHeader}>
+              <div>
+                <p class={styles.managementEyebrow}>Logged-in tools</p>
+                <h2>Create a field</h2>
+              </div>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setShowCreateForm(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+            <FieldForm onCreate={() => setShowCreateForm(false)} />
+          </section>
+        </Match>
+        <Match when={!showCreateForm()}>
+          <FieldsList
+            showDelete={jwt_token() !== null}
+            addButton={() => (
+              <Show when={jwt_token()}>
+                <Button
+                  variant="contained"
+                  sx={{ textWrap: "nowrap" }}
+                  onClick={() => setShowCreateForm(true)}
+                >
+                  New field
+                </Button>
+              </Show>
+            )}
+          />
+        </Match>
+      </Switch>
     </main>
   );
 }

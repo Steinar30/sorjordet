@@ -1,27 +1,354 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px 14px 36px;
+}
+
+.summaryBar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.statTile,
+.fieldsHeader,
+.tableCard,
+.fieldCard {
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+}
+
+.statTile {
+  min-width: 0;
+  padding: 12px;
+  border-radius: var(--radius-xl);
+}
+
+.statLabel {
+  margin: 0 0 8px;
+  color: rgba(35, 50, 47, 0.55);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.statValue {
+  margin: 0;
+  color: var(--dark-text-color);
+  font-size: 1.18rem;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .fieldsList {
-  gap: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.managementPanel {
+  display: grid;
+  gap: 12px;
+}
+
+.managementHeader {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: start;
-  justify-content: space-evenly;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+}
+
+.managementEyebrow {
+  margin: 0;
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.managementHeader h2 {
+  margin: 4px 0 0;
+  color: var(--dark-text-color);
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
 }
 
 .fieldsHeader {
-  gap: 16px;
   display: flex;
+  gap: 12px;
   justify-content: space-between;
-  width: 100%;
-  max-width: 800px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-radius: var(--radius-xl);
+  padding: 12px;
 }
 
-@media (max-width: 640px) {
-  .fieldsList {
-    gap: 12px;
+.headerLead {
+  display: grid;
+  gap: 3px;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--dark-text-color);
+}
+
+.headerMeta {
+  margin: 0;
+  color: rgba(40, 52, 52, 0.62);
+  font-size: 0.88rem;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.searchField {
+  min-width: min(260px, 100%);
+}
+
+.tableCard {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  min-width: 720px;
+}
+
+.tableRow:hover {
+  background: rgba(241, 247, 244, 0.88);
+}
+
+.headerCell {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(35, 50, 47, 0.66);
+}
+
+.colorDot {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(59, 69, 66, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.fieldLink {
+  text-decoration: none;
+  color: var(--dark-text-color);
+  font-weight: 650;
+}
+
+.fieldLink:hover {
+  text-decoration: underline;
+}
+
+.mobileCards {
+  display: none;
+  gap: 10px;
+}
+
+.fieldCard {
+  border-radius: var(--radius-xl);
+  padding: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.fieldCardTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.fieldCardTitle {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fieldCardMapAction {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.fieldCardName {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--dark-text-color);
+  overflow-wrap: anywhere;
+}
+
+.fieldCardGroup {
+  margin: 0;
+  color: rgba(40, 52, 52, 0.62);
+  font-size: 0.9rem;
+}
+
+.fieldCardFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.factTile {
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.74);
+  padding: 10px;
+  min-width: 0;
+}
+
+.factLabel {
+  margin: 0 0 5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.68rem;
+  color: rgba(35, 50, 47, 0.54);
+}
+
+.factValue {
+  margin: 0;
+  color: var(--dark-text-color);
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.fieldCardActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+@media (max-width: 860px) {
+  .summaryBar {
+    gap: 8px;
   }
 
-  .fieldsHeader {
-    flex-direction: column;
+  .statTile {
+    padding: 10px;
+  }
+
+  .statLabel {
+    margin-bottom: 6px;
+    font-size: 0.68rem;
+  }
+
+  .statValue {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 12px 10px 28px;
+  }
+
+  .headerActions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .managementHeader {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .searchField {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tableCard {
+    display: none;
+  }
+
+  .mobileCards {
+    display: grid;
+  }
+
+  .fieldCard {
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .fieldCardTop {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .fieldCardName {
+    font-size: 0.96rem;
+    line-height: 1.2;
+  }
+
+  .fieldCardGroup {
+    font-size: 0.82rem;
+  }
+
+  .fieldCardFacts {
+    gap: 6px;
+  }
+
+  .factTile {
+    padding: 8px;
+  }
+
+  .factLabel {
+    margin-bottom: 3px;
+    font-size: 0.62rem;
+  }
+
+  .factValue {
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 430px) {
+  .summaryBar {
+    gap: 6px;
+  }
+
+  .statTile {
+    padding: 8px 7px;
+  }
+
+  .statLabel {
+    margin-bottom: 4px;
+    font-size: 0.58rem;
+    letter-spacing: -0.01em;
+  }
+
+  .statValue {
+    font-size: 0.88rem;
+    letter-spacing: -0.03em;
   }
 }

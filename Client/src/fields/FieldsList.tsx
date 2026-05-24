@@ -7,26 +7,18 @@ import {
   JSX,
   Show,
 } from "solid-js";
-import { getFarmFieldGroups, prepareAuth } from "../requests";
 import { A } from "@solidjs/router";
-
 import {
   IconButton,
   Skeleton,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
   TextField,
 } from "@suid/material";
-import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
-import { FarmField } from "../../bindings/FarmField";
-import {
-  formatArea,
-  getMapPolygonArea,
-  parseJsonIntoFeature,
-} from "../maps/Map";
 import {
   ArrowUpward,
   Delete,
@@ -34,6 +26,14 @@ import {
   Map as MapIcon,
 } from "@suid/icons-material";
 
+import { getFarmFieldGroups, prepareAuth } from "../requests";
+import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
+import { FarmField } from "../../bindings/FarmField";
+import {
+  formatArea,
+  getMapPolygonArea,
+  parseJsonIntoFeature,
+} from "../maps/Map";
 import styles from "./Fields.module.css";
 import { ConfirmDeleteDialog } from "../Utils";
 import { PeekFieldMap } from "../maps/PeekFieldMap";
@@ -68,7 +68,7 @@ const deleteField = async (id: number) => {
   }
 };
 
-const RenderfieldsTable = (
+const renderFieldsTable = (
   fields: FarmField[],
   groups: FarmFieldGroup[],
   textFilter: Accessor<string>,
@@ -79,7 +79,7 @@ const RenderfieldsTable = (
   setEdit?: (field: FarmField) => undefined,
 ) => {
   const [fieldPeek, setFieldPeek] = createSignal<DisplayedField | null>(null);
-  const groupMap = new Map(groups.map((g) => [g.id, g]));
+  const groupMap = new Map(groups.map((group) => [group.id, group]));
   const getFieldGroup = (id: number | null) =>
     id === null ? null : groupMap.get(id);
 
@@ -105,40 +105,38 @@ const RenderfieldsTable = (
     [fields, textFilter, getFieldGroup],
   );
 
-  const getSortedFields = (f: Sorting) => {
+  const getSortedFields = (currentSorting: Sorting) => {
     const sorted = displayFields().sort((a, b) => {
-      if (f.sortKey === "name") {
-        if (f.direction === "asc") {
-          return a.name.localeCompare(b.name);
-        } else {
-          return b.name.localeCompare(a.name);
-        }
-      } else if (f.sortKey === "group-name") {
-        if (f.direction === "asc") {
-          return a.group_name.localeCompare(b.group_name);
-        } else {
-          return b.group_name.localeCompare(a.group_name);
-        }
-      } else if (f.sortKey === "size") {
-        if (f.direction === "asc") {
-          return a.size - b.size;
-        } else {
-          return b.size - a.size;
-        }
-      } else {
-        return 0;
+      if (currentSorting.sortKey === "name") {
+        return currentSorting.direction === "asc"
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
       }
+
+      if (currentSorting.sortKey === "group-name") {
+        return currentSorting.direction === "asc"
+          ? a.group_name.localeCompare(b.group_name)
+          : b.group_name.localeCompare(a.group_name);
+      }
+
+      if (currentSorting.sortKey === "size") {
+        return currentSorting.direction === "asc"
+          ? a.size - b.size
+          : b.size - a.size;
+      }
+
+      return 0;
     });
+
     return maxItems ? sorted.slice(0, maxItems) : sorted;
   };
 
   const toggleSort = (sortKey: "name" | "group-name" | "size") => () => {
     if (sortKey === sorting().sortKey) {
-      if (sorting().direction === "asc") {
-        setSorting({ ...sorting(), direction: "desc" });
-      } else {
-        setSorting({ ...sorting(), direction: "asc" });
-      }
+      setSorting({
+        ...sorting(),
+        direction: sorting().direction === "asc" ? "desc" : "asc",
+      });
     } else {
       setSorting({ ...sorting(), sortKey, direction: "asc" });
     }
@@ -149,7 +147,11 @@ const RenderfieldsTable = (
     sortKey: "name" | "group-name" | "size",
   ) => {
     return (
-      <TableCell sx={{ cursor: "pointer" }} onClick={toggleSort(sortKey)}>
+      <TableCell
+        class={styles.headerCell}
+        sx={{ cursor: "pointer" }}
+        onClick={toggleSort(sortKey)}
+      >
         {label}
         {sorting().sortKey === sortKey && sorting().direction === "asc" && (
           <ArrowUpward
@@ -157,6 +159,7 @@ const RenderfieldsTable = (
               width: "1rem",
               height: "1rem",
               transition: "transform 300ms",
+              "margin-left": "4px",
             }}
           />
         )}
@@ -167,6 +170,7 @@ const RenderfieldsTable = (
               width: "1rem",
               height: "1rem",
               transition: "transform 300ms",
+              "margin-left": "4px",
             }}
           />
         )}
@@ -175,20 +179,45 @@ const RenderfieldsTable = (
   };
 
   const tryGetFieldFeature = (id: number, groupName: string) => {
-    const field = fields.find((f) => f.id === id);
-    if (field) {
-      const f = parseJsonIntoFeature(field, groupName);
-      if (f) {
-        return f;
-      } else {
-        return undefined;
-      }
+    const field = fields.find((entry) => entry.id === id);
+    if (!field) {
+      return undefined;
     }
-    return undefined;
+
+    const feature = parseJsonIntoFeature(field, groupName);
+    return feature ?? undefined;
   };
 
-  const actionRowSize =
-    (35 + (setEdit ? 35 : 0) + (onDelete ? 35 : 0)).toString() + "px";
+  const renderMapButton = (field: DisplayedField) => (
+    <IconButton size="small" onClick={() => setFieldPeek(field)} title="Open map">
+      <MapIcon />
+    </IconButton>
+  );
+
+  const hasEditActions = setEdit !== undefined || onDelete !== undefined;
+
+  const renderEditButtons = (field: DisplayedField) => (
+    <Show when={hasEditActions}>
+      {setEdit !== undefined && (
+        <IconButton
+          size="small"
+          onClick={() => {
+            const foundField = fields.find((entry) => entry.id === field.id);
+            if (foundField) {
+              setEdit(foundField);
+            }
+          }}
+        >
+          <Edit />
+        </IconButton>
+      )}
+      {onDelete !== undefined && (
+        <IconButton size="small" onClick={() => onDelete(field.id)}>
+          <Delete />
+        </IconButton>
+      )}
+    </Show>
+  );
 
   return (
     <>
@@ -201,77 +230,113 @@ const RenderfieldsTable = (
           />
         )}
       </Show>
-      <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              {renderSortableHeader("Name", "name")}
-              {renderSortableHeader("Field Group", "group-name")}
-              {renderSortableHeader("Size", "size")}
-              <TableCell sx={{ width: actionRowSize }}></TableCell>
-            </TableRow>
-          </TableHead>
-          <For each={getSortedFields(sorting())}>
-            {(field) => {
-              return (
-                <TableRow>
-                  <TableCell sx={{ width: "20px" }}>
-                    <span
-                      style={{
-                        display: "block",
-                        "background-color": field.draw_color,
-                        width: "20px",
-                        height: "20px",
-                        "border-radius": "50%",
-                        border: "1px solid gray",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <A href={`/fields/${field.id}`}>{field.name}</A>
-                  </TableCell>
-                  <TableCell>{field.group_name}</TableCell>
-                  <TableCell>{formatArea(field.size)}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setFieldPeek(field);
-                      }}
-                    >
-                      <MapIcon />
-                    </IconButton>
-                    {setEdit !== undefined && (
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          const foundField = fields.find(
-                            (x) => x.id === field.id,
-                          );
-                          if (foundField) {
-                            setEdit(foundField);
-                          }
-                        }}
-                      >
-                        <Edit />
-                      </IconButton>
-                    )}
-                    {onDelete !== undefined && (
-                      <IconButton
-                        size="small"
-                        onClick={() => onDelete(field.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            }}
-          </For>
-        </Table>
-      </TableContainer>
+
+      <div class={styles.tableCard}>
+        <TableContainer class={styles.tableWrap}>
+          <Table size="small" class={styles.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell class={styles.headerCell}></TableCell>
+                {renderSortableHeader("Name", "name")}
+                {renderSortableHeader("Field Group", "group-name")}
+                {renderSortableHeader("Size", "size")}
+                <TableCell class={styles.headerCell}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <For each={getSortedFields(sorting())}>
+                {(field) => (
+                  <TableRow class={styles.tableRow}>
+                    <TableCell sx={{ width: "20px" }}>
+                      <span
+                        class={styles.colorDot}
+                        style={{ "background-color": field.draw_color }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <A class={styles.fieldLink} href={`/fields/${field.id}`}>
+                        {field.name}
+                      </A>
+                    </TableCell>
+                    <TableCell>{field.group_name}</TableCell>
+                    <TableCell>{formatArea(field.size)}</TableCell>
+                    <TableCell>
+                      {renderMapButton(field)}
+                      {setEdit !== undefined && (
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            const foundField = fields.find(
+                              (entry) => entry.id === field.id,
+                            );
+                            if (foundField) {
+                              setEdit(foundField);
+                            }
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      )}
+                      {onDelete !== undefined && (
+                        <IconButton size="small" onClick={() => onDelete(field.id)}>
+                          <Delete />
+                        </IconButton>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </For>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+
+      <div class={styles.mobileCards}>
+        <For each={getSortedFields(sorting())}>
+          {(field) => (
+            <article class={styles.fieldCard}>
+              <div class={styles.fieldCardTop}>
+                <span
+                  class={styles.colorDot}
+                  style={{
+                    "background-color": field.draw_color,
+                    width: "16px",
+                    height: "16px",
+                  }}
+                />
+                <div class={styles.fieldCardTitle}>
+                  <A class={styles.fieldLink} href={`/fields/${field.id}`}>
+                    <p class={styles.fieldCardName}>{field.name}</p>
+                  </A>
+                  <p class={styles.fieldCardGroup}>
+                    {field.group_name || "Ungrouped"}
+                  </p>
+                </div>
+                <div class={styles.fieldCardMapAction}>{renderMapButton(field)}</div>
+              </div>
+
+              <div class={styles.fieldCardFacts}>
+                <div class={styles.factTile}>
+                  <p class={styles.factLabel}>Size</p>
+                  <p class={styles.factValue}>{formatArea(field.size)}</p>
+                </div>
+                <div class={styles.factTile}>
+                  <p class={styles.factLabel}>Field group</p>
+                  <p class={styles.factValue}>
+                    {field.group_name || "Ungrouped"}
+                  </p>
+                </div>
+              </div>
+
+              <Show when={hasEditActions}>
+                <div class={styles.fieldCardActions}>
+                  {renderEditButtons(field)}
+                </div>
+              </Show>
+            </article>
+          )}
+        </For>
+      </div>
     </>
   );
 };
@@ -285,7 +350,9 @@ export default function FieldsList(props?: {
 }) {
   const [farmFieldGroups] = createResource(getFarmFieldGroups);
   const [fields, setFields] = createResource(() =>
-    fetch("/api/farm_fields/all").then((a) => a.json() as Promise<FarmField[]>),
+    fetch("/api/farm_fields/all").then((response) =>
+      response.json() as Promise<FarmField[]>,
+    ),
   );
   const [sorting, setSorting] = createSignal<Sorting>({
     sortKey: "size",
@@ -295,31 +362,35 @@ export default function FieldsList(props?: {
   const [toDelete, setToDelete] = createSignal<number | undefined>(undefined);
 
   const deleteFunction = async (id: number) => {
-    const res = await deleteField(id);
-    if (res) {
-      setFields.mutate((x) => x?.filter((x) => x.id !== id));
+    const result = await deleteField(id);
+    if (result) {
+      setFields.mutate((current) => current?.filter((entry) => entry.id !== id));
     }
   };
 
   return (
     <div class={styles.fieldsList}>
       <div class={styles.fieldsHeader}>
-        <div>
+        <div class={styles.headerLead}>
+          <p class={styles.headerTitle}>Field directory</p>
+        </div>
+        <div class={styles.headerActions}>
           <Show when={props?.addButton}>
             {props?.addButton && props?.addButton()}
           </Show>
+          <Show when={props?.disableSearch !== true}>
+            <TextField
+              size="small"
+              label="Search"
+              class={styles.searchField}
+              value={textFilter()}
+              onChange={(event) => setTextFilter(event.currentTarget.value)}
+            />
+          </Show>
         </div>
-        <Show when={props?.disableSearch !== true}>
-          <TextField
-            size="small"
-            label="Search"
-            value={textFilter()}
-            onChange={(e) => setTextFilter(e.currentTarget.value)}
-          />
-        </Show>
       </div>
-      <Show when={fields()} fallback={<Skeleton />}>
-        {(fields) => (
+      <Show when={fields()} fallback={<Skeleton height={360} />}>
+        {(loadedFields) => (
           <>
             <ConfirmDeleteDialog
               open={toDelete() !== undefined}
@@ -334,8 +405,8 @@ export default function FieldsList(props?: {
             ></ConfirmDeleteDialog>
             <Show when={farmFieldGroups()}>
               {(groups) =>
-                RenderfieldsTable(
-                  fields(),
+                renderFieldsTable(
+                  loadedFields(),
                   groups(),
                   textFilter,
                   sorting,

@@ -3,14 +3,12 @@ import { createSignal, For, Match, Show, Switch } from "solid-js";
 
 import styles from "./Admin.module.css";
 import { jwt_token } from "../App";
-import FieldsAdmin from "./fields/FieldsAdmin";
 import FieldGroupAdmin from "./fieldgroups/FieldGroupAdmin";
 import UserAdmin from "./users/UserAdmin";
 import HarvestTypes from "./harvest/HarvestTypes";
 import HarvestEvents from "./harvest/HarvestEvents";
 
 const adminButtons: string[] = [
-  "fields",
   "field-groups",
   "users",
   "harvest-types",
@@ -20,7 +18,7 @@ type AdminNav = typeof adminButtons[number];
 const toUpper = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function Admin() {
-  const [currentView, setCurrentView] = createSignal<AdminNav>("fields");
+  const [currentView, setCurrentView] = createSignal<AdminNav>("field-groups");
 
   function navButton(input: AdminNav) {
     return (
@@ -38,17 +36,22 @@ export default function Admin() {
     <main class={styles.container}>
       <Show
         when={jwt_token()}
-        fallback={<p>You don't have access to this page</p>}
+        fallback={
+          <div class={styles.accessCard}>
+            <p>You don't have access to this page</p>
+          </div>
+        }
       >
+        <section class={styles.adminHero}>
+          <p>Control room</p>
+          <h1>Admin</h1>
+        </section>
         <div class={styles.adminButtonsOuter}>
           <div class={styles.adminButtons}>
             <For each={adminButtons}>{(input) => navButton(input)}</For>
           </div>
         </div>
         <Switch>
-          <Match when={currentView() === "fields"}>
-            <FieldsAdmin />
-          </Match>
           <Match when={currentView() === "field-groups"}>
             <FieldGroupAdmin />
           </Match>

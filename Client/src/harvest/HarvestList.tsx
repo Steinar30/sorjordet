@@ -115,14 +115,21 @@ export default function HarvestList() {
   }
 
   function RenderHarvestList() {
+    const selectHarvestEvent = (harvestEvent: HarvestEvent) => {
+      const values = fieldLookup().get(harvestEvent.field_id);
+      if (!values?.field || !values?.group) {
+        console.log("failed to find field in lookup");
+        return;
+      }
+      setSelectedHarvest({
+        harvest: harvestEvent,
+        field: values.field,
+        group: values.group
+      })
+    };
+
     return (
-      <main
-        style={{
-          "max-width": "800px",
-          margin: "0 auto",
-          width: "calc(100% - 40px)",
-        }}
-      >
+      <main class={styles.harvestPage}>
         <Show when={createNew()} >
           <HarvestForm
             isOpen={createNew}
@@ -145,7 +152,22 @@ export default function HarvestList() {
             title="Are you sure you want to delete this harvest?"
           />
         </Show>
-        <div class={styles.listFilterContainer}>
+        <section class={styles.harvestHero}>
+          <div>
+            <p class={styles.eyebrow}>Harvest log</p>
+            <h1>Season records</h1>
+          </div>
+          <Button
+            class={styles.newHarvestButton}
+            size="small"
+            variant="contained"
+            onClick={() => setCreateNew(true)}
+          >
+            New Harvest
+          </Button>
+        </section>
+
+        <section class={styles.listFilterContainer} aria-label="Harvest filters">
           <FormControl class={styles.filterComponent} size="small">
             <InputLabel shrink id="yearSelect">
               Select year
@@ -180,9 +202,9 @@ export default function HarvestList() {
               label="Select group"
               notched
               onChange={async (value) => {
-                console.log(value.target.value)
                 if (value.target.value === -1) {
                   setFieldGroup(undefined);
+                  setField(undefined);
                 }
                 const g = groups.data?.find(x => x.id === value.target.value);
                 if (g) {
@@ -224,88 +246,129 @@ export default function HarvestList() {
               )}
             </Select>
           </FormControl>
+        </section>
 
-          <Button class={styles.filterComponent} size="small" variant="contained" onClick={() => setCreateNew(true)}>
-            New Harvest
-          </Button>
-        </div>
+        <section class={styles.tableCard}>
+          <TableContainer class={styles.tableWrap}>
+            <Table size="small" class={styles.harvestTable}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Value</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell>Field</TableCell>
+                  <TableCell>Group</TableCell>
+                  <TableCell>Type</TableCell>
+                  <Show when={isAdmin}>
+                    <TableCell></TableCell>
+                  </Show>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <For each={harvestEvents.data?.pages}>
+                  {(page) => (
+                    <For each={page}>
+                      {(harvestEvent) => (
+                        <TableRow
+                          hover
+                          class={styles.harvestRow}
+                          onClick={() => selectHarvestEvent(harvestEvent)}
+                        >
+                          <TableCell>{harvestEvent.value}</TableCell>
+                          <TableCell>{formatDate(harvestEvent.time)}</TableCell>
+                          <TableCell>
+                            <Show when={groups.data} fallback={<span>{harvestEvent.id}</span>}>
+                              {fieldLookup().get(harvestEvent.field_id)?.field.name}
+                            </Show>
+                          </TableCell>
+                          <TableCell>
+                            <Show when={groups.data}>
+                              {fieldLookup().get(harvestEvent.field_id)?.group.name}
+                            </Show>
+                          </TableCell>
+                          <TableCell>{harvestEvent.type_name}</TableCell>
+                          <Show when={isAdmin}>
+                            <TableCell>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setToDelete(harvestEvent.id)
+                                }}
+                              >
+                                <Delete />
+                              </IconButton>
 
-        <TableContainer>
+                            </TableCell>
+                          </Show>
+                        </TableRow>
+                      )}
+                    </For>
+                  )}
+                </For>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </section>
 
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Value</TableCell>
-                <TableCell>Time</TableCell>
-                <TableCell>Field</TableCell>
-                <TableCell>Group</TableCell>
-                <TableCell>Type</TableCell>
-                <Show when={isAdmin}>
-                  <TableCell></TableCell>
-                </Show>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <For each={harvestEvents.data?.pages}>
-                {(page) => (
-                  <For each={page}>
-                    {(harvestEvent) => (
-                      <TableRow
-                        hover
-                        onClick={() => {
-                          const values = fieldLookup().get(harvestEvent.field_id);
-                          if (!values?.field || !values?.group) {
-                            console.log("failed to find field in lookup");
-                            return;
-                          }
-                          setSelectedHarvest({
-                            harvest: harvestEvent,
-                            field: values?.field,
-                            group: values?.group
-                          })
-                        }}
-                        style={{
-                          "cursor": "pointer"
-                        }}
-                      >
-                        <TableCell>{harvestEvent.value}</TableCell>
-                        <TableCell>{formatDate(harvestEvent.time)}</TableCell>
-                        <TableCell>
-                          <Show when={groups.data} fallback={<span>{harvestEvent.id}</span>}>
+        <section class={styles.mobileHarvestCards} aria-label="Harvest events">
+          <For each={harvestEvents.data?.pages}>
+            {(page) => (
+              <For each={page}>
+                {(harvestEvent) => (
+                  <article
+                    class={styles.harvestCard}
+                    onClick={() => selectHarvestEvent(harvestEvent)}
+                  >
+                    <div class={styles.harvestCardTop}>
+                      <div>
+                        <p class={styles.harvestCardLabel}>Field</p>
+                        <strong>
+                          <Show when={groups.data} fallback={harvestEvent.id}>
                             {fieldLookup().get(harvestEvent.field_id)?.field.name}
                           </Show>
-                        </TableCell>
-                        <TableCell>
+                        </strong>
+                        <span class={styles.harvestCardGroupName}>
                           <Show when={groups.data}>
                             {fieldLookup().get(harvestEvent.field_id)?.group.name}
                           </Show>
-                        </TableCell>
-                        <TableCell>{harvestEvent.type_name}</TableCell>
-                        <Show when={isAdmin}>
-                          <TableCell>
-                            <IconButton
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setToDelete(harvestEvent.id)
-                              }}
-                            >
-                              <Delete />
-                            </IconButton>
-
-                          </TableCell>
-                        </Show>
-                      </TableRow>
-                    )}
-                  </For>
+                        </span>
+                      </div>
+                      <Show when={isAdmin}>
+                        <IconButton
+                          size="small"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setToDelete(harvestEvent.id)
+                          }}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Show>
+                    </div>
+                    <div class={styles.harvestCardFacts}>
+                      <div>
+                        <p>Value</p>
+                        <span>{harvestEvent.value}</span>
+                      </div>
+                      <div>
+                        <p>Time</p>
+                        <span>{formatDate(harvestEvent.time)}</span>
+                      </div>
+                      <div>
+                        <p>Type</p>
+                        <span>{harvestEvent.type_name}</span>
+                      </div>
+                    </div>
+                  </article>
                 )}
               </For>
-            </TableBody>
-          </Table>
-        </TableContainer>
+            )}
+          </For>
+        </section>
 
         <Show when={harvestEvents.hasNextPage}>
           <Button
+            class={styles.loadMoreButton}
             size="small"
             onClick={() => harvestEvents.fetchNextPage()}
           >
@@ -322,7 +385,11 @@ export default function HarvestList() {
     >
       <Show
         when={jwt_token()}
-        fallback={<p>You don't have access to this page</p>}
+        fallback={
+          <div class={styles.accessCard}>
+            <p>You don't have access to this page</p>
+          </div>
+        }
       >
         <Show when={selectedHarvest()} fallback={<RenderHarvestList />}>
           {(harvest) =>

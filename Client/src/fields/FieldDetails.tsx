@@ -1,6 +1,7 @@
 import {
   Card,
   CardContent,
+  Button,
   Divider,
   Skeleton,
   Table,
@@ -11,8 +12,17 @@ import {
   TableRow,
   Typography,
 } from "@suid/material";
-import { createQuery } from "@tanstack/solid-query";
-import { createMemo, createUniqueId, For, Show, onCleanup, onMount } from "solid-js";
+import { A } from "@solidjs/router";
+import { createQuery, useQueryClient } from "@tanstack/solid-query";
+import {
+  createMemo,
+  createSignal,
+  createUniqueId,
+  For,
+  Show,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import Map from "ol/Map";
 import View from "ol/View";
 import XYZ from "ol/source/XYZ";
@@ -25,6 +35,8 @@ import { FieldEvent } from "../../bindings/FieldEvent";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { formatDate } from "../Utils";
+import { jwt_token } from "../App";
+import { FieldUpdateForm } from "../admin/fields/FieldEditForm";
 import {
   formatArea,
   getMapPolygonArea,
@@ -93,7 +105,9 @@ function FieldPreviewMap(props: {
   return (
     <div
       id={mapId}
-      ref={mapElement}
+      ref={(element) => {
+        mapElement = element;
+      }}
       class={`map ${styles.mapPreview}`}
     />
   );
@@ -108,6 +122,8 @@ function EmptyState(props: { title: string }) {
 }
 
 export function FieldDetails(props: { fieldId: number }) {
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = createSignal(false);
   const field = createQuery<FarmField>(() => ({
     queryKey: ["field", props.fieldId],
     queryFn: () =>
@@ -148,120 +164,170 @@ export function FieldDetails(props: { fieldId: number }) {
     field.data ? formatArea(getMapPolygonArea(field.data.map_polygon_string)) : "-",
   );
 
+  const handleFieldSave = (updatedField: FarmField) => {
+    setIsEditing(false);
+    queryClient.setQueryData(["field", props.fieldId], updatedField);
+    queryClient.invalidateQueries({ queryKey: ["fields_all"] });
+    queryClient.invalidateQueries({ queryKey: ["field", props.fieldId] });
+  };
+
   return (
     <main class={styles.page}>
+      <div class={styles.backRow}>
+        <Button component={A} href="/fields" variant="outlined" size="small">
+          Back to fields
+        </Button>
+      </div>
       <Show when={field.isSuccess && field.data} fallback={<Skeleton height={320} />}>
         {(fieldData) => (
-          <div class={styles.content}>
-            <Card>
-              <CardContent class={styles.summary}>
-                <div class={styles.summaryInfo}>
-                  <Typography variant="h4">{fieldData().name}</Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    {group()?.name ?? "Ungrouped field"}
-                  </Typography>
-                  <Divider />
-                  <Typography variant="body1">
-                    <strong>Area:</strong> {fieldArea()}
-                  </Typography>
-                  <Typography variant="body1">
-                    <strong>Harvest events:</strong> {harvestHistory.data?.length ?? 0}
-                  </Typography>
-                  <Typography variant="body1">
-                    <strong>Field events:</strong> {fieldEvents.data?.length ?? 0}
-                  </Typography>
-                </div>
-                <Show
-                  when={group()}
-                  fallback={
-                    <Typography variant="body2" color="text.secondary">
-                      Map preview becomes available once the field has a group.
-                    </Typography>
-                  }
-                >
-                  {(fieldGroup) => (
+          <Show
+            when={isEditing()}
+            fallback={
+              <div class={styles.content}>
+                <Card class={styles.card}>
+                  <CardContent class={styles.summary}>
+                    <div class={styles.summaryInfo}>
+                      <div class={styles.titleRow}>
+                        <p class={styles.eyebrow}>Field profile</p>
+                        <Show when={jwt_token()}>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => setIsEditing(true)}
+                          >
+                            Edit field
+                          </Button>
+                        </Show>
+                      </div>
+                      <Typography class={styles.fieldTitle} variant="h4">
+                        {fieldData().name}
+                      </Typography>
+                      <Typography class={styles.fieldGroup} variant="body1">
+                        {group()?.name ?? "Ungrouped field"}
+                      </Typography>
+                      <Divider />
+                      <div class={styles.statGrid}>
+                        <div class={styles.statTile}>
+                          <p>Area</p>
+                          <strong>{fieldArea()}</strong>
+                        </div>
+                        <div class={styles.statTile}>
+                          <p>Harvest events</p>
+                          <strong>{harvestHistory.data?.length ?? 0}</strong>
+                        </div>
+                        <div class={styles.statTile}>
+                          <p>Field events</p>
+                          <strong>{fieldEvents.data?.length ?? 0}</strong>
+                        </div>
+                      </div>
+                    </div>
                     <div class={styles.mapShell}>
                       <FieldPreviewMap
                         field={fieldData()}
-                        groupName={fieldGroup().name}
-                        drawColor={fieldGroup().draw_color}
+                        groupName={group()?.name ?? fieldData().name}
+                        drawColor={group()?.draw_color ?? "#7aa36b"}
                       />
                     </div>
-                  )}
-                </Show>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
 
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Harvest history
-                </Typography>
-                <Show
-                  when={harvestHistory.isSuccess && (harvestHistory.data?.length ?? 0) > 0}
-                  fallback={<EmptyState title="Harvest History" />}
-                >
-                  <TableContainer class={styles.tableContainer}>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Date</TableCell>
-                          <TableCell>Type</TableCell>
-                          <TableCell align="right">Value</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        <For each={harvestHistory.data}>
-                          {(event) => (
+                <Card class={styles.card}>
+                  <CardContent>
+                    <Typography class={styles.sectionTitle} variant="h6" gutterBottom>
+                      Harvest history
+                    </Typography>
+                    <Show
+                      when={harvestHistory.isSuccess && (harvestHistory.data?.length ?? 0) > 0}
+                      fallback={<EmptyState title="Harvest History" />}
+                    >
+                      <TableContainer class={styles.tableContainer}>
+                        <Table size="small">
+                          <TableHead>
                             <TableRow>
-                              <TableCell>{formatDate(event.time)}</TableCell>
-                              <TableCell>{event.type_name}</TableCell>
-                              <TableCell align="right">{event.value}</TableCell>
+                              <TableCell>Date</TableCell>
+                              <TableCell>Type</TableCell>
+                              <TableCell align="right">Value</TableCell>
                             </TableRow>
-                          )}
-                        </For>
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Show>
-              </CardContent>
-            </Card>
+                          </TableHead>
+                          <TableBody>
+                            <For each={harvestHistory.data}>
+                              {(event) => (
+                                <TableRow>
+                                  <TableCell>{formatDate(event.time)}</TableCell>
+                                  <TableCell>{event.type_name}</TableCell>
+                                  <TableCell align="right">{event.value}</TableCell>
+                                </TableRow>
+                              )}
+                            </For>
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Show>
+                  </CardContent>
+                </Card>
 
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Field events
-                </Typography>
-                <Show
-                  when={fieldEvents.isSuccess && (fieldEvents.data?.length ?? 0) > 0}
-                  fallback={<EmptyState title="Field Events" />}
-                >
-                  <TableContainer class={styles.tableContainer}>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Date</TableCell>
-                          <TableCell>Event</TableCell>
-                          <TableCell>Description</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        <For each={fieldEvents.data}>
-                          {(event) => (
+                <Card class={styles.card}>
+                  <CardContent>
+                    <Typography class={styles.sectionTitle} variant="h6" gutterBottom>
+                      Field events
+                    </Typography>
+                    <Show
+                      when={fieldEvents.isSuccess && (fieldEvents.data?.length ?? 0) > 0}
+                      fallback={<EmptyState title="Field Events" />}
+                    >
+                      <TableContainer class={styles.tableContainer}>
+                        <Table size="small">
+                          <TableHead>
                             <TableRow>
-                              <TableCell>{formatDate(event.time)}</TableCell>
-                              <TableCell>{event.event_name}</TableCell>
-                              <TableCell>{event.description || "-"}</TableCell>
+                              <TableCell>Date</TableCell>
+                              <TableCell>Event</TableCell>
+                              <TableCell>Description</TableCell>
                             </TableRow>
-                          )}
-                        </For>
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Show>
-              </CardContent>
-            </Card>
-          </div>
+                          </TableHead>
+                          <TableBody>
+                            <For each={fieldEvents.data}>
+                              {(event) => (
+                                <TableRow>
+                                  <TableCell>{formatDate(event.time)}</TableCell>
+                                  <TableCell>{event.event_name}</TableCell>
+                                  <TableCell>{event.description || "-"}</TableCell>
+                                </TableRow>
+                              )}
+                            </For>
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Show>
+                  </CardContent>
+                </Card>
+              </div>
+            }
+          >
+            <section class={styles.editOnlyPage}>
+              <div class={styles.editPanelHeader}>
+                <div>
+                  <p class={styles.eyebrow}>Logged-in tools</p>
+                  <h2>Edit field details</h2>
+                </div>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Back to field
+                </Button>
+              </div>
+              <div class={styles.editContextCard}>
+                <p class={styles.editContextEyebrow}>Editing</p>
+                <h1>{fieldData().name}</h1>
+                <p class={styles.editContextMeta}>{group()?.name ?? "Ungrouped field"}</p>
+              </div>
+              <FieldUpdateForm
+                initial={fieldData()}
+                onSave={handleFieldSave}
+              />
+            </section>
+          </Show>
         )}
       </Show>
     </main>

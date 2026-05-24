@@ -1,5 +1,4 @@
 import {
-  Typography,
   TextField,
   Button,
   Select,
@@ -8,7 +7,7 @@ import {
   InputLabel,
 } from "@suid/material";
 import { createStore } from "solid-js/store";
-import { createSignal, createResource, Show, createEffect } from "solid-js";
+import { createSignal, createResource, Show } from "solid-js";
 
 import GeoJSON from "ol/format/GeoJSON";
 
@@ -21,6 +20,7 @@ import { Feature } from "ol";
 import { getFarmFieldGroups, prepareAuth } from "../../requests";
 import { DrawableMap } from "../../maps/DrawableMap";
 import { parseJsonIntoFeature } from "../../maps/Map";
+import styles from "./FieldForm.module.css";
 
 const patchField = async (field: FarmField) => {
   const authHeaders = prepareAuth(true);
@@ -62,10 +62,6 @@ export function FieldUpdateForm(props: {
   const feature = createSignal<Feature | undefined>(
     parseJsonIntoFeature(props.initial, "placeholder") ?? undefined,
   );
-
-  createEffect(() => {
-    console.log("Feature: ", form, feature[0]());
-  }, [form, feature[0]()]);
 
   const updateField = (fieldName: string) => (event: Event) => {
     const inputElement = event.currentTarget as HTMLInputElement;
@@ -109,9 +105,12 @@ export function FieldUpdateForm(props: {
   };
 
   return (
-    <div id="map_form_container">
-      <div id="field_form">
-        <Typography variant="h6">Update field</Typography>
+    <div class={styles.fieldEditor}>
+      <div class={styles.formPanel}>
+        <div class={styles.formHeader}>
+          <p>Field editor</p>
+          <h2>Update field</h2>
+        </div>
 
         <TextField
           id="field-name"
@@ -124,24 +123,23 @@ export function FieldUpdateForm(props: {
 
         {selectComponent()}
 
-        <Typography variant="body2">
+        <p class={styles.hint}>
           Draw an outline of the field in the map below to show it in maps.
-        </Typography>
+        </p>
 
         <Button
           disabled={!validateFarmInput(form, feature[0]())}
           size="small"
           variant="contained"
           onClick={async () => {
-            console.log("click of button");
             const f = feature[0]();
             if (f) {
               const json = new GeoJSON().writeFeature(f);
+              const updatedField = { ...form, map_polygon_string: json };
               setForm({ ["map_polygon_string"]: json });
-              const result = await patchField(form);
+              const result = await patchField(updatedField);
               if (result) {
-                console.log("created field");
-                props.onSave(form);
+                props.onSave(updatedField);
               }
             }
           }}
@@ -152,16 +150,18 @@ export function FieldUpdateForm(props: {
 
       <Show when={farmFieldGroups()}>
         {(groups) => (
-          <DrawableMap
-            feature={feature}
-            initialFeature={
-              parseJsonIntoFeature(
-                props.initial,
-                groups().find((x) => x.id === props.initial.farm_field_group_id)
-                  ?.name ?? "placeholder",
-              ) ?? undefined
-            }
-          />
+          <div class={styles.mapPanel}>
+            <DrawableMap
+              feature={feature}
+              initialFeature={
+                parseJsonIntoFeature(
+                  props.initial,
+                  groups().find((x) => x.id === props.initial.farm_field_group_id)
+                    ?.name ?? "placeholder",
+                ) ?? undefined
+              }
+            />
+          </div>
         )}
       </Show>
     </div>

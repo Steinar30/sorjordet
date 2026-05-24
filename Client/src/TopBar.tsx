@@ -1,136 +1,168 @@
-import MenuIcon from "@suid/icons-material/Menu";
-import {
-  AppBar,
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-  Toolbar,
-  Typography,
-} from "@suid/material";
-import { createSignal, Show, createEffect } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
+import { Portal } from "solid-js/web";
 import { createMediaQuery } from "@solid-primitives/media";
 
 import logo from "/assets/farm-logo.svg";
 import styles from "./TopBar.module.css";
 import { jwt_localstore_key, jwt_token, set_jwt_token } from "./App";
 
-export default function TopAppBar() {
-  const isSmall = createMediaQuery("(max-width:750px)");
+type NavItem = {
+  href?: string;
+  label: string;
+  adminOnly?: boolean;
+  loggedOutOnly?: boolean;
+  onClick?: () => void;
+};
 
+export default function TopAppBar() {
+  const isSmall = createMediaQuery("(max-width:760px)");
   const [isOpen, setIsOpen] = createSignal(false);
+  let drawerPanelRef: HTMLElement | undefined;
+  let menuButtonRef: HTMLButtonElement | undefined;
 
   createEffect(() => {
-    if (isSmall()) {
+    if (!isSmall()) {
       setIsOpen(false);
     }
   });
 
-  const navHome = () => (
-    <a href="/" class={styles.headerImageButton}>
-      <img src={logo} alt="logo" />
-      <Typography variant="h6" class={styles.headerImageText} component="div">
-        Sørjordet
-      </Typography>
+  createEffect(() => {
+    if (!isOpen()) {
+      return;
+    }
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!(event.target instanceof Node)) {
+        return;
+      }
+
+      if (
+        drawerPanelRef?.contains(event.target) ||
+        menuButtonRef?.contains(event.target)
+      ) {
+        return;
+      }
+
+      setIsOpen(false);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsidePointer, true);
+    onCleanup(() =>
+      document.removeEventListener("pointerdown", closeOnOutsidePointer, true),
+    );
+  });
+
+  const navItems = (): NavItem[] => [
+    { href: "/stats", label: "Stats" },
+    { href: "/fields", label: "Fields" },
+    { href: "/harvest", label: "Harvest", adminOnly: true },
+    { href: "/admin", label: "Admin", adminOnly: true },
+    { href: "/login", label: "Log in", loggedOutOnly: true },
+    {
+      label: "Log out",
+      adminOnly: true,
+      onClick: () => {
+        window.localStorage.removeItem(jwt_localstore_key);
+        set_jwt_token(null);
+        setIsOpen(false);
+      },
+    },
+  ];
+
+  const visibleNavItems = () =>
+    navItems().filter((item) => {
+      if (item.adminOnly) {
+        return jwt_token() != null;
+      }
+      if (item.loggedOutOnly) {
+        return jwt_token() == null;
+      }
+      return true;
+    });
+
+  const brand = () => (
+    <a href="/" class={styles.brandLink} onClick={() => setIsOpen(false)}>
+      <span class={styles.brandMark}>
+        <img src={logo} alt="Sørjordet logo" />
+      </span>
+      <span class={styles.brandTextWrap}>
+        <span class={styles.brandEyebrow}>Farm</span>
+        <span class={styles.brandTitle}>Sørjordet</span>
+      </span>
     </a>
   );
 
-  const navAdmin = (
-    <Show when={jwt_token() != null}>
-      <a class={styles.headerLink} href="/admin">
-        Admin
-      </a>
-    </Show>
-  );
-  const navStats = (
-    <a class={styles.headerLink} href="/stats">
-      Stats
-    </a>
-  );
-  const navFields = (
-    <a class={styles.headerLink} href="/fields">
-      Fields
-    </a>
-  );
-  const navHarvest = (
-    <Show when={jwt_token() != null}>
-      <a class={styles.headerLink} href="/harvest">
-        Harvest
-      </a>
-    </Show>
-  );
-  const navLogin = (
+  const navButton = (item: NavItem, drawer = false) => (
     <Show
-      when={jwt_token() != null}
+      when={item.href}
       fallback={
-        <a class={styles.headerLink} href="/login">
-          Log in
-        </a>
+        <button
+          type="button"
+          class={drawer ? styles.drawerNavItem : styles.navLink}
+          onClick={item.onClick}
+        >
+          {item.label}
+        </button>
       }
     >
-      <button
-        onclick={() => {
-          window.localStorage.removeItem(jwt_localstore_key);
-          set_jwt_token(null);
-        }}
-        class={styles.headerLink}
-      >
-        Log out
-      </button>
+      {(href) => (
+        <a
+          class={drawer ? styles.drawerNavItem : styles.navLink}
+          href={href()}
+          onClick={() => setIsOpen(false)}
+        >
+          {item.label}
+        </a>
+      )}
     </Show>
   );
 
   return (
-    <AppBar color="secondary" position="static" class={styles.headerContainer}>
-      <Toolbar sx={{ minHeight: "64px" }}>
-        {navHome()}
+    <header class={styles.headerContainer}>
+      <div class={styles.toolbar}>
+        {brand()}
 
-        <Show
-          when={isSmall()}
-          fallback={
-            <div style={{ "margin-left": "auto" }}>
-              {navStats}
-              {navFields}
-              {navHarvest}
-              {navAdmin}
-              {navLogin}
-            </div>
-          }
+        <nav class={styles.desktopNav} aria-label="Main navigation">
+          <For each={visibleNavItems()}>{(item) => navButton(item)}</For>
+        </nav>
+
+        <button
+          ref={(element) => {
+            menuButtonRef = element;
+          }}
+          type="button"
+          class={styles.mobileMenuButton}
+          aria-label={isOpen() ? "Close menu" : "Open menu"}
+          aria-expanded={isOpen()}
+          onClick={() => setIsOpen(!isOpen())}
         >
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={() => {
-              setIsOpen(!isOpen());
-            }}
-            sx={{ ml: "auto", mr: "-10px" }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Drawer
-            class={styles.headerContainer}
-            anchor="left"
-            open={isOpen()}
-            onClose={() => {
-              setIsOpen(false);
-            }}
-            onClick={() => setIsOpen(false)}
-          >
-            <div class={styles.headerDrawerContainer}>
-              {navHome()}
-              <List>
-                <ListItem>{navStats}</ListItem>
-                <ListItem>{navFields}</ListItem>
-                <ListItem>{navHarvest}</ListItem>
-                <ListItem>{navAdmin}</ListItem>
-                <ListItem>{navLogin}</ListItem>
-              </List>
-            </div>
-          </Drawer>
-        </Show>
-      </Toolbar>
-    </AppBar>
+          <span class={styles.menuLine} />
+          <span class={styles.menuLine} />
+          <span class={styles.menuLine} />
+        </button>
+      </div>
+
+      <Show when={isOpen()}>
+        <Portal>
+          <div class={styles.drawerLayer} onClick={() => setIsOpen(false)}>
+            <aside
+              ref={(element) => {
+                drawerPanelRef = element;
+              }}
+              class={styles.drawerPanel}
+              aria-label="Mobile navigation"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div class={styles.drawerHeader}>{brand()}</div>
+              <nav class={styles.drawerNav}>
+                <For each={visibleNavItems()}>
+                  {(item) => navButton(item, true)}
+                </For>
+              </nav>
+            </aside>
+          </div>
+        </Portal>
+      </Show>
+    </header>
   );
 }

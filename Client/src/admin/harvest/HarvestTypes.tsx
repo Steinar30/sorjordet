@@ -18,6 +18,7 @@ import {
 } from "@suid/material";
 import { Edit } from "@suid/icons-material";
 import { prepareAuth } from "../../requests";
+import styles from "../AdminSurface.module.css";
 
 // apicalls dont return a new object, using refetch instead
 const updateHarvestType = (harvestType: HarvestType) => {
@@ -56,26 +57,21 @@ export default function HarvestTypes() {
   }));
 
   return (
-    <main
-      style={{
-        padding: "10px",
-        "max-width": "800px",
-        margin: "0 auto",
-        width: "calc(100% - 40px)",
-      }}
-    >
+    <main class={styles.page}>
       <Dialog
         open={addForm() !== undefined || editForm() !== undefined}
         onClose={() => addForm() != undefined ? setAddForm(undefined) : setEditForm(undefined)}
+        classes={{ paper: styles.dialogPaper }}
       >
-        <DialogTitle style={{ "padding-bottom": "" }}>
-          <Show when={editForm()} fallback={<p>Add New type</p>}>
-            <p>Update "{editForm()?.name}</p>
+        <DialogTitle class={styles.dialogTitle}>
+          <Show when={editForm()} fallback={"Add new type"}>
+            {`Update ${editForm()?.name ?? ""}`}
           </Show>
         </DialogTitle>
-        <DialogContent style={{ "padding-top": "10px" }}>
+        <DialogContent class={styles.dialogContent}>
           <Show when={addForm()}>
             <TextField
+              fullWidth
               id="name"
               label="Name"
               variant="outlined"
@@ -86,6 +82,7 @@ export default function HarvestTypes() {
           </Show>
           <Show when={editForm()}>
             <TextField
+              fullWidth
               id="name"
               label="Name"
               variant="outlined"
@@ -129,42 +126,69 @@ export default function HarvestTypes() {
           </Show>
         </DialogActions>
       </Dialog>
-      <div style={{ display: "flex", "justify-content": "space-between" }}>
-        <Button
-          variant="contained"
-          sx={{ textWrap: "nowrap" }}
-          onClick={() => setAddForm({ id: -1, name: "" })}
-        >
+      <section class={styles.hero}>
+        <p class={styles.eyebrow}>Admin editor</p>
+        <h2>Harvest types</h2>
+      </section>
+      <section class={styles.toolbar}>
+        <Button variant="contained" onClick={() => setAddForm({ id: -1, name: "" })}>
           New type
         </Button>
-      </div>
+      </section>
       <Show when={harvestTypes.isSuccess && harvestTypes.data}>
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Id</TableCell>
-                <TableCell>Harvest Type</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {harvestTypes.data?.map((harvestType) => (
+        <>
+          <div class={styles.tableCard}>
+            <TableContainer class={styles.tableWrap}>
+            <Table size="small" class={styles.table}>
+              <TableHead>
                 <TableRow>
-                  <TableCell>{harvestType.id}</TableCell>
-                  <TableCell>{harvestType.name}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      onClick={() => setEditForm(harvestType)}
-                    >
-                      <Edit />
-                    </IconButton>
-                  </TableCell>
+                  <TableCell>Id</TableCell>
+                  <TableCell>Harvest Type</TableCell>
+                  <TableCell class={styles.mobileActionCell}></TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {harvestTypes.data?.map((harvestType) => (
+                  <TableRow
+                    class={`${styles.row} ${styles.clickableRow}`}
+                    onClick={() => setEditForm(harvestType)}
+                  >
+                    <TableCell>{harvestType.id}</TableCell>
+                    <TableCell>{harvestType.name}</TableCell>
+                    <TableCell class={styles.mobileActionCell}>
+                      <IconButton
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setEditForm(harvestType);
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          </div>
+          <div class={styles.mobileCards}>
+            <For each={harvestTypes.data}>
+              {(harvestType) => (
+                <article
+                  class={styles.mobileCard}
+                  onClick={() => setEditForm(harvestType)}
+                >
+                  <div class={styles.mobileCardTop}>
+                    <div>
+                      <h3 class={styles.mobileCardTitle}>{harvestType.name}</h3>
+                      <p class={styles.mobileCardMeta}>Type #{harvestType.id}</p>
+                    </div>
+                  </div>
+                </article>
+              )}
+            </For>
+          </div>
+        </>
       </Show>
     </main>
   );

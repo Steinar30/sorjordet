@@ -98,13 +98,13 @@ describe("HarvestList Component", () => {
     expect(screen.getByText("Type")).toBeInTheDocument();
 
     // Check mocked harvest event loads in row
-    const harvestVal = await screen.findByText("45 Bales");
-    expect(harvestVal).toBeInTheDocument();
+    const harvestVals = await screen.findAllByText("45 Bales");
+    expect(harvestVals.length).toBeGreaterThan(0);
 
     // Verify it links the names correctly via meta groups lookup map
-    expect(screen.getByText("Jordet 1")).toBeInTheDocument();
-    expect(screen.getByText("Nordmarka")).toBeInTheDocument();
-    expect(screen.getByText("Gress")).toBeInTheDocument();
+    expect(screen.getAllByText("Jordet 1").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nordmarka").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Gress").length).toBeGreaterThan(0);
   });
 
   it("shows form overlay when New Harvest button is clicked", async () => {
