@@ -24,3 +24,19 @@
 .adminButtons button {
   text-wrap: nowrap;
 }
+
+@media (max-width: 640px) {
+  .container {
+    align-items: stretch;
+  }
+
+  .adminButtonsOuter {
+    padding: 8px 12px;
+    width: calc(100% - 24px);
+  }
+
+  .adminButtons {
+    gap: 10px;
+    margin: 6px 0;
+  }
+}
