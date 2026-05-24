@@ -1,4 +1,4 @@
-FROM rust:1.88.0 as builder
+FROM rust:1.93.0 as builder
 WORKDIR /usr/src/Sorjordet
 
 RUN echo "fn main() {}" > dummy.rs
@@ -10,7 +10,7 @@ COPY ./Server .
 RUN cargo install --path .
 
 
-FROM node:19-buster-slim as nodebuilder
+FROM node:26-alpine as nodebuilder
 WORKDIR /usr/local/bin/Sorjordet
 
 COPY . .
