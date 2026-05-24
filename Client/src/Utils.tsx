@@ -55,9 +55,19 @@ export function hexToRgbWithOpacity(hex: string, opacity: number) {
 
 export function rgbToHex(rgba: string) {
   if (!rgba || rgba === "") {
-    return "#000";
+    return "#000000";
   }
-  const [r, g, b] = rgba.match(/\d+/g)!.map(Number);
+  if (rgba.startsWith("#")) {
+    if (rgba.length === 4) {
+      return `#${rgba[1]}${rgba[1]}${rgba[2]}${rgba[2]}${rgba[3]}${rgba[3]}`;
+    }
+    return rgba;
+  }
+  const matches = rgba.match(/\d+/g);
+  if (!matches || matches.length < 3) {
+    return "#000000";
+  }
+  const [r, g, b] = matches.slice(0, 3).map(Number);
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 

@@ -114,7 +114,6 @@ export function FieldForm(props: { onCreate: () => void }) {
 
         <Button
           disabled={!validateFarmInput(form, feature[0](), validFeature[0]())}
-          size="small"
           variant="contained"
           onClick={async () => {
             const f = feature[0]();

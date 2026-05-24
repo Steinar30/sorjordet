@@ -43,7 +43,7 @@
 
 #map_container {
   width: 100%;
-  height: 100%;
+  height: calc(100dvh - var(--topbar-height));
 }
 
 #map_container_small {

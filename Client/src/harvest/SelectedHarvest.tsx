@@ -166,8 +166,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
             Save
           </Button>
           <Button
-            variant="contained"
-            color="secondary"
+            variant="outlined"
             onClick={() => setEditHarvest(initialHarvest.harvest)}
           >
             Reset
@@ -240,7 +239,6 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
     <div class={styles.selectedHarvestPage}>
       <Button
         variant="outlined"
-        color="primary"
         onClick={() => setSelectedHarvest(undefined)}
       >
         Back

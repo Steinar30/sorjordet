@@ -185,7 +185,7 @@ export function NoEditMap() {
     <>
       <MetaProvider>
         <Meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-        <main style={{ display: "flex", height: "calc( 100vh - 64px )" }}>
+        <main>
           <div id="map_container" class="map"></div>
         </main>
       </MetaProvider>

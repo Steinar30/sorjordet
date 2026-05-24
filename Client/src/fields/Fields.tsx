@@ -64,7 +64,6 @@ export default function Fields() {
                 <h2>Create a field</h2>
               </div>
               <Button
-                size="small"
                 variant="outlined"
                 onClick={() => setShowCreateForm(false)}
               >
@@ -81,7 +80,6 @@ export default function Fields() {
               <Show when={jwt_token()}>
                 <Button
                   variant="contained"
-                  sx={{ textWrap: "nowrap" }}
                   onClick={() => setShowCreateForm(true)}
                 >
                   New field

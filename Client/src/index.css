@@ -7,6 +7,7 @@
   --radius-lg: 10px;
   --radius-xl: 12px;
   --radius-pill: 999px;
+  --topbar-height: 64px;
   --page-background:
     radial-gradient(circle at top, rgba(216, 229, 221, 0.76), transparent 34%),
     linear-gradient(180deg, #f7f9f4 0%, #f2f6f1 46%, #edf3ef 100%);
@@ -19,9 +20,19 @@ body {
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--page-background);
+  position: relative;
+  background: #f2f6f1;
   color: var(--dark-text-color);
   overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--page-background);
 }
 
 code {

@@ -122,11 +122,16 @@ export default function FieldGroupAdmin() {
     return (
       <div class={styles.page}>
         <section class={styles.hero}>
-          <p class={styles.eyebrow}>Admin editor</p>
-          <h2>Field groups</h2>
-        </section>
-        <section class={styles.toolbar}>
-          <Button variant="contained" onClick={() => setNewForm(true)}>
+          <div class={styles.heroContent}>
+            <p class={styles.eyebrow}>Admin editor</p>
+            <h2>Field groups</h2>
+          </div>
+          <Button
+            class={styles.heroAction}
+            size="small"
+            variant="contained"
+            onClick={() => setNewForm(true)}
+          >
             New group
           </Button>
         </section>

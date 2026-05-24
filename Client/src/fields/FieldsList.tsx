@@ -196,26 +196,33 @@ const renderFieldsTable = (
 
   const hasEditActions = setEdit !== undefined || onDelete !== undefined;
 
+  const renderEditButton = (field: DisplayedField) => (
+    <Show when={setEdit !== undefined}>
+      <IconButton
+        size="small"
+        onClick={() => {
+          const foundField = fields.find((entry) => entry.id === field.id);
+          if (foundField) {
+            setEdit?.(foundField);
+          }
+        }}
+      >
+        <Edit />
+      </IconButton>
+    </Show>
+  );
+
+  const renderDeleteButton = (field: DisplayedField) => (
+    <Show when={onDelete !== undefined}>
+      <IconButton size="small" onClick={() => onDelete?.(field.id)}>
+        <Delete />
+      </IconButton>
+    </Show>
+  );
+
   const renderEditButtons = (field: DisplayedField) => (
     <Show when={hasEditActions}>
-      {setEdit !== undefined && (
-        <IconButton
-          size="small"
-          onClick={() => {
-            const foundField = fields.find((entry) => entry.id === field.id);
-            if (foundField) {
-              setEdit(foundField);
-            }
-          }}
-        >
-          <Edit />
-        </IconButton>
-      )}
-      {onDelete !== undefined && (
-        <IconButton size="small" onClick={() => onDelete(field.id)}>
-          <Delete />
-        </IconButton>
-      )}
+      {renderEditButton(field)}
     </Show>
   );
 
@@ -312,7 +319,10 @@ const renderFieldsTable = (
                     {field.group_name || "Ungrouped"}
                   </p>
                 </div>
-                <div class={styles.fieldCardMapAction}>{renderMapButton(field)}</div>
+                <div class={styles.fieldCardTopActions}>
+                  {renderMapButton(field)}
+                  {renderDeleteButton(field)}
+                </div>
               </div>
 
               <div class={styles.fieldCardFacts}>
@@ -328,7 +338,7 @@ const renderFieldsTable = (
                 </div>
               </div>
 
-              <Show when={hasEditActions}>
+              <Show when={setEdit !== undefined}>
                 <div class={styles.fieldCardActions}>
                   {renderEditButtons(field)}
                 </div>

@@ -193,8 +193,11 @@
   min-width: 0;
 }
 
-.fieldCardMapAction {
+.fieldCardTopActions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
   flex: 0 0 auto;
 }
 

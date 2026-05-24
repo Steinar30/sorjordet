@@ -86,15 +86,28 @@
   align-items: center;
 }
 
+.colorPickerControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.colorRandomButton {
+  flex: 0 0 auto;
+  border: 1px solid rgba(26, 46, 40, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+}
+
 .colorSwatch {
   flex: 0 0 auto;
   width: 44px;
   height: 44px;
-  padding: 0;
-  border: 0;
+  padding: 4px;
+  border: 1px solid rgba(26, 46, 40, 0.12);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 @media (max-width: 640px) {
@@ -107,5 +120,9 @@
   .colorRow {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .colorPickerControls {
+    width: 100%;
   }
 }

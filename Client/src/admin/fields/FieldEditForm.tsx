@@ -129,7 +129,6 @@ export function FieldUpdateForm(props: {
 
         <Button
           disabled={!validateFarmInput(form, feature[0]())}
-          size="small"
           variant="contained"
           onClick={async () => {
             const f = feature[0]();

@@ -52,18 +52,25 @@
 
 .dialogContent {
   display: grid;
-  gap: 16px;
-  padding: 12px 24px 12px;
+  gap: 14px;
+  padding: 8px 18px 4px;
   min-width: 320px;
+  width: min(420px, calc(100vw - 32px));
+  box-sizing: border-box;
 }
 
 .dialogTitle {
-  padding-top: 20px;
+  padding: 18px 18px 8px !important;
 }
 
 .dialogPaper {
-  width: min(420px, 100%);
+  width: min(460px, calc(100vw - 20px));
+  max-width: calc(100vw - 20px);
   border-radius: var(--radius-xl) !important;
+}
+
+.dialogActions {
+  padding: 8px 18px 18px !important;
 }
 
 .tableCard {
@@ -189,8 +196,13 @@
     width: 100%;
   }
 
+  .toolbar {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
   .toolbar > * {
-    width: 100%;
+    width: auto;
   }
 
   .tableCard {
@@ -199,6 +211,7 @@
 
   .yearFilter {
     min-width: 0;
+    flex: 1 1 auto;
   }
 
   .mobileCards {
@@ -211,12 +224,8 @@
 
   .dialogContent {
     min-width: 0;
-    width: min(100vw - 64px, 360px);
-    padding: 8px 20px 12px;
-  }
-
-  .dialogTitle {
-    padding-top: 16px;
+    width: min(100vw - 24px, 420px);
+    padding: 10px 14px 2px;
   }
 
   .dialogPaper {

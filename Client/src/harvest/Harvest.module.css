@@ -48,42 +48,147 @@
 div.harvestSelectBody {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  padding: 20px;
-  max-width: 300px;
-  min-width: 200px;
-  width: calc(80vw - 40px);
+  align-items: stretch;
+  gap: 14px;
+  padding: 8px 18px 4px;
+  max-width: 420px;
+  min-width: 280px;
+  width: min(420px, calc(100vw - 32px));
+  box-sizing: border-box;
+}
+
+.harvestDialogTitle + div.harvestSelectBody {
+  padding-top: 10px !important;
+}
+
+div.harvestSelectBody > * {
+  min-width: 0;
+  width: 100%;
 }
 
 .harvestDialog {
-  width: min(420px, calc(100vw - 20px));
+  width: min(440px, calc(100vw - 20px));
+  max-width: calc(100vw - 20px);
+  margin: 10px !important;
+  overflow-x: clip;
   border-radius: var(--radius-xl) !important;
 }
 
-.harvestSelectBody > :first-child {
-  margin-top: 5px;
+.harvestDialogTitle {
+  padding: 18px 18px 8px !important;
+}
+
+.harvestDialogActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 18px 18px !important;
 }
 
 .datePickerContainer {
   display: flex;
   flex-direction: row;
   gap: 10px;
+  align-items: stretch;
   justify-content: space-between;
   width: 100%;
 }
 
-.datePickerContainer > div {
+.harvestField {
   width: 100%;
 }
 
+.harvestField :global(.MuiInputLabel-root) {
+  color: rgba(32, 52, 50, 0.62);
+}
+
+.harvestField :global(.MuiOutlinedInput-root) {
+  min-height: 52px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+.harvestField :global(.MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(32, 52, 50, 0.12);
+}
+
+.harvestField :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
+  border-color: rgba(32, 52, 50, 0.2);
+}
+
+.harvestField :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
+  border-color: #2c574a;
+}
+
+.harvestField :global(.MuiOutlinedInput-input),
+.harvestField :global(.MuiSelect-select) {
+  box-sizing: border-box;
+  min-height: 52px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.datePickerInputWrapper {
+  width: 100%;
+  min-width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+input.datePickerInput,
+.datePickerInput {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid rgba(32, 52, 50, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+  box-sizing: border-box;
+  appearance: none;
+  color: var(--dark-text-color);
+  font: inherit;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+input.datePickerInput::placeholder,
+.datePickerInput::placeholder {
+  color: rgba(32, 52, 50, 0.46);
+}
+
+input.datePickerInput:hover,
+.datePickerInput:hover {
+  border-color: rgba(32, 52, 50, 0.2);
+}
+
+input.datePickerInput:focus,
+.datePickerInput:focus {
+  border-color: #2c574a;
+  box-shadow: 0 0 0 3px rgba(44, 87, 74, 0.08);
+}
+
+input.datePickerInputInvalid,
+.datePickerInputInvalid {
+  border-color: #c65b51;
+}
+
+.datePickerContainer > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dateShortcutButton {
+  flex: 0 0 auto;
+  align-self: stretch;
+  min-width: 84px;
+}
+
 .addHarvestButton {
-  min-width: "56px";
-  width: "56px";
-  height: "56px";
-  border-color: "#c4c4c4";
-  text-transform: "none";
-  font-size: "14px";
+  min-width: 108px;
 }
 
 .listFilterContainer {
@@ -299,14 +404,40 @@ div.harvestSelectBody {
   }
 
   div.harvestSelectBody {
-    width: auto;
+    width: min(100vw - 24px, 100%);
     min-width: 0;
     max-width: none;
-    padding: 12px 16px;
+    padding: 10px 14px 2px;
+  }
+
+  .harvestDialogTitle + div.harvestSelectBody {
+    padding-top: 12px !important;
+  }
+
+  .harvestDialog {
+    width: min(100vw - 24px, 420px);
+    max-width: min(100vw - 24px, 420px);
+    margin: 12px !important;
   }
 
   .datePickerContainer {
     flex-direction: column;
+  }
+
+  .dateShortcutButton {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .harvestDialogActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding: 8px 14px 14px !important;
+  }
+
+  .harvestDialogActions button {
+    width: 100%;
+    margin: 0 !important;
   }
 
   .selectedHarvestCard {

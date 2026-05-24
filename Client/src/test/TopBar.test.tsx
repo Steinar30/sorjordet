@@ -3,10 +3,27 @@ import { describe, it, expect, beforeEach } from "vitest";
 import TopAppBar from "../TopBar";
 import { set_jwt_token, jwt_localstore_key } from "../App";
 
+function mockMatchMedia(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: (query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+}
+
 describe("TopAppBar Component", () => {
   beforeEach(() => {
     set_jwt_token(null);
     window.localStorage.clear();
+    mockMatchMedia(false);
   });
 
   it("renders Sørjordet logo and main brand name", () => {
@@ -54,6 +71,7 @@ describe("TopAppBar Component", () => {
   });
 
   it("keeps the mobile menu open for inside clicks and closes it from the backdrop", () => {
+    mockMatchMedia(true);
     render(() => <TopAppBar />);
 
     fireEvent.click(screen.getByLabelText("Open menu"));

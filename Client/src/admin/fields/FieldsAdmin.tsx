@@ -46,7 +46,6 @@ export default function FieldsAdmin() {
             addButton={() => (
               <Button
                 variant="contained"
-                sx={{ textWrap: "nowrap" }}
                 onClick={() => setShowForm(true)}
               >
                 New field

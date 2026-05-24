@@ -1,5 +1,5 @@
 import { createQuery } from "@tanstack/solid-query";
-import { createSignal, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { HarvestType } from "../../../bindings/HarvestType";
 import {
   Button,
@@ -127,11 +127,16 @@ export default function HarvestTypes() {
         </DialogActions>
       </Dialog>
       <section class={styles.hero}>
-        <p class={styles.eyebrow}>Admin editor</p>
-        <h2>Harvest types</h2>
-      </section>
-      <section class={styles.toolbar}>
-        <Button variant="contained" onClick={() => setAddForm({ id: -1, name: "" })}>
+        <div class={styles.heroContent}>
+          <p class={styles.eyebrow}>Admin editor</p>
+          <h2>Harvest types</h2>
+        </div>
+        <Button
+          class={styles.heroAction}
+          size="small"
+          variant="contained"
+          onClick={() => setAddForm({ id: -1, name: "" })}
+        >
           New type
         </Button>
       </section>

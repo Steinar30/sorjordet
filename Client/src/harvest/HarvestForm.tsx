@@ -8,14 +8,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
 } from "@suid/material";
-import { Switch, Match, Accessor, createSignal } from "solid-js";
+import { Switch, Match, Accessor, createEffect, createMemo, createSignal } from "solid-js";
 import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 
 import styles from "./Harvest.module.css";
 import DatePicker, { PickerValue } from "@rnwonder/solid-date-picker";
-import "@rnwonder/solid-date-picker/dist/style.css";
 import "@rnwonder/solid-date-picker/dist/style.css";
 
 import { FarmFieldMeta } from "../../bindings/FarmFieldMeta";
@@ -23,35 +23,28 @@ import { createQuery } from "@tanstack/solid-query";
 import { HarvestType } from "../../bindings/HarvestType";
 import { prepareAuth } from "../requests";
 
-const postNewHarvestEvent = async (
-  fieldId: number,
-  time: string,
-  type: HarvestType,
+const saveHarvestEvent = async (
+  harvestEvent: HarvestEvent,
 ): Promise<HarvestEvent> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
     throw new Error("not allowed to post without bearer token");
   }
-  const body: HarvestEvent = {
-    id: -1,
-    value: 0,
-    time,
-    field_id: fieldId,
-    type_id: type.id,
-    type_name: type.name,
-  };
-  const response = await fetch(`/api/harvest_event`, {
-    method: "POST",
+  const isNew = harvestEvent.id < 0;
+  const response = await fetch(isNew ? `/api/harvest_event` : `/api/harvest_event/${harvestEvent.id}`, {
+    method: isNew ? "POST" : "PATCH",
     headers: authHeaders,
-    body: JSON.stringify(body),
+    body: JSON.stringify(harvestEvent),
   });
   if (response.status === 200) {
-    const id = await response.text();
-    const newItem = { ...body, id: parseInt(id) };
-    return newItem as HarvestEvent;
+    if (isNew) {
+      const id = await response.text();
+      return { ...harvestEvent, id: parseInt(id) };
+    }
+    return response.json() as Promise<HarvestEvent>;
   } else {
-    throw new Error("Something went wrong creating harvest");
+    throw new Error("Something went wrong saving harvest");
   }
 };
 
@@ -67,8 +60,10 @@ export function HarvestForm(props: {
   onClose: () => void;
   group: Accessor<FarmFieldGroupMeta | undefined>;
   field: Accessor<FarmFieldMeta | undefined>;
+  initialHarvest?: Accessor<ValidHarvest | undefined>;
+  title?: string;
+  submitLabel?: string;
 }) {
-
   const [selectedGroup, setSelectedGroup] = createSignal<FarmFieldGroupMeta | undefined>(props.group())
   const [selectedField, setSelectedField] = createSignal<FarmFieldMeta | undefined>(props.field())
   const [harvestType, setHarvestType] = createSignal<HarvestType | undefined>();
@@ -76,6 +71,7 @@ export function HarvestForm(props: {
     value: {},
     label: "",
   });
+  const [value, setValue] = createSignal(0);
   const [showInvalid, setshowInvalid] = createSignal(false);
 
   const harvestTypes = createQuery<HarvestType[]>(() => ({
@@ -88,6 +84,54 @@ export function HarvestForm(props: {
     queryFn: () => fetch("/api/farm_field_groups/meta").then((a) => a.json()),
   }));
 
+  const title = () => props.title ?? (props.initialHarvest?.() ? "Edit harvest" : "New harvest");
+  const submitLabel = () => props.submitLabel ?? (props.initialHarvest?.() ? "Save" : "Add");
+
+  createEffect(() => {
+    const initial = props.initialHarvest?.();
+    if (initial) {
+      setSelectedGroup(initial.group);
+      setSelectedField(initial.field);
+      setValue(initial.harvest.value);
+      setDate({
+        value: { selected: initial.harvest.time },
+        label: new Date(initial.harvest.time).toLocaleDateString("nb-NO"),
+      });
+      return;
+    }
+
+    setSelectedGroup(props.group());
+    setSelectedField(props.field());
+    setValue(0);
+    setDate({
+      value: {},
+      label: "",
+    });
+  });
+
+  createEffect(() => {
+    const initialTypeId = props.initialHarvest?.()?.harvest.type_id;
+    const types = harvestTypes.data;
+    if (!types) {
+      return;
+    }
+    if (initialTypeId) {
+      setHarvestType(types.find((type) => type.id === initialTypeId));
+      return;
+    }
+    if (!harvestType()) {
+      setHarvestType(undefined);
+    }
+  });
+
+  const canSave = createMemo(() => {
+    const field = selectedField();
+    const group = selectedGroup();
+    const dateValue = date().value.selected;
+    const type = harvestType();
+    return !!field && !!group && !!dateValue && !!type && Number.isFinite(value());
+  });
+
   const addNewHarvest = () => {
     setshowInvalid(true);
     const field = selectedField();
@@ -97,7 +141,15 @@ export function HarvestForm(props: {
     if (!field || !group || !date_value || !harvest_type) {
       return;
     }
-    postNewHarvestEvent(field.id, date_value, harvest_type)
+    const currentId = props.initialHarvest?.()?.harvest.id ?? -1;
+    saveHarvestEvent({
+      id: currentId,
+      value: value(),
+      time: new Date(date_value).toISOString(),
+      field_id: field.id,
+      type_id: harvest_type.id,
+      type_name: harvest_type.name,
+    })
       .then((harvest) => {
         if (!harvest) {
           return;
@@ -121,20 +173,13 @@ export function HarvestForm(props: {
           zIndex={2000}
           value={date}
           setValue={setDate}
-          inputClass={showInvalid() && !date().value.selected ? "invalid" : ""}
+          inputWrapperClass={styles.datePickerInputWrapper}
+          inputClass={`${styles.datePickerInput} ${showInvalid() && !date().value.selected ? styles.datePickerInputInvalid : ""}`}
           shouldCloseOnSelect
         />
         <Button
           variant="outlined"
-          size="small"
-          sx={{
-            minWidth: "56px",
-            width: "56px",
-            height: "56px",
-            fontSize: "14px",
-            textTransform: "none",
-            borderColor: "#c4c4c4",
-          }}
+          class={styles.dateShortcutButton}
           onClick={() => {
             const today = new Date();
             setDate({
@@ -158,12 +203,12 @@ export function HarvestForm(props: {
       }}
       PaperProps={{ class: styles.harvestDialog }}
     >
-      <DialogTitle>New harvest</DialogTitle>
+      <DialogTitle class={styles.harvestDialogTitle}>{title()}</DialogTitle>
       <DialogContent class={styles.harvestSelectBody}>
         <Switch>
           <Match when={groups.isLoading}>Loading</Match>
           <Match when={groups.data !== undefined}>
-            <FormControl fullWidth>
+            <FormControl fullWidth class={styles.harvestField}>
               <InputLabel shrink id="groupSelect">
                 Select Group
               </InputLabel>
@@ -177,7 +222,6 @@ export function HarvestForm(props: {
                 onChange={(value) => {
                   const group = groups.data?.find((g) => g.name === value.target.value);
                   setSelectedGroup(group);
-                  console.log(group);
                   // if a field is selected, we unselect the field if we switch groups
                   if (selectedField() && !group?.fields.find(y => y.id === selectedField()?.id)) {
                     setSelectedField(undefined);
@@ -190,7 +234,7 @@ export function HarvestForm(props: {
               </Select>
             </FormControl>
 
-            <FormControl disabled={!selectedGroup()} fullWidth>
+            <FormControl disabled={!selectedGroup()} fullWidth class={styles.harvestField}>
               <InputLabel shrink id="fieldSelect">
                 Select Field
               </InputLabel>
@@ -212,7 +256,7 @@ export function HarvestForm(props: {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth>
+            <FormControl fullWidth class={styles.harvestField}>
               <InputLabel shrink id="harvestTypeSelect">
                 Select Type
               </InputLabel>
@@ -238,17 +282,36 @@ export function HarvestForm(props: {
 
             <DatePickerComponent />
 
+            <TextField
+              class={styles.harvestField}
+              label="Value"
+              type="number"
+              size="small"
+              value={value()}
+              onChange={(event) => setValue(Number(event.currentTarget.value))}
+            />
+
           </Match>
         </Switch>
       </DialogContent>
-      <DialogActions>
+      <DialogActions class={styles.harvestDialogActions}>
+
+        <Button
+          onClick={() => {
+            setshowInvalid(false);
+            props.onClose();
+          }}
+        >
+          Cancel
+        </Button>
 
         <Button
           variant="contained"
           class={styles.addHarvestButton}
+          disabled={!canSave()}
           onClick={addNewHarvest}
         >
-          Add
+          {submitLabel()}
         </Button>
       </DialogActions>
     </Dialog>

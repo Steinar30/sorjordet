@@ -178,7 +178,6 @@ export function UserForm(props: {
 
       <Button
         disabled={!validateInput(form)}
-        size="small"
         variant="contained"
         onClick={async () => {
           if (props.toEdit !== undefined) {

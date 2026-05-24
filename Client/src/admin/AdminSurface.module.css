@@ -18,6 +18,10 @@
 }
 
 .hero {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
   padding: 14px;
 }
 
@@ -35,6 +39,16 @@
   color: var(--dark-text-color);
   font-size: clamp(1.15rem, 3vw, 1.55rem);
   line-height: 1.08;
+}
+
+.heroContent {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.heroAction {
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .toolbar {
@@ -167,6 +181,14 @@
 }
 
 @media (max-width: 640px) {
+  .hero {
+    gap: 10px;
+  }
+
+  .heroAction {
+    width: auto;
+  }
+
   .toolbar {
     align-items: stretch;
     flex-direction: column;

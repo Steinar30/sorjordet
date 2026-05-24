@@ -23,7 +23,6 @@ export default function Admin() {
   function navButton(input: AdminNav) {
     return (
       <Button
-        size="small"
         variant={currentView() === input ? "contained" : "outlined"}
         onClick={() => setCurrentView(input)}
       >

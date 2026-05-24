@@ -159,7 +159,6 @@ export default function HarvestList() {
           </div>
           <Button
             class={styles.newHarvestButton}
-            size="small"
             variant="contained"
             onClick={() => setCreateNew(true)}
           >
@@ -369,7 +368,7 @@ export default function HarvestList() {
         <Show when={harvestEvents.hasNextPage}>
           <Button
             class={styles.loadMoreButton}
-            size="small"
+            variant="outlined"
             onClick={() => harvestEvents.fetchNextPage()}
           >
             Load more

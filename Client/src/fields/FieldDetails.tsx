@@ -174,7 +174,7 @@ export function FieldDetails(props: { fieldId: number }) {
   return (
     <main class={styles.page}>
       <div class={styles.backRow}>
-        <Button component={A} href="/fields" variant="outlined" size="small">
+        <Button component={A} href="/fields" variant="outlined">
           Back to fields
         </Button>
       </div>
@@ -191,7 +191,6 @@ export function FieldDetails(props: { fieldId: number }) {
                         <p class={styles.eyebrow}>Field profile</p>
                         <Show when={jwt_token()}>
                           <Button
-                            size="small"
                             variant="contained"
                             onClick={() => setIsEditing(true)}
                           >
@@ -311,7 +310,6 @@ export function FieldDetails(props: { fieldId: number }) {
                 </div>
                 <Button
                   variant="outlined"
-                  size="small"
                   onClick={() => setIsEditing(false)}
                 >
                   Back to field
