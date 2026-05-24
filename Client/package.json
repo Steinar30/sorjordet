@@ -9,19 +9,26 @@
     "build": "vite build",
     "serve": "vite preview",
     "format": "prettier --write .",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^9.10.0",
+    "@solidjs/testing-library": "^0.8.10",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@^3.6.0",
     "eslint": "^9.10.0",
     "globals": "^15.11.0",
+    "jsdom": "^24.0.0",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.5.0",
     "vite": "^5.4.10",
-    "vite-plugin-solid": "^2.10.2"
+    "vite-plugin-solid": "^2.10.2",
+    "vitest": "^2.0.5",
+    "vitest-canvas-mock": "^1.1.4"
   },
   "dependencies": {
     "@rnwonder/solid-date-picker": "^1.4.1",
