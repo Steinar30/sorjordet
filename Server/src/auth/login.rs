@@ -1,15 +1,14 @@
 use axum::{
-    self,
+    self, Json,
     extract::{self, State},
     response::IntoResponse,
-    Json,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, FromRow, PgPool};
+use sqlx::{FromRow, PgPool, query, query_as};
 use ts_rs::TS;
 
 use crate::{
-    auth::{generate_jwt, verify_password, Claims},
+    auth::{Claims, generate_jwt, verify_password},
     errors::SorjordetError,
 };
 

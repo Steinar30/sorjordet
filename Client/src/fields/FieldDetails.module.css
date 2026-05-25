@@ -175,6 +175,14 @@
   font-weight: 720 !important;
 }
 
+.sectionHeader {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .tableContainer {
   max-width: 100%;
   min-width: 0;
@@ -200,7 +208,8 @@
   }
 
   .editPanelHeader,
-  .titleRow {
+  .titleRow,
+  .sectionHeader {
     align-items: stretch;
     flex-direction: column;
   }

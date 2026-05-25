@@ -83,7 +83,7 @@ pub struct HarvestAggParams {
 }
 
 impl HarvestAggParams {
-    fn get_from_to(self: &Self) -> (DateTime<Utc>, DateTime<Utc>) {
+    fn get_from_to(&self) -> (DateTime<Utc>, DateTime<Utc>) {
         let to = self
             .to
             .unwrap_or(chrono::Utc::now().checked_add_days(Days::new(1)).unwrap());

@@ -13,6 +13,12 @@
     linear-gradient(180deg, #f7f9f4 0%, #f2f6f1 46%, #edf3ef 100%);
 }
 
+@media (max-width: 760px) {
+  :root {
+    --topbar-height: 52px;
+  }
+}
+
 body {
   margin: 0;
   font-family:

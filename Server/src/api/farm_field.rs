@@ -123,7 +123,7 @@ async fn patch_farm_field(
     extract::Path(field_id): extract::Path<i32>,
     extract::Json(payload): extract::Json<FarmField>,
 ) -> Result<impl IntoResponse, SorjordetError> {
-    if payload.name == "" {
+    if payload.name.is_empty() {
         return Err(SorjordetError::InvalidInput(
             "name must not be empty".to_string(),
         ));

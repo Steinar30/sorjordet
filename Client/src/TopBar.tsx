@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
 import { Portal } from "solid-js/web";
 import { createMediaQuery } from "@solid-primitives/media";
 import { Button, IconButton } from "@suid/material";
@@ -19,7 +19,6 @@ type NavItem = {
 export default function TopAppBar() {
   const isSmall = createMediaQuery("(max-width:760px)");
   const [isOpen, setIsOpen] = createSignal(false);
-  let headerRef: HTMLElement | undefined;
   let drawerPanelRef: HTMLElement | undefined;
   let menuButtonRef: HTMLButtonElement | undefined;
 
@@ -53,34 +52,6 @@ export default function TopAppBar() {
     onCleanup(() =>
       document.removeEventListener("pointerdown", closeOnOutsidePointer, true),
     );
-  });
-
-  onMount(() => {
-    if (!headerRef) {
-      return;
-    }
-
-    const syncHeaderHeight = () => {
-      document.documentElement.style.setProperty(
-        "--topbar-height",
-        `${headerRef!.offsetHeight}px`,
-      );
-    };
-
-    syncHeaderHeight();
-
-    window.addEventListener("resize", syncHeaderHeight);
-
-    const resizeObserver =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(() => syncHeaderHeight())
-        : undefined;
-    resizeObserver?.observe(headerRef);
-
-    onCleanup(() => {
-      resizeObserver?.disconnect();
-      window.removeEventListener("resize", syncHeaderHeight);
-    });
   });
 
   const navItems = (): NavItem[] => [
@@ -149,12 +120,7 @@ export default function TopAppBar() {
   );
 
   return (
-    <header
-      ref={(element) => {
-        headerRef = element;
-      }}
-      class={styles.headerContainer}
-    >
+    <header class={styles.headerContainer}>
       <div class={styles.toolbar}>
         {brand()}
 

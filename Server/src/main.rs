@@ -4,12 +4,14 @@ pub mod errors;
 
 use api::api_router;
 use axum::Router;
+use axum::http::header::{CACHE_CONTROL, HeaderValue};
 use lazy_static::lazy_static;
-use sqlx::postgres::{PgConnectOptions, PgPool, PgPoolOptions};
 use sqlx::ConnectOptions;
+use sqlx::postgres::{PgConnectOptions, PgPool, PgPoolOptions};
 use std::env::var;
 use tower_http::compression::CompressionLayer;
 use tower_http::services::{ServeDir, ServeFile};
+use tower_http::set_header::SetResponseHeaderLayer;
 use tower_http::timeout::TimeoutLayer;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -59,11 +61,26 @@ async fn main() {
         .await
         .expect("can't connect to database");
 
-    let app = Router::new()
+    let assets_router = Router::new()
+        .fallback_service(ServeDir::new("dist/assets"))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            CACHE_CONTROL,
+            HeaderValue::from_static("public, max-age=31536000, immutable"),
+        ));
+
+    let spa_router = Router::new()
         .fallback_service(
             ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")),
         )
+        .layer(SetResponseHeaderLayer::if_not_present(
+            CACHE_CONTROL,
+            HeaderValue::from_static("no-cache"),
+        ));
+
+    let app = Router::new()
         .nest("/api/", api_router(pool).await)
+        .nest("/assets", assets_router)
+        .merge(spa_router)
         .layer(cors)
         .layer(TimeoutLayer::new(core::time::Duration::new(2, 0)))
         .layer(CompressionLayer::new().br(true).gzip(true))

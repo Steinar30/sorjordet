@@ -1,13 +1,12 @@
 use axum::{
-    self,
+    self, Json, Router,
     extract::{self, State},
     response::IntoResponse,
     routing::get,
-    Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-use sqlx::{query_as, query_scalar, PgPool};
+use sqlx::{PgPool, query_as, query_scalar};
 use ts_rs::TS;
 
 use crate::auth::Claims;

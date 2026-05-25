@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@solidjs/testing-library";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Router, Route } from "@solidjs/router";
+import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import Fields from "../fields/Fields";
 
 vi.mock("../requests", () => {
@@ -54,10 +55,20 @@ describe("Fields Component", () => {
   });
 
   it("renders search field and skeleton initially, then renders fields table", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
     const { container } = render(() => (
-      <Router>
-        <Route path="/" component={Fields} />
-      </Router>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <Route path="/" component={Fields} />
+        </Router>
+      </QueryClientProvider>
     ));
 
     const skeleton = container.querySelector(".MuiSkeleton-root");
@@ -73,10 +84,20 @@ describe("Fields Component", () => {
   });
 
   it("filters fields when search input is typed in", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
     render(() => (
-      <Router>
-        <Route path="/" component={Fields} />
-      </Router>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <Route path="/" component={Fields} />
+        </Router>
+      </QueryClientProvider>
     ));
 
     await screen.findAllByRole("link", { name: "Jordet A" });

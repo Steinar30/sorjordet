@@ -1,13 +1,13 @@
 import {
   Accessor,
   createMemo,
-  createResource,
   createSignal,
   For,
   JSX,
   Show,
 } from "solid-js";
 import { A } from "@solidjs/router";
+import { createQuery, useQueryClient } from "@tanstack/solid-query";
 import {
   IconButton,
   Skeleton,
@@ -358,12 +358,18 @@ export default function FieldsList(props?: {
   setEdit?: (field: FarmField) => undefined;
   addButton?: (() => JSX.Element) | undefined;
 }) {
-  const [farmFieldGroups] = createResource(getFarmFieldGroups);
-  const [fields, setFields] = createResource(() =>
-    fetch("/api/farm_fields/all").then((response) =>
-      response.json() as Promise<FarmField[]>,
-    ),
-  );
+  const queryClient = useQueryClient();
+  const farmFieldGroups = createQuery(() => ({
+    queryKey: ["field_groups"],
+    queryFn: getFarmFieldGroups,
+  }));
+  const fields = createQuery(() => ({
+    queryKey: ["fields_all"],
+    queryFn: () =>
+      fetch("/api/farm_fields/all").then((response) =>
+        response.json() as Promise<FarmField[]>,
+      ),
+  }));
   const [sorting, setSorting] = createSignal<Sorting>({
     sortKey: "size",
     direction: "desc",
@@ -374,7 +380,11 @@ export default function FieldsList(props?: {
   const deleteFunction = async (id: number) => {
     const result = await deleteField(id);
     if (result) {
-      setFields.mutate((current) => current?.filter((entry) => entry.id !== id));
+      queryClient.setQueryData(
+        ["fields_all"],
+        (current: FarmField[] | undefined) =>
+          current?.filter((entry) => entry.id !== id),
+      );
     }
   };
 
@@ -399,7 +409,7 @@ export default function FieldsList(props?: {
           </Show>
         </div>
       </div>
-      <Show when={fields()} fallback={<Skeleton height={360} />}>
+      <Show when={fields.data} fallback={<Skeleton height={360} />}>
         {(loadedFields) => (
           <>
             <ConfirmDeleteDialog
@@ -413,7 +423,7 @@ export default function FieldsList(props?: {
               }}
               title="Are you sure you want to delete this field?"
             ></ConfirmDeleteDialog>
-            <Show when={farmFieldGroups()}>
+            <Show when={farmFieldGroups.data}>
               {(groups) =>
                 renderFieldsTable(
                   loadedFields(),
@@ -421,7 +431,11 @@ export default function FieldsList(props?: {
                   textFilter,
                   sorting,
                   setSorting,
-                  props?.showDelete === true ? deleteFunction : undefined,
+                  props?.showDelete === true
+                    ? async (id: number) => {
+                        setToDelete(id);
+                      }
+                    : undefined,
                   props?.maxItems,
                   props?.setEdit,
                 )

@@ -1,15 +1,14 @@
 use std::collections::HashMap;
 
 use axum::{
-    self,
+    self, Json, Router,
     extract::{self, State},
     response::IntoResponse,
     routing::get,
-    Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-use sqlx::{query, query_scalar, PgPool, Row};
+use sqlx::{PgPool, Row, query, query_scalar};
 use ts_rs::TS;
 
 use crate::auth::Claims;
@@ -105,9 +104,7 @@ async fn get_farm_field_groups_meta(
             }
             acc
         },
-    )
-    .into_iter()
-    .map(|(_, x)| x)
+    ).into_values()
     .collect();
 
     groups.sort_by(|a, b| a.name.cmp(&b.name));

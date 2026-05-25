@@ -1,12 +1,12 @@
 import {
   createMemo,
-  createResource,
   createSignal,
   For,
   Match,
   Show,
   Switch,
 } from "solid-js";
+import { createQuery } from "@tanstack/solid-query";
 import { Button } from "@suid/material";
 import { FarmField } from "../../bindings/FarmField";
 import { getFarmFieldGroups } from "../requests";
@@ -18,15 +18,20 @@ import { FieldForm } from "../admin/fields/FieldForm";
 
 export default function Fields() {
   const [showCreateForm, setShowCreateForm] = createSignal(false);
-  const [groups] = createResource(getFarmFieldGroups);
-  const [fields] = createResource(() =>
-    fetch("/api/farm_fields/all").then((response) =>
-      response.json() as Promise<FarmField[]>,
-    ),
-  );
+  const groups = createQuery(() => ({
+    queryKey: ["field_groups"],
+    queryFn: getFarmFieldGroups,
+  }));
+  const fields = createQuery(() => ({
+    queryKey: ["fields_all"],
+    queryFn: () =>
+      fetch("/api/farm_fields/all").then((response) =>
+        response.json() as Promise<FarmField[]>,
+      ),
+  }));
 
   const fieldAreas = createMemo(() =>
-    (fields() ?? []).map((field) => ({
+    (fields.data ?? []).map((field) => ({
       ...field,
       area: getMapPolygonArea(field.map_polygon_string),
     })),
@@ -37,9 +42,9 @@ export default function Fields() {
   );
 
   const stats = createMemo(() => [
-    { label: "Fields", value: (fields()?.length ?? "...").toString() },
-    { label: "Groups", value: (groups()?.length ?? "...").toString() },
-    { label: "Total area", value: fields() ? formatArea(totalArea()) : "..." },
+    { label: "Fields", value: (fields.data?.length ?? "...").toString() },
+    { label: "Groups", value: (groups.data?.length ?? "...").toString() },
+    { label: "Total area", value: fields.data ? formatArea(totalArea()) : "..." },
   ]);
 
   return (

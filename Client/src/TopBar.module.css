@@ -4,18 +4,18 @@
   z-index: 1100;
   color: var(--dark-text-color);
   background: rgba(250, 252, 248, 0.86);
-  border-bottom: 1px solid rgba(29, 47, 43, 0.08);
   box-shadow: 0 8px 26px rgba(21, 38, 35, 0.06);
   backdrop-filter: blur(18px) saturate(140%);
 }
 
 .toolbar {
   width: min(100%, 1180px);
+  height: var(--topbar-height);
   margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
+  padding: 0 12px;
   box-sizing: border-box;
 }
 

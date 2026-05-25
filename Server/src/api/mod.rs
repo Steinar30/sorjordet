@@ -7,7 +7,7 @@ mod harvest_type;
 mod users;
 
 use crate::auth::login_user;
-use axum::{routing::post, Router};
+use axum::{Router, routing::post};
 use farm::farm_router;
 use farm_field::farm_field_router;
 use farm_field_group::farm_field_group_router;

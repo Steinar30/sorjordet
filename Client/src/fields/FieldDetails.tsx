@@ -34,9 +34,12 @@ import { FarmField } from "../../bindings/FarmField";
 import { FieldEvent } from "../../bindings/FieldEvent";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
+import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 import { formatDate } from "../Utils";
 import { jwt_token } from "../App";
 import { FieldUpdateForm } from "../admin/fields/FieldEditForm";
+import { FieldEventForm } from "./FieldEventForm";
+import { HarvestForm } from "../harvest/HarvestForm";
 import {
   formatArea,
   getMapPolygonArea,
@@ -124,6 +127,8 @@ function EmptyState(props: { title: string }) {
 export function FieldDetails(props: { fieldId: number }) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = createSignal(false);
+  const [isAddingEvent, setIsAddingEvent] = createSignal(false);
+  const [isAddingHarvest, setIsAddingHarvest] = createSignal(false);
   const field = createQuery<FarmField>(() => ({
     queryKey: ["field", props.fieldId],
     queryFn: () =>
@@ -151,7 +156,7 @@ export function FieldDetails(props: { fieldId: number }) {
   const fieldEvents = createQuery<FieldEvent[]>(() => ({
     queryKey: ["field_events", props.fieldId],
     queryFn: () =>
-      fetch(`/api/field_event/${props.fieldId}`).then(
+      fetch(`/api/field_event/field/${props.fieldId}`).then(
         (response) => response.json() as Promise<FieldEvent[]>,
       ),
   }));
@@ -164,6 +169,28 @@ export function FieldDetails(props: { fieldId: number }) {
     field.data ? formatArea(getMapPolygonArea(field.data.map_polygon_string)) : "-",
   );
 
+  const harvestGroup = createMemo<FarmFieldGroupMeta | undefined>(() => {
+    const currentField = field.data;
+    const currentGroup = group();
+    if (!currentField || !currentGroup) {
+      return undefined;
+    }
+
+    return {
+      id: currentGroup.id,
+      farm_id: currentGroup.farm_id,
+      name: currentGroup.name,
+      draw_color: currentGroup.draw_color,
+      fields: [
+        {
+          id: currentField.id,
+          name: currentField.name,
+          farm_id: currentField.farm_id,
+        },
+      ],
+    };
+  });
+
   const handleFieldSave = (updatedField: FarmField) => {
     setIsEditing(false);
     queryClient.setQueryData(["field", props.fieldId], updatedField);
@@ -171,8 +198,45 @@ export function FieldDetails(props: { fieldId: number }) {
     queryClient.invalidateQueries({ queryKey: ["field", props.fieldId] });
   };
 
+  const handleFieldEventCreated = async () => {
+    setIsAddingEvent(false);
+    await queryClient.invalidateQueries({
+      queryKey: ["field_events", props.fieldId],
+    });
+  };
+
+  const handleHarvestCreated = async () => {
+    setIsAddingHarvest(false);
+    await queryClient.invalidateQueries({
+      queryKey: ["field_harvest_events", props.fieldId],
+    });
+  };
+
   return (
     <main class={styles.page}>
+      <FieldEventForm
+        isOpen={isAddingEvent}
+        fieldId={props.fieldId}
+        onClose={() => setIsAddingEvent(false)}
+        onCreated={handleFieldEventCreated}
+      />
+      <HarvestForm
+        isOpen={isAddingHarvest}
+        onClose={() => setIsAddingHarvest(false)}
+        group={harvestGroup}
+        field={() =>
+          field.data
+            ? {
+                id: field.data.id,
+                name: field.data.name,
+                farm_id: field.data.farm_id,
+              }
+            : undefined
+        }
+        title="New harvest event"
+        submitLabel="Add"
+        selectHarvest={handleHarvestCreated}
+      />
       <div class={styles.backRow}>
         <Button component={A} href="/fields" variant="outlined">
           Back to fields
@@ -232,9 +296,20 @@ export function FieldDetails(props: { fieldId: number }) {
 
                 <Card class={styles.card}>
                   <CardContent>
-                    <Typography class={styles.sectionTitle} variant="h6" gutterBottom>
-                      Harvest history
-                    </Typography>
+                    <div class={styles.sectionHeader}>
+                      <Typography class={styles.sectionTitle} variant="h6">
+                        Harvest history
+                      </Typography>
+                      <Show when={jwt_token()}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() => setIsAddingHarvest(true)}
+                        >
+                          New harvest event
+                        </Button>
+                      </Show>
+                    </div>
                     <Show
                       when={harvestHistory.isSuccess && (harvestHistory.data?.length ?? 0) > 0}
                       fallback={<EmptyState title="Harvest History" />}
@@ -267,9 +342,20 @@ export function FieldDetails(props: { fieldId: number }) {
 
                 <Card class={styles.card}>
                   <CardContent>
-                    <Typography class={styles.sectionTitle} variant="h6" gutterBottom>
-                      Field events
-                    </Typography>
+                    <div class={styles.sectionHeader}>
+                      <Typography class={styles.sectionTitle} variant="h6">
+                        Field events
+                      </Typography>
+                      <Show when={jwt_token()}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() => setIsAddingEvent(true)}
+                        >
+                          New field event
+                        </Button>
+                      </Show>
+                    </div>
                     <Show
                       when={fieldEvents.isSuccess && (fieldEvents.data?.length ?? 0) > 0}
                       fallback={<EmptyState title="Field Events" />}

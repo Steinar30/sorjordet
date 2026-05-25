@@ -2,7 +2,7 @@ use axum::{
     self, Json, Router,
     extract::{self, State},
     response::IntoResponse,
-    routing::{get, post},
+    routing::get,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -20,6 +20,19 @@ pub struct FieldEvent {
     pub field_id: i32,
     pub event_name: String,
     pub description: Option<String>,
+}
+
+async fn get_all_events(State(pool): State<PgPool>) -> Result<impl IntoResponse, SorjordetError> {
+    let result: Vec<FieldEvent> = query_as!(
+        FieldEvent,
+        "SELECT id, time, field_id, event_name, description
+                FROM field_event
+                ORDER BY time DESC"
+    )
+    .fetch_all(&pool)
+    .await?;
+
+    Ok(Json(result))
 }
 
 async fn get_events(
@@ -97,8 +110,34 @@ async fn patch_event(
     Ok(())
 }
 
+async fn delete_event(
+    claims: Claims,
+    State(pool): State<PgPool>,
+    extract::Path(event_id): extract::Path<i32>,
+) -> Result<impl IntoResponse, SorjordetError> {
+    let result = query!("DELETE FROM field_event WHERE id = $1", event_id)
+        .execute(&pool)
+        .await?;
+
+    if result.rows_affected() == 0 {
+        tracing::info!("field_event {} not found", event_id);
+        return Err(SorjordetError::NotFound(format!(
+            "field_event with id {} not found",
+            event_id
+        )));
+    }
+
+    tracing::info!("field_event {event_id} deleted by {}", claims.sub);
+
+    Ok(())
+}
+
 pub fn field_event_router() -> Router<PgPool> {
     Router::new()
-        .route("/{field_id}", get(get_events).patch(patch_event))
-        .route("/", post(post_event))
+        .route("/", get(get_all_events).post(post_event))
+        .route("/field/{field_id}", get(get_events))
+        .route(
+            "/{event_id}",
+            axum::routing::patch(patch_event).delete(delete_event),
+        )
 }
