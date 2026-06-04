@@ -6,7 +6,7 @@ import {
   JSX,
   Show,
 } from "solid-js";
-import { A } from "@solidjs/router";
+import { useNavigate } from "@solidjs/router";
 import { createQuery, useQueryClient } from "@tanstack/solid-query";
 import {
   IconButton,
@@ -71,6 +71,7 @@ const deleteField = async (id: number) => {
 const renderFieldsTable = (
   fields: FarmField[],
   groups: FarmFieldGroup[],
+  navigate: (to: string) => void,
   textFilter: Accessor<string>,
   sorting: Accessor<Sorting>,
   setSorting: (s: Sorting) => void,
@@ -189,7 +190,14 @@ const renderFieldsTable = (
   };
 
   const renderMapButton = (field: DisplayedField) => (
-    <IconButton size="small" onClick={() => setFieldPeek(field)} title="Open map">
+    <IconButton
+      size="small"
+      onClick={(event) => {
+        event.stopPropagation();
+        setFieldPeek(field);
+      }}
+      title="Open map"
+    >
       <MapIcon />
     </IconButton>
   );
@@ -200,7 +208,8 @@ const renderFieldsTable = (
     <Show when={setEdit !== undefined}>
       <IconButton
         size="small"
-        onClick={() => {
+        onClick={(event) => {
+          event.stopPropagation();
           const foundField = fields.find((entry) => entry.id === field.id);
           if (foundField) {
             setEdit?.(foundField);
@@ -214,7 +223,13 @@ const renderFieldsTable = (
 
   const renderDeleteButton = (field: DisplayedField) => (
     <Show when={onDelete !== undefined}>
-      <IconButton size="small" onClick={() => onDelete?.(field.id)}>
+      <IconButton
+        size="small"
+        onClick={(event) => {
+          event.stopPropagation();
+          onDelete?.(field.id);
+        }}
+      >
         <Delete />
       </IconButton>
     </Show>
@@ -253,18 +268,17 @@ const renderFieldsTable = (
             <TableBody>
               <For each={getSortedFields(sorting())}>
                 {(field) => (
-                  <TableRow class={styles.tableRow}>
+                  <TableRow
+                    class={`${styles.tableRow} ${styles.clickableRow}`}
+                    onClick={() => navigate(`/fields/${field.id}`)}
+                  >
                     <TableCell sx={{ width: "20px" }}>
                       <span
                         class={styles.colorDot}
                         style={{ "background-color": field.draw_color }}
                       />
                     </TableCell>
-                    <TableCell>
-                      <A class={styles.fieldLink} href={`/fields/${field.id}`}>
-                        {field.name}
-                      </A>
-                    </TableCell>
+                    <TableCell>{field.name}</TableCell>
                     <TableCell>{field.group_name}</TableCell>
                     <TableCell>{formatArea(field.size)}</TableCell>
                     <TableCell>
@@ -272,7 +286,8 @@ const renderFieldsTable = (
                       {setEdit !== undefined && (
                         <IconButton
                           size="small"
-                          onClick={() => {
+                          onClick={(event) => {
+                            event.stopPropagation();
                             const foundField = fields.find(
                               (entry) => entry.id === field.id,
                             );
@@ -285,7 +300,13 @@ const renderFieldsTable = (
                         </IconButton>
                       )}
                       {onDelete !== undefined && (
-                        <IconButton size="small" onClick={() => onDelete(field.id)}>
+                        <IconButton
+                          size="small"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onDelete(field.id);
+                          }}
+                        >
                           <Delete />
                         </IconButton>
                       )}
@@ -301,7 +322,10 @@ const renderFieldsTable = (
       <div class={styles.mobileCards}>
         <For each={getSortedFields(sorting())}>
           {(field) => (
-            <article class={styles.fieldCard}>
+            <article
+              class={`${styles.fieldCard} ${styles.clickableCard}`}
+              onClick={() => navigate(`/fields/${field.id}`)}
+            >
               <div class={styles.fieldCardTop}>
                 <span
                   class={styles.colorDot}
@@ -312,9 +336,7 @@ const renderFieldsTable = (
                   }}
                 />
                 <div class={styles.fieldCardTitle}>
-                  <A class={styles.fieldLink} href={`/fields/${field.id}`}>
-                    <p class={styles.fieldCardName}>{field.name}</p>
-                  </A>
+                  <p class={styles.fieldCardName}>{field.name}</p>
                   <p class={styles.fieldCardGroup}>
                     {field.group_name || "Ungrouped"}
                   </p>
@@ -358,6 +380,7 @@ export default function FieldsList(props?: {
   setEdit?: (field: FarmField) => undefined;
   addButton?: (() => JSX.Element) | undefined;
 }) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const farmFieldGroups = createQuery(() => ({
     queryKey: ["field_groups"],
@@ -428,6 +451,7 @@ export default function FieldsList(props?: {
                 renderFieldsTable(
                   loadedFields(),
                   groups(),
+                  navigate,
                   textFilter,
                   sorting,
                   setSorting,

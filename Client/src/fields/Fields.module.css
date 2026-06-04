@@ -141,6 +141,10 @@
   background: rgba(241, 247, 244, 0.88);
 }
 
+.clickableRow {
+  cursor: pointer;
+}
+
 .headerCell {
   font-size: 0.75rem;
   font-weight: 700;
@@ -177,6 +181,10 @@
   padding: 12px;
   display: grid;
   gap: 12px;
+}
+
+.clickableCard {
+  cursor: pointer;
 }
 
 .fieldCardTop {
