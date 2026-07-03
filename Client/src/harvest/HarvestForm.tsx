@@ -10,7 +10,7 @@ import {
   DialogActions,
   TextField,
 } from "@suid/material";
-import { Switch, Match, Accessor, createEffect, createMemo, createSignal } from "solid-js";
+import { For, Switch, Match, Accessor, createEffect, createMemo, createSignal } from "solid-js";
 import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 
@@ -22,6 +22,8 @@ import { FarmFieldMeta } from "../../bindings/FarmFieldMeta";
 import { createQuery } from "@tanstack/solid-query";
 import { HarvestType } from "../../bindings/HarvestType";
 import { prepareAuth } from "../requests";
+import { DrynessIndicator } from "./DrynessIndicator";
+import { drynessRatings, getDrynessDisplay } from "./dryness";
 
 const saveHarvestEvent = async (
   harvestEvent: HarvestEvent,
@@ -72,6 +74,7 @@ export function HarvestForm(props: {
     label: "",
   });
   const [value, setValue] = createSignal(0);
+  const [drynessRating, setDrynessRating] = createSignal<number | null>(null);
   const [showInvalid, setshowInvalid] = createSignal(false);
 
   const harvestTypes = createQuery<HarvestType[]>(() => ({
@@ -93,6 +96,7 @@ export function HarvestForm(props: {
       setSelectedGroup(initial.group);
       setSelectedField(initial.field);
       setValue(initial.harvest.value);
+      setDrynessRating(initial.harvest.dryness_rating);
       setDate({
         value: { selected: initial.harvest.time },
         label: new Date(initial.harvest.time).toLocaleDateString("nb-NO"),
@@ -103,6 +107,7 @@ export function HarvestForm(props: {
     setSelectedGroup(props.group());
     setSelectedField(props.field());
     setValue(0);
+    setDrynessRating(null);
     setDate({
       value: {},
       label: "",
@@ -149,6 +154,7 @@ export function HarvestForm(props: {
       field_id: field.id,
       type_id: harvest_type.id,
       type_name: harvest_type.name,
+      dryness_rating: drynessRating(),
     })
       .then((harvest) => {
         if (!harvest) {
@@ -290,6 +296,54 @@ export function HarvestForm(props: {
               value={value()}
               onChange={(event) => setValue(Number(event.currentTarget.value))}
             />
+
+            <div class={styles.drynessField}>
+              <div class={styles.drynessFieldHeader}>
+                <div>
+                  <p>Dryness</p>
+                  <span>Optional rating from very wet to very dry</span>
+                </div>
+                <DrynessIndicator
+                  rating={drynessRating()}
+                  class={styles.drynessChip}
+                  compact
+                />
+              </div>
+              <div class={styles.drynessScaleLabels} aria-hidden="true">
+                <span>Very wet</span>
+                <span>Average</span>
+                <span>Very dry</span>
+              </div>
+              <div class={styles.drynessButtons}>
+                <For each={drynessRatings}>
+                  {(rating) => {
+                    const display = getDrynessDisplay(rating);
+                    return (
+                      <button
+                        type="button"
+                        class={`${styles.drynessButton} ${drynessRating() === rating ? styles.drynessButtonSelected : ""}`}
+                        style={{
+                          "border-color": drynessRating() === rating ? display.borderColor : undefined,
+                          "color": drynessRating() === rating ? display.color : undefined,
+                        }}
+                        onClick={() => setDrynessRating(rating)}
+                        title={display.description}
+                      >
+                        <strong>{rating}</strong>
+                        <span>{display.shortLabel}</span>
+                      </button>
+                    );
+                  }}
+                </For>
+              </div>
+              <button
+                type="button"
+                class={styles.drynessUnsetButton}
+                onClick={() => setDrynessRating(null)}
+              >
+                Clear dryness rating
+              </button>
+            </div>
 
           </Match>
         </Switch>

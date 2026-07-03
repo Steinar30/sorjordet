@@ -19,7 +19,11 @@ import { HarvestEvent } from "../../../bindings/HarvestEvent";
 import { HarvestPagination } from "../../../bindings/HarvestPagination";
 import { FarmFieldGroupMeta } from "../../../bindings/FarmFieldGroupMeta";
 import { formatDate, getYearRangeSinceYearToCurrent } from "../../Utils";
+import { prepareAuth } from "../../requests";
 import { HarvestForm, ValidHarvest } from "../../harvest/HarvestForm";
+import { DrynessIndicator } from "../../harvest/DrynessIndicator";
+import { drynessRatings, getDrynessDisplay } from "../../harvest/dryness";
+import harvestStyles from "../../harvest/Harvest.module.css";
 import styles from "./HarvestEvents.module.css";
 
 const pageSize = 100;
@@ -36,9 +40,32 @@ async function getHarvestEvents(year: number, page: number) {
   return data.events;
 }
 
+async function updateHarvestDryness(event: HarvestEvent, drynessRating: number | null) {
+  const authHeaders = prepareAuth(true);
+  if (authHeaders === null) {
+    throw new Error("not allowed to update without bearer token");
+  }
+
+  const response = await fetch(`/api/harvest_event/${event.id}`, {
+    method: "PATCH",
+    headers: authHeaders,
+    body: JSON.stringify({
+      ...event,
+      dryness_rating: drynessRating,
+    }),
+  });
+
+  if (response.status !== 200) {
+    throw new Error("Something went wrong updating harvest dryness");
+  }
+
+  return response.json() as Promise<HarvestEvent>;
+}
+
 export default function HarvestEvents() {
   const queryClient = useQueryClient();
   const [year, setYear] = createSignal(new Date().getFullYear());
+  const [missingDrynessOnly, setMissingDrynessOnly] = createSignal(false);
   const [isFormOpen, setIsFormOpen] = createSignal(false);
   const [form, setForm] = createSignal<ValidHarvest | undefined>(undefined);
 
@@ -57,6 +84,14 @@ export default function HarvestEvents() {
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length < pageSize ? undefined : allPages.length + 1,
   }));
+
+  const visiblePages = createMemo(() =>
+    harvestEvents.data?.pages.map((page) =>
+      missingDrynessOnly()
+        ? page.filter((event) => event.dryness_rating === null)
+        : page,
+    ) ?? [],
+  );
 
   const fieldLookup = createMemo(() => {
     const map = new Map<
@@ -109,6 +144,44 @@ export default function HarvestEvents() {
   const groupLabel = (fieldId: number) =>
     fieldLookup().get(fieldId)?.groupName ?? "-";
 
+  const setDryness = async (event: HarvestEvent, rating: number) => {
+    await updateHarvestDryness(event, rating);
+    await refreshYear();
+  };
+
+  const renderDrynessBackfill = (event: HarvestEvent) => (
+    <Show
+      when={event.dryness_rating === null}
+      fallback={<DrynessIndicator rating={event.dryness_rating} class={harvestStyles.drynessChip} compact />}
+    >
+      <div class={styles.backfillButtons}>
+        <For each={drynessRatings}>
+          {(rating) => {
+            const display = getDrynessDisplay(rating);
+            return (
+              <button
+                type="button"
+                class={styles.backfillButton}
+                style={{
+                  "background": display.background,
+                  "border-color": display.borderColor,
+                  "color": display.color,
+                }}
+                title={display.description}
+                onClick={async (clickEvent) => {
+                  clickEvent.stopPropagation();
+                  await setDryness(event, rating);
+                }}
+              >
+                {rating}
+              </button>
+            );
+          }}
+        </For>
+      </div>
+    </Show>
+  );
+
   return (
     <main class={styles.page}>
       <HarvestForm
@@ -152,6 +225,13 @@ export default function HarvestEvents() {
           </Select>
         </FormControl>
 
+        <Button
+          variant={missingDrynessOnly() ? "contained" : "outlined"}
+          onClick={() => setMissingDrynessOnly(!missingDrynessOnly())}
+        >
+          Missing dryness
+        </Button>
+
         <Button variant="contained" onClick={openNewForm}>
           New harvest event
         </Button>
@@ -168,12 +248,13 @@ export default function HarvestEvents() {
                     <TableCell>Field</TableCell>
                     <TableCell>Group</TableCell>
                     <TableCell>Type</TableCell>
+                    <TableCell>Dryness</TableCell>
                     <TableCell align="right">Value</TableCell>
                     <TableCell class={styles.mobileActionCell}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <For each={harvestEvents.data?.pages}>
+                  <For each={visiblePages()}>
                     {(page) => (
                       <For each={page}>
                         {(event) => (
@@ -198,6 +279,9 @@ export default function HarvestEvents() {
                               class={`${styles.cell} ${styles.typeCell}`}
                             >
                               {event.type_name}
+                            </TableCell>
+                            <TableCell class={`${styles.cell} ${styles.drynessCell}`}>
+                              {renderDrynessBackfill(event)}
                             </TableCell>
                             <TableCell
                               align="right"
@@ -227,7 +311,7 @@ export default function HarvestEvents() {
           </div>
 
           <div class={styles.mobileCards}>
-            <For each={harvestEvents.data?.pages}>
+            <For each={visiblePages()}>
               {(page) => (
                 <For each={page}>
                   {(event) => (
@@ -253,6 +337,10 @@ export default function HarvestEvents() {
                         <div>
                           <p>Value</p>
                           <span>{event.value}</span>
+                        </div>
+                        <div>
+                          <p>Dryness</p>
+                          {renderDrynessBackfill(event)}
                         </div>
                       </div>
                     </article>

@@ -23,6 +23,21 @@ pub struct HarvestEvent {
     pub field_id: i32,
     pub type_name: String,
     pub type_id: i32,
+    pub dryness_rating: Option<i32>,
+}
+
+impl HarvestEvent {
+    fn validate(&self) -> Result<(), SorjordetError> {
+        if let Some(rating) = self.dryness_rating {
+            if !(1..=5).contains(&rating) {
+                return Err(SorjordetError::InvalidInput(
+                    "Dryness rating must be between 1 and 5".to_string(),
+                ));
+            }
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Serialize, TS)]
@@ -160,7 +175,7 @@ async fn get_events(
 ) -> Result<impl IntoResponse, SorjordetError> {
     let result: Vec<HarvestEvent> = query_as!(
         HarvestEvent,
-        "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id
+        "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id, dryness_rating
                 FROM harvest_event AS e JOIN harvest_type AS h ON e.harvest_type_id = h.id
                 WHERE field_id = $1
                 ORDER BY time DESC
@@ -178,15 +193,18 @@ async fn post_event(
     State(pool): State<PgPool>,
     extract::Json(payload): extract::Json<HarvestEvent>,
 ) -> Result<impl IntoResponse, SorjordetError> {
+    payload.validate()?;
+
     let result = query_scalar!(
-        "INSERT INTO harvest_event (value, time, field_id, harvest_type_id)
-                VALUES ($1,$2, $3, $4)
+        "INSERT INTO harvest_event (value, time, field_id, harvest_type_id, dryness_rating)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING id
             ",
         &payload.value,
         &payload.time,
         &payload.field_id,
-        &payload.type_id
+        &payload.type_id,
+        &payload.dryness_rating
     )
     .fetch_one(&pool)
     .await?;
@@ -202,14 +220,17 @@ async fn patch_event(
     extract::Path(event_id): extract::Path<i32>,
     extract::Json(payload): extract::Json<HarvestEvent>,
 ) -> Result<impl IntoResponse, SorjordetError> {
+    payload.validate()?;
+
     let result = query!(
         "UPDATE harvest_event
-                SET value = $1, time = $2, harvest_type_id = $3
-                WHERE id = $4
+                SET value = $1, time = $2, harvest_type_id = $3, dryness_rating = $4
+                WHERE id = $5
             ",
         &payload.value,
         &payload.time,
         &payload.type_id,
+        &payload.dryness_rating,
         &event_id
     )
     .execute(&pool)
@@ -265,7 +286,7 @@ async fn paginated_events(
     let page_offset = (params.page - 1) * params.page_size;
     let result: Vec<HarvestEvent> = query_as!(
         HarvestEvent,
-        "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id
+        "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id, dryness_rating
                 FROM harvest_event AS e 
                     JOIN harvest_type AS h ON e.harvest_type_id = h.id
                     JOIN farm_field f ON f.id = e.field_id

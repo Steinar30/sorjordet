@@ -451,3 +451,178 @@ input.datePickerInputInvalid,
     flex-direction: column;
   }
 }
+.drynessField {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid rgba(32, 52, 50, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 246, 0.78));
+}
+
+.drynessFieldHeader {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.drynessFieldHeader p {
+  margin: 0;
+  color: var(--dark-text-color);
+  font-size: 0.92rem;
+  font-weight: 740;
+}
+
+.drynessFieldHeader span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(35, 50, 47, 0.6);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.drynessChip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 5px;
+  align-items: center;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 5px 9px;
+  border: 1px solid;
+  border-radius: 999px;
+  box-sizing: border-box;
+  font-size: 0.78rem;
+  font-weight: 740;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.drynessChip svg {
+  width: 16px;
+  height: 16px;
+}
+
+.drynessChip span:last-child:not(:first-child) {
+  opacity: 0.78;
+  font-weight: 760;
+}
+
+.drynessScaleLabels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  color: rgba(35, 50, 47, 0.52);
+  font-size: 0.66rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.drynessScaleLabels span:nth-child(2) {
+  text-align: center;
+}
+
+.drynessScaleLabels span:last-child {
+  text-align: right;
+}
+
+.drynessButtons {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.drynessButtons::before {
+  content: "";
+  position: absolute;
+  inset: 0 8px auto;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(64, 133, 190, 0.48), rgba(107, 143, 94, 0.42), rgba(190, 116, 67, 0.46));
+}
+
+.drynessButton {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 54px;
+  align-content: center;
+  gap: 3px;
+  padding: 6px 4px;
+  border: 1px solid rgba(32, 52, 50, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: rgba(32, 52, 50, 0.72);
+  cursor: pointer;
+  font: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.drynessButton strong {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.drynessButton span {
+  min-width: 0;
+  font-size: 0.65rem;
+  font-weight: 720;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.drynessButtonSelected {
+  border-width: 2px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 8px 18px rgba(18, 33, 28, 0.1);
+  transform: translateY(-1px);
+}
+
+.drynessButton:focus-visible,
+.drynessUnsetButton:focus-visible {
+  outline: 3px solid rgba(44, 87, 74, 0.16);
+  outline-offset: 2px;
+}
+
+.drynessUnsetButton {
+  justify-self: start;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(32, 52, 50, 0.6);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 720;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .drynessFieldHeader {
+    flex-direction: column;
+  }
+
+  .drynessChip {
+    align-self: flex-start;
+  }
+
+  .drynessButtons {
+    gap: 5px;
+  }
+
+  .drynessButton {
+    min-height: 58px;
+    padding-right: 2px;
+    padding-left: 2px;
+  }
+
+  .drynessButton span {
+    font-size: 0.6rem;
+  }
+}

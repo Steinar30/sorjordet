@@ -9,6 +9,7 @@ import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 import { jwt_token } from "../App";
 import { HarvestForm, ValidHarvest } from "./HarvestForm";
 import { Harvest } from "./SelectedHarvest";
+import { DrynessIndicator } from "./DrynessIndicator";
 import { Delete } from "@suid/icons-material";
 import { prepareAuth } from "../requests";
 import styles from "./Harvest.module.css";
@@ -257,6 +258,7 @@ export default function HarvestList() {
                   <TableCell>Field</TableCell>
                   <TableCell>Group</TableCell>
                   <TableCell>Type</TableCell>
+                  <TableCell>Dryness</TableCell>
                   <Show when={isAdmin}>
                     <TableCell></TableCell>
                   </Show>
@@ -285,6 +287,9 @@ export default function HarvestList() {
                             </Show>
                           </TableCell>
                           <TableCell>{harvestEvent.type_name}</TableCell>
+                          <TableCell>
+                            <DrynessIndicator rating={harvestEvent.dryness_rating} class={styles.drynessChip} compact />
+                          </TableCell>
                           <Show when={isAdmin}>
                             <TableCell>
                               <IconButton
@@ -356,6 +361,10 @@ export default function HarvestList() {
                       <div>
                         <p>Type</p>
                         <span>{harvestEvent.type_name}</span>
+                      </div>
+                      <div>
+                        <p>Dryness</p>
+                        <DrynessIndicator rating={harvestEvent.dryness_rating} class={styles.drynessChip} compact />
                       </div>
                     </div>
                   </article>

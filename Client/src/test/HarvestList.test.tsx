@@ -38,10 +38,12 @@ describe("HarvestList Component", () => {
     events: [
       {
         id: 100,
-        value: "45 Bales",
+        value: 45,
         time: "2026-05-24T10:00:00Z",
         field_id: 10,
         type_name: "Gress",
+        type_id: 1,
+        dryness_rating: null,
       },
     ],
   };
@@ -98,7 +100,7 @@ describe("HarvestList Component", () => {
     expect(screen.getByText("Type")).toBeInTheDocument();
 
     // Check mocked harvest event loads in row
-    const harvestVals = await screen.findAllByText("45 Bales");
+    const harvestVals = await screen.findAllByText("45");
     expect(harvestVals.length).toBeGreaterThan(0);
 
     // Verify it links the names correctly via meta groups lookup map

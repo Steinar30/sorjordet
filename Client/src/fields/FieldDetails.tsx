@@ -40,6 +40,8 @@ import { jwt_token } from "../App";
 import { FieldUpdateForm } from "../admin/fields/FieldEditForm";
 import { FieldEventForm } from "./FieldEventForm";
 import { HarvestForm } from "../harvest/HarvestForm";
+import { DrynessIndicator } from "../harvest/DrynessIndicator";
+import harvestStyles from "../harvest/Harvest.module.css";
 import {
   formatArea,
   getMapPolygonArea,
@@ -320,6 +322,7 @@ export function FieldDetails(props: { fieldId: number }) {
                             <TableRow>
                               <TableCell>Date</TableCell>
                               <TableCell>Type</TableCell>
+                              <TableCell>Dryness</TableCell>
                               <TableCell align="right">Value</TableCell>
                             </TableRow>
                           </TableHead>
@@ -329,6 +332,9 @@ export function FieldDetails(props: { fieldId: number }) {
                                 <TableRow>
                                   <TableCell>{formatDate(event.time)}</TableCell>
                                   <TableCell>{event.type_name}</TableCell>
+                                  <TableCell>
+                                    <DrynessIndicator rating={event.dryness_rating} class={harvestStyles.drynessChip} compact />
+                                  </TableCell>
                                   <TableCell align="right">{event.value}</TableCell>
                                 </TableRow>
                               )}

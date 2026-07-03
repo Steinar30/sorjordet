@@ -15,6 +15,7 @@ import TractorIcon from "@suid/icons-material/Agriculture";
 import TractorIconOutlined from "@suid/icons-material/AgricultureOutlined";
 
 import { ValidHarvest } from "./HarvestForm";
+import { DrynessIndicator } from "./DrynessIndicator";
 
 const updateHarvestEvent = async (
   harvest: HarvestEvent,
@@ -201,6 +202,10 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
           >
             {renderHarvest(harvest().harvest)}
           </Typography>
+          <DrynessIndicator
+            rating={harvest().harvest.dryness_rating}
+            class={styles.drynessChip}
+          />
 
           <Show
             when={tractorMode()}
