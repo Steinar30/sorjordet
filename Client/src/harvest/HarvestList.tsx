@@ -10,6 +10,7 @@ import { jwt_token } from "../App";
 import { HarvestForm, ValidHarvest } from "./HarvestForm";
 import { Harvest } from "./SelectedHarvest";
 import { DrynessIndicator } from "./DrynessIndicator";
+import { HarvestMobileCard } from "./HarvestMobileCard";
 import { Delete } from "@suid/icons-material";
 import { prepareAuth } from "../requests";
 import styles from "./Harvest.module.css";
@@ -112,6 +113,12 @@ export default function HarvestList() {
     });
     queryClient.invalidateQueries({
       queryKey: ["harvestEventsInfinite", year(), -1, -1],
+    });
+  }
+
+  function handleHarvestUpdated() {
+    queryClient.invalidateQueries({
+      queryKey: ["harvestEventsInfinite"],
     });
   }
 
@@ -319,24 +326,19 @@ export default function HarvestList() {
             {(page) => (
               <For each={page}>
                 {(harvestEvent) => (
-                  <article
-                    class={styles.harvestCard}
-                    onClick={() => selectHarvestEvent(harvestEvent)}
-                  >
-                    <div class={styles.harvestCardTop}>
-                      <div>
-                        <p class={styles.harvestCardLabel}>Field</p>
-                        <strong>
-                          <Show when={groups.data} fallback={harvestEvent.id}>
-                            {fieldLookup().get(harvestEvent.field_id)?.field.name}
-                          </Show>
-                        </strong>
-                        <span class={styles.harvestCardGroupName}>
-                          <Show when={groups.data}>
-                            {fieldLookup().get(harvestEvent.field_id)?.group.name}
-                          </Show>
-                        </span>
-                      </div>
+                  <HarvestMobileCard
+                    eyebrow="Field"
+                    title={
+                      <Show when={groups.data} fallback={harvestEvent.id}>
+                        {fieldLookup().get(harvestEvent.field_id)?.field.name}
+                      </Show>
+                    }
+                    subtitle={
+                      <Show when={groups.data}>
+                        {fieldLookup().get(harvestEvent.field_id)?.group.name}
+                      </Show>
+                    }
+                    action={
                       <Show when={isAdmin}>
                         <IconButton
                           size="small"
@@ -348,26 +350,18 @@ export default function HarvestList() {
                           <Delete />
                         </IconButton>
                       </Show>
-                    </div>
-                    <div class={styles.harvestCardFacts}>
-                      <div>
-                        <p>Value</p>
-                        <span>{harvestEvent.value}</span>
-                      </div>
-                      <div>
-                        <p>Time</p>
-                        <span>{formatDate(harvestEvent.time)}</span>
-                      </div>
-                      <div>
-                        <p>Type</p>
-                        <span>{harvestEvent.type_name}</span>
-                      </div>
-                      <div>
-                        <p>Dryness</p>
-                        <DrynessIndicator rating={harvestEvent.dryness_rating} class={styles.drynessChip} compact />
-                      </div>
-                    </div>
-                  </article>
+                    }
+                    facts={[
+                      { label: "Value", value: harvestEvent.value },
+                      { label: "Time", value: formatDate(harvestEvent.time) },
+                      { label: "Type", value: harvestEvent.type_name },
+                      {
+                        label: "Dryness",
+                        value: <DrynessIndicator rating={harvestEvent.dryness_rating} class={`${styles.drynessChip} ${styles.harvestCardDryness}`} compact />,
+                      },
+                    ]}
+                    onClick={() => selectHarvestEvent(harvestEvent)}
+                  />
                 )}
               </For>
             )}
@@ -401,7 +395,11 @@ export default function HarvestList() {
       >
         <Show when={selectedHarvest()} fallback={<RenderHarvestList />}>
           {(harvest) =>
-            <Harvest selectedHarvest={harvest} setSelectedHarvest={setSelectedHarvest} />
+            <Harvest
+              selectedHarvest={harvest}
+              setSelectedHarvest={setSelectedHarvest}
+              onHarvestUpdated={handleHarvestUpdated}
+            />
           }
         </Show>
       </Show>

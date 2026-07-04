@@ -22,6 +22,7 @@ import { formatDate, getYearRangeSinceYearToCurrent } from "../../Utils";
 import { prepareAuth } from "../../requests";
 import { HarvestForm, ValidHarvest } from "../../harvest/HarvestForm";
 import { DrynessIndicator } from "../../harvest/DrynessIndicator";
+import { HarvestMobileCard } from "../../harvest/HarvestMobileCard";
 import { drynessRatings, getDrynessDisplay } from "../../harvest/dryness";
 import harvestStyles from "../../harvest/Harvest.module.css";
 import styles from "./HarvestEvents.module.css";
@@ -152,7 +153,13 @@ export default function HarvestEvents() {
   const renderDrynessBackfill = (event: HarvestEvent) => (
     <Show
       when={event.dryness_rating === null}
-      fallback={<DrynessIndicator rating={event.dryness_rating} class={harvestStyles.drynessChip} compact />}
+      fallback={
+        <DrynessIndicator
+          rating={event.dryness_rating}
+          class={`${harvestStyles.drynessChip} ${harvestStyles.harvestCardDryness} ${styles.drynessValue}`}
+          compact
+        />
+      }
     >
       <div class={styles.backfillButtons}>
         <For each={drynessRatings}>
@@ -280,7 +287,7 @@ export default function HarvestEvents() {
                             >
                               {event.type_name}
                             </TableCell>
-                            <TableCell class={`${styles.cell} ${styles.drynessCell}`}>
+                            <TableCell class={`${styles.cell} ${event.dryness_rating === null ? styles.drynessCellBackfill : styles.drynessCellCompact}`}>
                               {renderDrynessBackfill(event)}
                             </TableCell>
                             <TableCell
@@ -315,35 +322,22 @@ export default function HarvestEvents() {
               {(page) => (
                 <For each={page}>
                   {(event) => (
-                    <article
-                      class={styles.mobileCard}
+                    <HarvestMobileCard
+                      title={fieldLabel(event.field_id)}
+                      subtitle={groupLabel(event.field_id)}
+                      wideSecondColumn={event.dryness_rating === null}
+                      facts={[
+                        { label: "Value", value: event.value },
+                        { label: "Date", value: formatDate(event.time) },
+                        { label: "Type", value: event.type_name },
+                        {
+                          label: "Dryness",
+                          value: renderDrynessBackfill(event),
+                          wideSecondColumn: event.dryness_rating === null,
+                        },
+                      ]}
                       onClick={() => openEditForm(event)}
-                    >
-                      <div class={styles.mobileCardTop}>
-                        <div>
-                          <h3 class={styles.mobileCardTitle}>{fieldLabel(event.field_id)}</h3>
-                          <p class={styles.mobileCardMeta}>{groupLabel(event.field_id)}</p>
-                        </div>
-                      </div>
-                      <div class={styles.mobileCardFacts}>
-                        <div>
-                          <p>Date</p>
-                          <span>{formatDate(event.time)}</span>
-                        </div>
-                        <div>
-                          <p>Type</p>
-                          <span>{event.type_name}</span>
-                        </div>
-                        <div>
-                          <p>Value</p>
-                          <span>{event.value}</span>
-                        </div>
-                        <div>
-                          <p>Dryness</p>
-                          {renderDrynessBackfill(event)}
-                        </div>
-                      </div>
-                    </article>
+                    />
                   )}
                 </For>
               )}

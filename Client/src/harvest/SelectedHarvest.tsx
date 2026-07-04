@@ -1,4 +1,4 @@
-import { Accessor, createSignal, Setter, Show } from "solid-js";
+import { Accessor, createMemo, createSignal, Setter, Switch, Match } from "solid-js";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 import {
   Button,
@@ -15,7 +15,7 @@ import TractorIcon from "@suid/icons-material/Agriculture";
 import TractorIconOutlined from "@suid/icons-material/AgricultureOutlined";
 
 import { ValidHarvest } from "./HarvestForm";
-import { DrynessIndicator } from "./DrynessIndicator";
+import { DrynessSelector } from "./DrynessIndicator";
 
 const updateHarvestEvent = async (
   harvest: HarvestEvent,
@@ -47,9 +47,82 @@ const renderDateTime = (t: string) => {
   return time.toLocaleDateString("nb-NO");
 };
 
-export function Harvest({ selectedHarvest, setSelectedHarvest }: {
+function EditHarvestForm(props: {
   selectedHarvest: Accessor<ValidHarvest>;
-  setSelectedHarvest: Setter<ValidHarvest | undefined>
+  commit: (harvest: HarvestEvent) => void;
+  onHarvestUpdated: (harvest: HarvestEvent) => void;
+}) {
+  const initialHarvest = () => props.selectedHarvest();
+  const [editHarvest, setEditHarvest] = createSignal<HarvestEvent>(
+    initialHarvest().harvest,
+  );
+
+  const isDirty = createMemo(() =>
+    editHarvest().value !== initialHarvest().harvest.value ||
+    editHarvest().type_name !== initialHarvest().harvest.type_name ||
+    editHarvest().dryness_rating !== initialHarvest().harvest.dryness_rating,
+  );
+
+  return (
+    <div class={styles.selectedEditForm}>
+      <TextField
+        fullWidth
+        id="outlined-basic"
+        label="Value"
+        variant="outlined"
+        type="number"
+        value={editHarvest().value}
+        onChange={(x) => {
+          const parsed = parseInt(x.currentTarget.value);
+          setEditHarvest({
+            ...editHarvest(),
+            value: !isNaN(parsed) ? parsed : 0,
+          });
+        }}
+      />
+      <div class={styles.selectedEditDryness}>
+        <span>Dryness</span>
+        <DrynessSelector
+          value={editHarvest().dryness_rating}
+          onChange={(rating) =>
+            setEditHarvest({
+              ...editHarvest(),
+              dryness_rating: rating,
+            })
+          }
+        />
+      </div>
+      <div class={styles.selectedActions}>
+        <Button
+          disabled={!isDirty()}
+          variant="contained"
+          color="primary"
+          onClick={async () => {
+            const res = await updateHarvestEvent(editHarvest());
+            if (res) {
+              props.commit(res);
+              props.onHarvestUpdated(res);
+              setEditHarvest(res);
+            }
+          }}
+        >
+          Save
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setEditHarvest(initialHarvest().harvest)}
+        >
+          Reset
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export function Harvest({ selectedHarvest, setSelectedHarvest, onHarvestUpdated }: {
+  selectedHarvest: Accessor<ValidHarvest>;
+  setSelectedHarvest: Setter<ValidHarvest | undefined>;
+  onHarvestUpdated: (harvest: HarvestEvent) => void;
 }
 ) {
   const [tractorMode, setTractorMode] = createSignal(
@@ -69,6 +142,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
           ...h,
           harvest: result,
         });
+        onHarvestUpdated(result);
       }
     } finally {
       setIsLoading(false);
@@ -108,6 +182,36 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
     setSyncTimer(timer);
   };
 
+  const updateDryness = async (nextRating: number | null) => {
+    const current = selectedHarvest();
+    const nextHarvest = {
+      ...current.harvest,
+      dryness_rating: nextRating,
+    };
+
+    setSelectedHarvest({
+      ...current,
+      harvest: nextHarvest,
+    });
+
+    const result = await updateHarvestEvent(nextHarvest);
+    if (result) {
+      const latest = selectedHarvest();
+      if (latest.harvest.id !== result.id) {
+        return;
+      }
+
+      setSelectedHarvest({
+        ...latest,
+        harvest: {
+          ...result,
+          value: latest.harvest.value,
+        },
+      });
+      onHarvestUpdated(result);
+    }
+  };
+
   const tractorModeButton = () => {
     return (
       <Checkbox
@@ -121,59 +225,6 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
         checkedIcon={<TractorIcon />}
         class={styles.tractorToggle}
       />
-    );
-  };
-
-  const renderEditHarvest = (
-    initialHarvest: ValidHarvest,
-    commit: (harvest: HarvestEvent) => void,
-  ) => {
-    const [editHarvest, setEditHarvest] = createSignal<HarvestEvent>(
-      initialHarvest.harvest,
-    );
-    return (
-      <div class={styles.selectedEditForm}>
-        <TextField
-          fullWidth
-          id="outlined-basic"
-          label="Value"
-          variant="outlined"
-          type="number"
-          value={editHarvest().value}
-          onChange={(x) => {
-            const parsed = parseInt(x.currentTarget.value);
-            if (!isNaN(parsed)) {
-              setEditHarvest({ ...editHarvest(), value: parsed });
-            } else {
-              setEditHarvest({ ...editHarvest(), value: 0 });
-            }
-          }}
-        />
-        <div class={styles.selectedActions}>
-          <Button
-            disabled={
-              editHarvest().value === initialHarvest.harvest.value &&
-              editHarvest().type_name === initialHarvest.harvest.type_name
-            }
-            variant="contained"
-            color="primary"
-            onClick={async () => {
-              const res = await updateHarvestEvent(editHarvest());
-              if (res) {
-                commit(res);
-              }
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setEditHarvest(initialHarvest.harvest)}
-          >
-            Reset
-          </Button>
-        </div>
-      </div>
     );
   };
 
@@ -202,39 +253,47 @@ export function Harvest({ selectedHarvest, setSelectedHarvest }: {
           >
             {renderHarvest(harvest().harvest)}
           </Typography>
-          <DrynessIndicator
-            rating={harvest().harvest.dryness_rating}
-            class={styles.drynessChip}
-          />
-
-          <Show
-            when={tractorMode()}
-            fallback={renderEditHarvest(harvest(), commitHarvest)}
-          >
-            <Typography
-              class={styles.tractorValue}
-              variant="h1"
-              color="text.primary"
-            >
-              {harvest().harvest.value}
-            </Typography>
-            <div class={styles.tractorActions}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => tractorModeAdd(harvest())}
+          <Switch>
+            <Match when={!tractorMode()}>
+              <EditHarvestForm
+                selectedHarvest={harvest}
+                commit={commitHarvest}
+                onHarvestUpdated={onHarvestUpdated}
+              />
+            </Match>
+            <Match when={tractorMode()}>
+              <div class={styles.selectedDrynessControl}>
+                <span>Dryness</span>
+                <DrynessSelector
+                  value={harvest().harvest.dryness_rating}
+                  onChange={updateDryness}
+                />
+              </div>
+              <Typography
+                class={styles.tractorValue}
+                variant="h1"
+                color="text.primary"
               >
-                +
-              </Button>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => tractorModeSub(harvest())}
-              >
-                -
-              </Button>
-            </div>
-          </Show>
+                {harvest().harvest.value}
+              </Typography>
+              <div class={styles.tractorActions}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => tractorModeAdd(harvest())}
+                >
+                  +
+                </Button>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => tractorModeSub(harvest())}
+                >
+                  -
+                </Button>
+              </div>
+            </Match>
+          </Switch>
         </CardContent>
       </Card>
     );

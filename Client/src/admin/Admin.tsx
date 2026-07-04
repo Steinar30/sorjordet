@@ -11,9 +11,9 @@ import FieldEvents from "./fieldevents/FieldEvents";
 
 const adminButtons: string[] = [
   "field-groups",
-  "users",
-  "harvest-types",
   "harvest-events",
+  "harvest-types",
+  "users",
   "field-events",
 ];
 type AdminNav = typeof adminButtons[number];

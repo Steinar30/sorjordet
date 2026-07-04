@@ -10,7 +10,7 @@ import {
   DialogActions,
   TextField,
 } from "@suid/material";
-import { For, Switch, Match, Accessor, createEffect, createMemo, createSignal } from "solid-js";
+import { Switch, Match, Accessor, createEffect, createMemo, createSignal } from "solid-js";
 import { FarmFieldGroupMeta } from "../../bindings/FarmFieldGroupMeta";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 
@@ -22,8 +22,7 @@ import { FarmFieldMeta } from "../../bindings/FarmFieldMeta";
 import { createQuery } from "@tanstack/solid-query";
 import { HarvestType } from "../../bindings/HarvestType";
 import { prepareAuth } from "../requests";
-import { DrynessIndicator } from "./DrynessIndicator";
-import { drynessRatings, getDrynessDisplay } from "./dryness";
+import { DrynessSelector } from "./DrynessIndicator";
 
 const saveHarvestEvent = async (
   harvestEvent: HarvestEvent,
@@ -301,48 +300,9 @@ export function HarvestForm(props: {
               <div class={styles.drynessFieldHeader}>
                 <div>
                   <p>Dryness</p>
-                  <span>Optional rating from very wet to very dry</span>
                 </div>
-                <DrynessIndicator
-                  rating={drynessRating()}
-                  class={styles.drynessChip}
-                  compact
-                />
               </div>
-              <div class={styles.drynessScaleLabels} aria-hidden="true">
-                <span>Very wet</span>
-                <span>Average</span>
-                <span>Very dry</span>
-              </div>
-              <div class={styles.drynessButtons}>
-                <For each={drynessRatings}>
-                  {(rating) => {
-                    const display = getDrynessDisplay(rating);
-                    return (
-                      <button
-                        type="button"
-                        class={`${styles.drynessButton} ${drynessRating() === rating ? styles.drynessButtonSelected : ""}`}
-                        style={{
-                          "border-color": drynessRating() === rating ? display.borderColor : undefined,
-                          "color": drynessRating() === rating ? display.color : undefined,
-                        }}
-                        onClick={() => setDrynessRating(rating)}
-                        title={display.description}
-                      >
-                        <strong>{rating}</strong>
-                        <span>{display.shortLabel}</span>
-                      </button>
-                    );
-                  }}
-                </For>
-              </div>
-              <button
-                type="button"
-                class={styles.drynessUnsetButton}
-                onClick={() => setDrynessRating(null)}
-              >
-                Clear dryness rating
-              </button>
+              <DrynessSelector value={drynessRating()} onChange={setDrynessRating} />
             </div>
 
           </Match>

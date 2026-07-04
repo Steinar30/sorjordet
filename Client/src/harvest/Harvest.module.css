@@ -252,6 +252,11 @@ input.datePickerInputInvalid,
   justify-content: space-between;
 }
 
+.harvestCardAction {
+  flex: 0 0 auto;
+  margin-top: -4px;
+}
+
 .harvestCardLabel,
 .harvestCardFacts p {
   margin: 0 0 3px;
@@ -284,6 +289,14 @@ input.datePickerInputInvalid,
   gap: 6px;
 }
 
+.harvestCardFactsWideSecond {
+  grid-template-columns: minmax(0, 0.75fr) minmax(166px, 1.35fr);
+}
+
+.harvestCardFactWideSecond {
+  grid-column: 2;
+}
+
 .harvestCardFacts div {
   min-width: 0;
   padding: 8px;
@@ -291,13 +304,25 @@ input.datePickerInputInvalid,
   background: rgba(247, 250, 246, 0.78);
 }
 
-.harvestCardFacts span {
+.harvestCardFactValue {
   display: block;
   color: var(--dark-text-color);
   font-size: 0.9rem;
   font-weight: 650;
   line-height: 1.2;
   overflow-wrap: anywhere;
+}
+
+.harvestCardDryness {
+  width: fit-content;
+  min-height: 28px;
+  padding: 5px 8px;
+  font-size: 0.76rem;
+}
+
+.harvestCardDryness svg {
+  width: 15px;
+  height: 15px;
 }
 
 .loadMoreButton {
@@ -348,10 +373,37 @@ input.datePickerInputInvalid,
   margin-top: 10px !important;
 }
 
+.selectedDrynessControl {
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  margin-top: 8px;
+}
+
+.selectedDrynessControl > span {
+  color: rgba(35, 50, 47, 0.58);
+  font-size: 0.68rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
 .selectedEditForm {
   display: grid;
   gap: 14px;
   margin-top: 16px;
+}
+
+.selectedEditDryness {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+}
+
+.selectedEditDryness > span {
+  color: rgba(35, 50, 47, 0.58);
+  font-size: 0.68rem;
+  font-weight: 760;
+  text-transform: uppercase;
 }
 
 .selectedActions,
@@ -420,13 +472,11 @@ input.datePickerInputInvalid,
     margin: 12px !important;
   }
 
-  .datePickerContainer {
-    flex-direction: column;
-  }
-
   .dateShortcutButton {
-    width: 100%;
-    min-width: 0;
+    flex-basis: 74px;
+    min-width: 74px;
+    padding-right: 8px !important;
+    padding-left: 8px !important;
   }
 
   .harvestDialogActions {
@@ -453,17 +503,17 @@ input.datePickerInputInvalid,
 }
 .drynessField {
   display: grid;
-  gap: 12px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px;
   border: 1px solid rgba(32, 52, 50, 0.1);
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 246, 0.78));
+  border-radius: 10px;
+  background: rgba(247, 250, 246, 0.68);
 }
 
 .drynessFieldHeader {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  gap: 8px;
+  align-items: center;
   justify-content: space-between;
   min-width: 0;
 }
@@ -475,19 +525,12 @@ input.datePickerInputInvalid,
   font-weight: 740;
 }
 
-.drynessFieldHeader span {
-  display: block;
-  margin-top: 3px;
-  color: rgba(35, 50, 47, 0.6);
-  font-size: 0.78rem;
-  line-height: 1.25;
-}
-
 .drynessChip {
   display: inline-flex;
   flex: 0 0 auto;
   gap: 5px;
   align-items: center;
+  flex-direction: row;
   max-width: 100%;
   min-height: 32px;
   padding: 5px 9px;
@@ -501,8 +544,13 @@ input.datePickerInputInvalid,
 }
 
 .drynessChip svg {
+  flex: 0 0 auto;
   width: 16px;
   height: 16px;
+}
+
+.drynessChip > span {
+  display: inline-block;
 }
 
 .drynessChip span:last-child:not(:first-child) {
@@ -510,119 +558,85 @@ input.datePickerInputInvalid,
   font-weight: 760;
 }
 
-.drynessScaleLabels {
+.drynessChip.harvestCardDryness {
+  min-height: 24px;
+  padding: 3px 6px;
+  font-size: 0.7rem;
+}
+
+.drynessChip.harvestCardDryness svg {
+  width: 13px;
+  height: 13px;
+}
+
+.drynessSelector {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: center;
-  color: rgba(35, 50, 47, 0.52);
-  font-size: 0.66rem;
-  font-weight: 760;
-  text-transform: uppercase;
+  grid-template-columns: repeat(6, minmax(0, 34px));
+  gap: 5px;
+  width: fit-content;
+  max-width: 100%;
 }
 
-.drynessScaleLabels span:nth-child(2) {
-  text-align: center;
-}
-
-.drynessScaleLabels span:last-child {
-  text-align: right;
-}
-
-.drynessButtons {
+.drynessSelectorButton {
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-  padding-top: 6px;
-}
-
-.drynessButtons::before {
-  content: "";
-  position: absolute;
-  inset: 0 8px auto;
-  height: 4px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(64, 133, 190, 0.48), rgba(107, 143, 94, 0.42), rgba(190, 116, 67, 0.46));
-}
-
-.drynessButton {
-  position: relative;
-  display: grid;
-  min-width: 0;
-  min-height: 54px;
-  align-content: center;
-  gap: 3px;
-  padding: 6px 4px;
+  display: inline-grid;
+  grid-template-rows: 4px 1fr;
+  place-items: center;
+  width: 34px;
+  height: 32px;
+  overflow: hidden;
+  padding: 0;
   border: 1px solid rgba(32, 52, 50, 0.12);
-  border-radius: 10px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
   color: rgba(32, 52, 50, 0.72);
   cursor: pointer;
   font: inherit;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-}
-
-.drynessButton strong {
-  font-size: 1rem;
+  font-size: 0.82rem;
+  font-weight: 760;
   line-height: 1;
 }
 
-.drynessButton span {
-  min-width: 0;
-  font-size: 0.65rem;
-  font-weight: 720;
-  line-height: 1.1;
-  overflow-wrap: anywhere;
+.drynessSelectorSwatch {
+  display: block;
+  width: 100%;
+  height: 4px;
+  background: rgba(32, 52, 50, 0.12);
 }
 
-.drynessButtonSelected {
+.drynessSelectorValue {
+  display: block;
+}
+
+.drynessSelectorButtonSelected {
   border-width: 2px;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 8px 18px rgba(18, 33, 28, 0.1);
-  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.42);
 }
 
-.drynessButton:focus-visible,
-.drynessUnsetButton:focus-visible {
+.drynessSelectorButtonSelected .drynessSelectorSwatch {
+  height: 6px;
+}
+
+.drynessSelectorUnset {
+  color: rgba(32, 52, 50, 0.5);
+}
+
+.drynessSelectorButton:focus-visible {
   outline: 3px solid rgba(44, 87, 74, 0.16);
   outline-offset: 2px;
 }
 
-.drynessUnsetButton {
-  justify-self: start;
-  min-height: 32px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: rgba(32, 52, 50, 0.6);
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 720;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 @media (max-width: 640px) {
   .drynessFieldHeader {
-    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .drynessChip {
-    align-self: flex-start;
+  .drynessSelector {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    width: 100%;
   }
 
-  .drynessButtons {
-    gap: 5px;
-  }
-
-  .drynessButton {
-    min-height: 58px;
-    padding-right: 2px;
-    padding-left: 2px;
-  }
-
-  .drynessButton span {
-    font-size: 0.6rem;
+  .drynessSelectorButton {
+    width: 100%;
   }
 }
