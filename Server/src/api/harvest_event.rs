@@ -204,7 +204,7 @@ async fn post_event(
         &payload.time,
         &payload.field_id,
         &payload.type_id,
-        &payload.dryness_rating
+        payload.dryness_rating
     )
     .fetch_one(&pool)
     .await?;
@@ -230,7 +230,7 @@ async fn patch_event(
         &payload.value,
         &payload.time,
         &payload.type_id,
-        &payload.dryness_rating,
+        payload.dryness_rating,
         &event_id
     )
     .execute(&pool)
@@ -286,7 +286,7 @@ async fn paginated_events(
     let page_offset = (params.page - 1) * params.page_size;
     let result: Vec<HarvestEvent> = query_as!(
         HarvestEvent,
-        "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id, dryness_rating
+        "SELECT e.id, value, time, field_id, h.name as type_name, h.id as type_id, e.dryness_rating
                 FROM harvest_event AS e 
                     JOIN harvest_type AS h ON e.harvest_type_id = h.id
                     JOIN farm_field f ON f.id = e.field_id

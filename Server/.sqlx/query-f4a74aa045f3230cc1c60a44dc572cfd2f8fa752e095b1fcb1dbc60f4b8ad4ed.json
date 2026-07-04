@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE harvest_event\n                SET value = $1, time = $2, harvest_type_id = $3, dryness_rating = $4\n                WHERE id = $5\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Timestamptz",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f4a74aa045f3230cc1c60a44dc572cfd2f8fa752e095b1fcb1dbc60f4b8ad4ed"
+}
