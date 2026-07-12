@@ -1645,6 +1645,7 @@ dependencies = [
  "axum",
  "axum-extra",
  "chrono",
+ "dotenvy",
  "jsonwebtoken",
  "lazy_static",
  "rand_core 0.9.3",

@@ -5,7 +5,6 @@ pub mod errors;
 use api::api_router;
 use axum::Router;
 use axum::http::header::{CACHE_CONTROL, HeaderValue};
-use lazy_static::lazy_static;
 use sqlx::ConnectOptions;
 use sqlx::postgres::{PgConnectOptions, PgPool, PgPoolOptions};
 use std::env::var;
@@ -20,12 +19,19 @@ use std::{net::SocketAddr, time::Duration};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
-lazy_static! {
-    static ref JWT_SECRET: String = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+fn require_env(name: &str) -> String {
+    var(name).unwrap_or_else(|_| {
+        panic!("{name} must be set. Copy .env.example to .env for local development.")
+    })
 }
 
 #[tokio::main]
 async fn main() {
+    dotenvy::dotenv().ok();
+    let db_connection_str = require_env("DATABASE_URL");
+    require_env("JWT_SECRET");
+    require_env("PW_SECRET");
+
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::from_env("RUST_LOG")
@@ -39,8 +45,6 @@ async fn main() {
     let port: u16 = var("PORT")
         .map(|x| x.parse::<u16>().unwrap())
         .unwrap_or(8000);
-
-    let db_connection_str = var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let options: PgConnectOptions = db_connection_str
         .parse::<PgConnectOptions>()
