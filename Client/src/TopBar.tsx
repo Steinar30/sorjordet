@@ -38,10 +38,7 @@ export default function TopAppBar() {
         return;
       }
 
-      if (
-        drawerPanelRef?.contains(event.target) ||
-        menuButtonRef?.contains(event.target)
-      ) {
+      if (drawerPanelRef?.contains(event.target) || menuButtonRef?.contains(event.target)) {
         return;
       }
 
@@ -49,15 +46,14 @@ export default function TopAppBar() {
     };
 
     document.addEventListener("pointerdown", closeOnOutsidePointer, true);
-    onCleanup(() =>
-      document.removeEventListener("pointerdown", closeOnOutsidePointer, true),
-    );
+    onCleanup(() => document.removeEventListener("pointerdown", closeOnOutsidePointer, true));
   });
 
   const navItems = (): NavItem[] => [
     { href: "/stats", label: "Stats" },
     { href: "/fields", label: "Fields" },
     { href: "/harvest", label: "Harvest", adminOnly: true },
+    { href: "/field-events", label: "Field events", adminOnly: true },
     { href: "/admin", label: "Admin", adminOnly: true },
     { href: "/login", label: "Log in", loggedOutOnly: true },
     {
@@ -156,9 +152,7 @@ export default function TopAppBar() {
             >
               <div class={styles.drawerHeader}>{brand()}</div>
               <nav class={styles.drawerNav}>
-                <For each={visibleNavItems()}>
-                  {(item) => navButton(item, true)}
-                </For>
+                <For each={visibleNavItems()}>{(item) => navButton(item, true)}</For>
               </nav>
             </aside>
           </div>

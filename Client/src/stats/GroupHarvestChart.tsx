@@ -14,7 +14,7 @@ export default function GroupHarvestChart() {
     }
     return [
       {
-        name: "Bales",        
+        name: "Bales",
         data: harvestsByYear()!.map((agg) => ({
           x: agg.group_name,
           y: agg.value,
@@ -22,41 +22,43 @@ export default function GroupHarvestChart() {
         })),
       },
     ];
-  })
+  });
 
   return (
-    <Show when={harvestsByYear()}>
-      <SolidApexCharts
-        options={{
-          dataLabels: {
-            style: {
-              colors: ["#333"],              
-            }
-          },
-          plotOptions: {
-            bar: {
-              horizontal: false,
+    <Show keyed when={chartSeries().length > 0 ? chartSeries() : undefined}>
+      {(series) => (
+        <SolidApexCharts
+          options={{
+            dataLabels: {
+              style: {
+                colors: ["#333"],
+              },
             },
-          },
-          chart: {
-            type: "bar",
-            height: 350,
-          },
-          yaxis: {
-            title: {
-              text: "Number of bales",
+            plotOptions: {
+              bar: {
+                horizontal: false,
+              },
             },
-          },
-          fill: {
-            opacity: 0.8,
-          },
-        }}
-        series={chartSeries()}
-        type="bar"
-        vertical
-        width="100%"
-        height="100%"
-      />
+            chart: {
+              type: "bar",
+              height: 350,
+            },
+            yaxis: {
+              title: {
+                text: "Number of bales",
+              },
+            },
+            fill: {
+              opacity: 0.8,
+            },
+          }}
+          series={series}
+          type="bar"
+          vertical
+          width="100%"
+          height="100%"
+        />
+      )}
     </Show>
   );
 }

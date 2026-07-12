@@ -1,13 +1,6 @@
 import { Accessor, createMemo, createSignal, Setter, Switch, Match } from "solid-js";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
-import {
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  TextField,
-  Typography,
-} from "@suid/material";
+import { Button, Card, CardContent, Checkbox, TextField, Typography } from "@suid/material";
 import { prepareAuth } from "../requests";
 import styles from "./Harvest.module.css";
 
@@ -17,9 +10,7 @@ import TractorIconOutlined from "@suid/icons-material/AgricultureOutlined";
 import { ValidHarvest } from "./HarvestForm";
 import { DrynessSelector } from "./DrynessIndicator";
 
-const updateHarvestEvent = async (
-  harvest: HarvestEvent,
-): Promise<HarvestEvent | undefined> => {
+const updateHarvestEvent = async (harvest: HarvestEvent): Promise<HarvestEvent | undefined> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
@@ -53,14 +44,13 @@ function EditHarvestForm(props: {
   onHarvestUpdated: (harvest: HarvestEvent) => void;
 }) {
   const initialHarvest = () => props.selectedHarvest();
-  const [editHarvest, setEditHarvest] = createSignal<HarvestEvent>(
-    initialHarvest().harvest,
-  );
+  const [editHarvest, setEditHarvest] = createSignal<HarvestEvent>(initialHarvest().harvest);
 
-  const isDirty = createMemo(() =>
-    editHarvest().value !== initialHarvest().harvest.value ||
-    editHarvest().type_name !== initialHarvest().harvest.type_name ||
-    editHarvest().dryness_rating !== initialHarvest().harvest.dryness_rating,
+  const isDirty = createMemo(
+    () =>
+      editHarvest().value !== initialHarvest().harvest.value ||
+      editHarvest().type_name !== initialHarvest().harvest.type_name ||
+      editHarvest().dryness_rating !== initialHarvest().harvest.dryness_rating,
   );
 
   return (
@@ -108,10 +98,7 @@ function EditHarvestForm(props: {
         >
           Save
         </Button>
-        <Button
-          variant="outlined"
-          onClick={() => setEditHarvest(initialHarvest().harvest)}
-        >
+        <Button variant="outlined" onClick={() => setEditHarvest(initialHarvest().harvest)}>
           Reset
         </Button>
       </div>
@@ -119,12 +106,15 @@ function EditHarvestForm(props: {
   );
 }
 
-export function Harvest({ selectedHarvest, setSelectedHarvest, onHarvestUpdated }: {
+export function Harvest({
+  selectedHarvest,
+  setSelectedHarvest,
+  onHarvestUpdated,
+}: {
   selectedHarvest: Accessor<ValidHarvest>;
   setSelectedHarvest: Setter<ValidHarvest | undefined>;
   onHarvestUpdated: (harvest: HarvestEvent) => void;
-}
-) {
+}) {
   const [tractorMode, setTractorMode] = createSignal(
     localStorage.getItem("tractor_mode") === "true",
   );
@@ -228,15 +218,18 @@ export function Harvest({ selectedHarvest, setSelectedHarvest, onHarvestUpdated 
     );
   };
 
-  function RenderSelectedHarvest({ harvest, setHarvest }: { harvest: Accessor<ValidHarvest>, setHarvest: Setter<ValidHarvest | undefined> }) {
+  function RenderSelectedHarvest({
+    harvest,
+    setHarvest,
+  }: {
+    harvest: Accessor<ValidHarvest>;
+    setHarvest: Setter<ValidHarvest | undefined>;
+  }) {
     const commitHarvest = (toCommit: HarvestEvent) => {
       setHarvest({ ...harvest(), harvest: toCommit });
     };
     return (
-      <Card
-        variant="outlined"
-        class={styles.selectedHarvestCard}
-      >
+      <Card variant="outlined" class={styles.selectedHarvestCard}>
         <CardContent>
           <div class={styles.selectedHarvestTop}>
             <Typography variant="h4">{harvest().field.name}</Typography>
@@ -246,11 +239,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest, onHarvestUpdated 
           <Typography variant="subtitle1" color="text.secondary">
             {harvest().group.name}
           </Typography>
-          <Typography
-            class={styles.selectedHarvestSubtitle}
-            variant="h6"
-            color="text.primary"
-          >
+          <Typography class={styles.selectedHarvestSubtitle} variant="h6" color="text.primary">
             {renderHarvest(harvest().harvest)}
           </Typography>
           <Switch>
@@ -269,26 +258,14 @@ export function Harvest({ selectedHarvest, setSelectedHarvest, onHarvestUpdated 
                   onChange={updateDryness}
                 />
               </div>
-              <Typography
-                class={styles.tractorValue}
-                variant="h1"
-                color="text.primary"
-              >
+              <Typography class={styles.tractorValue} variant="h1" color="text.primary">
                 {harvest().harvest.value}
               </Typography>
               <div class={styles.tractorActions}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  onClick={() => tractorModeAdd(harvest())}
-                >
+                <Button variant="contained" size="large" onClick={() => tractorModeAdd(harvest())}>
                   +
                 </Button>
-                <Button
-                  variant="contained"
-                  size="large"
-                  onClick={() => tractorModeSub(harvest())}
-                >
+                <Button variant="contained" size="large" onClick={() => tractorModeSub(harvest())}>
                   -
                 </Button>
               </div>
@@ -301,10 +278,7 @@ export function Harvest({ selectedHarvest, setSelectedHarvest, onHarvestUpdated 
 
   return (
     <div class={styles.selectedHarvestPage}>
-      <Button
-        variant="outlined"
-        onClick={() => setSelectedHarvest(undefined)}
-      >
+      <Button variant="outlined" onClick={() => setSelectedHarvest(undefined)}>
         Back
       </Button>
       <RenderSelectedHarvest harvest={selectedHarvest} setHarvest={setSelectedHarvest} />
@@ -312,5 +286,5 @@ export function Harvest({ selectedHarvest, setSelectedHarvest, onHarvestUpdated 
   );
 }
 // note to self, make sure the filters are persisted between back and forth.
-// probably easiest to do this by switching the render order? 
+// probably easiest to do this by switching the render order?
 // either way we need the state to be changed so the fetching/filters is always rendered when on the page

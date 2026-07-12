@@ -31,16 +31,16 @@ type HexResult = {
   r: number;
   g: number;
   b: number;
-}
+};
 
 export function hexToRgb(hex: string): HexResult | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16),
-    }
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
     : null;
 }
 
@@ -82,7 +82,7 @@ export function formatDate(date: string) {
 
 // based on https://stackoverflow.com/questions/1575271/range-of-years-in-javascript-for-a-select-box
 export function getYearRangeSinceYearToCurrent(year: number) {
-  const currentYear = (new Date()).getFullYear();
-  const outputLen = ((currentYear - year) / 1) + 1;
+  const currentYear = new Date().getFullYear();
+  const outputLen = (currentYear - year) / 1 + 1;
   return Array.from({ length: outputLen }, (_, i) => year + i);
 }

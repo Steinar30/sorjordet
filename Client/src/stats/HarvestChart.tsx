@@ -1,6 +1,6 @@
 import { createMemo, createResource, Show } from "solid-js";
 import { SolidApexCharts } from "solid-apexcharts";
-import { HarvestAggregated } from "../../bindings/HarvestAggregated";
+import type { HarvestAggregated } from "../../bindings/HarvestAggregated";
 
 export default function HarvestChart() {
   const [harvestsByYear] = createResource<HarvestAggregated[]>(() =>
@@ -29,16 +29,13 @@ export default function HarvestChart() {
         return {
           name: agg.type_name,
           data: dates.map(
-            (date) => (agg.harvests.find((a) => a.date == date)?.total) ?? 0,
+            (date) => agg.harvests.find((a) => a.date == date)?.total ?? 0,
           ) as number[],
         };
       });
   };
 
-  const dates = createMemo(
-    () => getAllDates(harvestsByYear() ?? []),
-    [harvestsByYear],
-  );
+  const dates = createMemo(() => getAllDates(harvestsByYear() ?? []), [harvestsByYear]);
 
   const chartSeries = createMemo(
     () => alignSeriesToDates(dates(), harvestsByYear() ?? []),
@@ -46,35 +43,37 @@ export default function HarvestChart() {
   );
 
   return (
-    <Show when={harvestsByYear()}>
-      <SolidApexCharts
-        options={{
-          chart: {
-            type: "bar",
-            height: 400,
-          },
-          dataLabels: {
-            style: {
-              colors: ["#333"],
-            }
-          },
-          xaxis: {
-            categories: dates(),
-          },
-          yaxis: {
-            title: {
-              text: "Number of bales",
+    <Show keyed when={chartSeries().length > 0 ? chartSeries() : undefined}>
+      {(series) => (
+        <SolidApexCharts
+          options={{
+            chart: {
+              type: "bar",
+              height: 400,
             },
-          },
-          fill: {
-            opacity: 0.8,
-          },
-        }}
-        series={chartSeries()}
-        type="bar"
-        width="100%"
-        height="100%"
-      />
+            dataLabels: {
+              style: {
+                colors: ["#333"],
+              },
+            },
+            xaxis: {
+              categories: dates(),
+            },
+            yaxis: {
+              title: {
+                text: "Number of bales",
+              },
+            },
+            fill: {
+              opacity: 0.8,
+            },
+          }}
+          series={series}
+          type="bar"
+          width="100%"
+          height="100%"
+        />
+      )}
     </Show>
   );
 }

@@ -7,9 +7,7 @@ import { FieldUpdateForm } from "./FieldEditForm";
 
 export default function FieldsAdmin() {
   const [showForm, setShowForm] = createSignal(false);
-  const [editForm, setEditForm] = createSignal<FarmField | undefined>(
-    undefined,
-  );
+  const [editForm, setEditForm] = createSignal<FarmField | undefined>(undefined);
 
   return (
     <main
@@ -33,10 +31,7 @@ export default function FieldsAdmin() {
               <Button variant="outlined" onClick={() => setEditForm(undefined)}>
                 Cancel
               </Button>
-              <FieldUpdateForm
-                onSave={() => setEditForm(undefined)}
-                initial={field()}
-              />
+              <FieldUpdateForm onSave={() => setEditForm(undefined)} initial={field()} />
             </>
           )}
         </Match>
@@ -44,10 +39,7 @@ export default function FieldsAdmin() {
           <FieldsList
             showDelete
             addButton={() => (
-              <Button
-                variant="contained"
-                onClick={() => setShowForm(true)}
-              >
+              <Button variant="contained" onClick={() => setShowForm(true)}>
                 New field
               </Button>
             )}

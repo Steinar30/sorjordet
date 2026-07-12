@@ -57,10 +57,7 @@ function validateInput(group: FarmFieldGroupMeta): boolean {
   return group.name.length > 0 && group.draw_color.length > 0;
 }
 
-function colorPicker(
-  swatchColor: string,
-  callback: (hex: string) => void,
-) {
+function colorPicker(swatchColor: string, callback: (hex: string) => void) {
   return (
     <div class={formStyles.colorRow}>
       <label for="draw_color">Group color</label>
@@ -88,13 +85,8 @@ function colorPicker(
   );
 }
 
-export function FieldGroupForm(props: {
-  onSave: () => void;
-  toEdit?: FarmFieldGroupMeta;
-}) {
-  const initialHex = props.toEdit
-    ? rgbToHex(props.toEdit.draw_color)
-    : getRandomGroupColorHex();
+export function FieldGroupForm(props: { onSave: () => void; toEdit?: FarmFieldGroupMeta }) {
+  const initialHex = props.toEdit ? rgbToHex(props.toEdit.draw_color) : getRandomGroupColorHex();
   const [form, setForm] = createStore<FarmFieldGroupMeta>(
     props.toEdit || {
       id: -1,
@@ -117,10 +109,7 @@ export function FieldGroupForm(props: {
     <div class={formStyles.formShell}>
       <div class={formStyles.header}>
         <p class={formStyles.eyebrow}>Admin editor</p>
-        <Show
-          when={props.toEdit}
-          fallback={<h2>Add new field group</h2>}
-        >
+        <Show when={props.toEdit} fallback={<h2>Add new field group</h2>}>
           <h2>Edit field group</h2>
         </Show>
       </div>

@@ -97,18 +97,17 @@ export function PeekFieldMap(props: {
     map.addInteraction(select);
     if (props.initialFeature) {
       const x = props.initialFeature.getProperties();
-      const y: Polygon = props.initialFeature
-        .getGeometry()
-        ?.simplifyTransformedInternal();
+      const geometry = props.initialFeature.getGeometry();
+      if (!(geometry instanceof Polygon)) {
+        return;
+      }
+
+      const y = geometry.simplifyTransformedInternal() as Polygon;
       const [cx, cy] = y.getInteriorPoint().getCoordinates();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [minx, miny, maxx, maxy] = y.getExtent();
       selectElement.className = "ol-tooltip";
-      selectElement.innerHTML = formatSelectedDiv(
-        x["name"],
-        x["group-name"],
-        formatArea(y),
-      );
+      selectElement.innerHTML = formatSelectedDiv(x["name"], x["group-name"], formatArea(y));
       selectOverlay.setPosition([cx, maxy + Math.abs(maxy - cy) / 2]);
     }
 
@@ -119,8 +118,8 @@ export function PeekFieldMap(props: {
     <Dialog open={true} sx={{ width: "100%" }} onClose={props.onClose}>
       <DialogContent sx={{ padding: "0" }}>
         <p style={{ margin: "1rem" }}>
-          {props.field.group_name} - {props.field.name} -{" "}
-          {(props.field.size / 1000).toFixed(3)} dekar
+          {props.field.group_name} - {props.field.name} - {(props.field.size / 1000).toFixed(3)}{" "}
+          dekar
         </p>
         <div
           id="map_container"

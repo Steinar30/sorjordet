@@ -51,7 +51,7 @@ describe("Fields Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(global, "fetch").mockResolvedValue(mockResponse(mockFields));
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(mockResponse(mockFields));
   });
 
   it("renders search field and skeleton initially, then renders fields table", async () => {
@@ -74,8 +74,8 @@ describe("Fields Component", () => {
     const skeleton = container.querySelector(".MuiSkeleton-root");
     expect(skeleton).toBeInTheDocument();
 
-    const rowA = await screen.findAllByRole("link", { name: "Jordet A" });
-    const rowB = await screen.findAllByRole("link", { name: "Eng B" });
+    const rowA = await screen.findAllByText("Jordet A");
+    const rowB = await screen.findAllByText("Eng B");
 
     expect(rowA.length).toBeGreaterThan(0);
     expect(rowB.length).toBeGreaterThan(0);
@@ -100,16 +100,16 @@ describe("Fields Component", () => {
       </QueryClientProvider>
     ));
 
-    await screen.findAllByRole("link", { name: "Jordet A" });
+    await screen.findAllByText("Jordet A");
 
     const searchInput = screen.getByLabelText("Search") as HTMLInputElement;
 
     fireEvent.input(searchInput, { target: { value: "Jordet" } });
-    expect(screen.getAllByRole("link", { name: "Jordet A" }).length).toBeGreaterThan(0);
-    expect(screen.queryAllByRole("link", { name: "Eng B" })).toHaveLength(0);
+    expect(screen.getAllByText("Jordet A").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Eng B")).toHaveLength(0);
 
     fireEvent.input(searchInput, { target: { value: "Sør" } });
-    expect(screen.queryAllByRole("link", { name: "Jordet A" })).toHaveLength(0);
-    expect(screen.getAllByRole("link", { name: "Eng B" }).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Jordet A")).toHaveLength(0);
+    expect(screen.getAllByText("Eng B").length).toBeGreaterThan(0);
   });
 });

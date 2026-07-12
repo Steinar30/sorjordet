@@ -37,7 +37,7 @@ describe("Stats Component", () => {
       },
     });
 
-    vi.spyOn(global, "fetch").mockImplementation((url: string | URL | Request) => {
+    vi.spyOn(globalThis, "fetch").mockImplementation((url: string | URL | Request) => {
       const urlStr = url.toString();
       if (urlStr.includes("/api/farm_fields/all")) {
         return Promise.resolve(

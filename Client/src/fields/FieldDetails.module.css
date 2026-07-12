@@ -190,6 +190,73 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.eventSummaryCell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.eventTypeName {
+  display: inline;
+  color: var(--dark-text-color);
+  font-size: 0.95rem;
+  font-weight: 560;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+.eventTypeName::after {
+  content: "·";
+  margin-left: 8px;
+  color: rgba(35, 50, 47, 0.36);
+  font-weight: 500;
+}
+
+.eventSummaryCell > .eventTypeName:last-child::after {
+  content: "";
+  margin-left: 0;
+}
+
+.primaryValues {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+
+.primaryValue {
+  display: inline-flex;
+  gap: 5px;
+  align-items: baseline;
+  max-width: 100%;
+}
+
+.valueName {
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.7rem;
+  font-weight: 620;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.valueValue {
+  color: var(--dark-text-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.noteValue {
+  display: block;
+  color: rgba(40, 52, 52, 0.78);
+  font-size: 0.9rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 900px) {
   .summary {
     grid-template-columns: 1fr;

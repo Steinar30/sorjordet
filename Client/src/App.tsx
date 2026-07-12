@@ -51,46 +51,44 @@ const farmTheme = createTheme({
         disableElevation: true,
         sx: {
           "&&": {
-            "min-height": "40px",
-            "padding": "9px 16px",
-            "border-radius": "999px",
-            "font-weight": 650,
-            "text-transform": "none",
-            "letter-spacing": "0",
+            minHeight: "40px",
+            padding: "9px 16px",
+            borderRadius: "999px",
+            fontWeight: 650,
+            textTransform: "none",
+            letterSpacing: "0",
           },
           "&.Mui-disabled": {
             color: "rgba(32, 52, 50, 0.34)",
-            "box-shadow": "none",
+            boxShadow: "none",
           },
           "&.MuiButton-sizeSmall": {
-            "min-height": "36px",
-            "padding": "7px 14px",
+            minHeight: "36px",
+            padding: "7px 14px",
           },
           "&.MuiButton-containedPrimary": {
-            background:
-              "linear-gradient(180deg, rgba(46, 70, 63, 0.98), rgba(32, 52, 50, 0.98))",
-            "box-shadow": "0 12px 24px rgba(18, 33, 28, 0.12)",
+            background: "linear-gradient(180deg, rgba(46, 70, 63, 0.98), rgba(32, 52, 50, 0.98))",
+            boxShadow: "0 12px 24px rgba(18, 33, 28, 0.12)",
             ":hover": {
-              background:
-                "linear-gradient(180deg, rgba(53, 80, 72, 0.98), rgba(37, 60, 56, 0.98))",
-              "box-shadow": "0 14px 28px rgba(18, 33, 28, 0.16)",
+              background: "linear-gradient(180deg, rgba(53, 80, 72, 0.98), rgba(37, 60, 56, 0.98))",
+              boxShadow: "0 14px 28px rgba(18, 33, 28, 0.16)",
             },
             "&.Mui-disabled": {
               background: "rgba(32, 52, 50, 0.12)",
               color: "rgba(32, 52, 50, 0.34)",
-              "box-shadow": "none",
+              boxShadow: "none",
             },
           },
           "&.MuiButton-outlined": {
-            "border-color": "rgba(32, 52, 50, 0.14)",
+            borderColor: "rgba(32, 52, 50, 0.14)",
             background: "rgba(255, 255, 255, 0.72)",
             ":hover": {
-              "border-color": "rgba(32, 52, 50, 0.24)",
+              borderColor: "rgba(32, 52, 50, 0.24)",
               background: "rgba(244, 248, 244, 0.92)",
             },
             "&.Mui-disabled": {
               background: "rgba(255, 255, 255, 0.46)",
-              "border-color": "rgba(32, 52, 50, 0.1)",
+              borderColor: "rgba(32, 52, 50, 0.1)",
             },
           },
           "&.MuiButton-text:hover": {
@@ -103,15 +101,15 @@ const farmTheme = createTheme({
       defaultProps: {
         sx: {
           color: "#203432",
-          "border-radius": "10px",
+          borderRadius: "10px",
         },
       },
     },
     MuiPaper: {
       defaultProps: {
         sx: {
-          "background-image": "none",
-          "border-radius": "12px",
+          backgroundImage: "none",
+          borderRadius: "12px",
         },
       },
     },
@@ -120,8 +118,8 @@ const farmTheme = createTheme({
         sx: {
           border: "1px solid rgba(26, 46, 40, 0.08)",
           background: "rgba(255, 255, 255, 0.88)",
-          "box-shadow": "0 14px 32px rgba(18, 33, 28, 0.06)",
-          "border-radius": "12px",
+          boxShadow: "0 14px 32px rgba(18, 33, 28, 0.06)",
+          borderRadius: "12px",
         },
       },
     },
@@ -129,9 +127,9 @@ const farmTheme = createTheme({
       defaultProps: {
         PaperProps: {
           sx: {
-            "border-radius": "12px",
+            borderRadius: "12px",
             background: "rgba(252, 253, 250, 0.98)",
-            "box-shadow": "0 24px 54px rgba(20, 33, 30, 0.18)",
+            boxShadow: "0 24px 54px rgba(20, 33, 30, 0.18)",
           },
         },
       },
@@ -141,27 +139,26 @@ const farmTheme = createTheme({
         variant: "outlined",
         sx: {
           "& .MuiOutlinedInput-root": {
-            "border-radius": "12px",
+            borderRadius: "12px",
             background: "rgba(255, 255, 255, 0.82)",
           },
           "& .MuiOutlinedInput-notchedOutline": {
-            "border-color": "rgba(32, 52, 50, 0.14)",
+            borderColor: "rgba(32, 52, 50, 0.14)",
           },
           "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-            "border-color": "rgba(32, 52, 50, 0.24)",
+            borderColor: "rgba(32, 52, 50, 0.24)",
           },
-          "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-          {
-            "border-color": "#2c574a",
-            "border-width": "1px",
+          "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#2c574a",
+            borderWidth: "1px",
           },
           "& .MuiOutlinedInput-input": {
-            "padding-top": "12px",
-            "padding-bottom": "12px",
+            paddingTop: "12px",
+            paddingBottom: "12px",
           },
           "& .MuiOutlinedInput-input.MuiInputBase-inputSizeSmall": {
-            "padding-top": "10px",
-            "padding-bottom": "10px",
+            paddingTop: "10px",
+            paddingBottom: "10px",
           },
           "& .MuiInputLabel-root": {
             color: "rgba(32, 52, 50, 0.66)",
@@ -190,10 +187,8 @@ const App: Component = () => {
         <Route path="/login" component={lazy(() => import("./login/Login"))} />
         <Route path="/stats" component={lazy(() => import("./stats/Stats"))} />
         <Route path="/admin" component={lazy(() => import("./admin/Admin"))} />
-        <Route
-          path="/harvest"
-          component={lazy(() => import("./harvest/HarvestList"))}
-        />
+        <Route path="/harvest" component={lazy(() => import("./harvest/HarvestList"))} />
+        <Route path="/field-events" component={lazy(() => import("./fields/FieldEvents"))} />
       </Router>
     </ThemeProvider>
   );

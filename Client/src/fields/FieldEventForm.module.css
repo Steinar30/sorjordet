@@ -68,7 +68,10 @@ input.dateInput,
   color: var(--dark-text-color);
   font: inherit;
   outline: none;
-  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
 
 input.dateInput::placeholder,

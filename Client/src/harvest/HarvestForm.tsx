@@ -24,20 +24,21 @@ import { HarvestType } from "../../bindings/HarvestType";
 import { prepareAuth } from "../requests";
 import { DrynessSelector } from "./DrynessIndicator";
 
-const saveHarvestEvent = async (
-  harvestEvent: HarvestEvent,
-): Promise<HarvestEvent> => {
+const saveHarvestEvent = async (harvestEvent: HarvestEvent): Promise<HarvestEvent> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
     throw new Error("not allowed to post without bearer token");
   }
   const isNew = harvestEvent.id < 0;
-  const response = await fetch(isNew ? `/api/harvest_event` : `/api/harvest_event/${harvestEvent.id}`, {
-    method: isNew ? "POST" : "PATCH",
-    headers: authHeaders,
-    body: JSON.stringify(harvestEvent),
-  });
+  const response = await fetch(
+    isNew ? `/api/harvest_event` : `/api/harvest_event/${harvestEvent.id}`,
+    {
+      method: isNew ? "POST" : "PATCH",
+      headers: authHeaders,
+      body: JSON.stringify(harvestEvent),
+    },
+  );
   if (response.status === 200) {
     if (isNew) {
       const id = await response.text();
@@ -65,8 +66,10 @@ export function HarvestForm(props: {
   title?: string;
   submitLabel?: string;
 }) {
-  const [selectedGroup, setSelectedGroup] = createSignal<FarmFieldGroupMeta | undefined>(props.group())
-  const [selectedField, setSelectedField] = createSignal<FarmFieldMeta | undefined>(props.field())
+  const [selectedGroup, setSelectedGroup] = createSignal<FarmFieldGroupMeta | undefined>(
+    props.group(),
+  );
+  const [selectedField, setSelectedField] = createSignal<FarmFieldMeta | undefined>(props.field());
   const [harvestType, setHarvestType] = createSignal<HarvestType | undefined>();
   const [date, setDate] = createSignal<PickerValue>({
     value: {},
@@ -154,19 +157,18 @@ export function HarvestForm(props: {
       type_id: harvest_type.id,
       type_name: harvest_type.name,
       dryness_rating: drynessRating(),
-    })
-      .then((harvest) => {
-        if (!harvest) {
-          return;
-        }
-        setshowInvalid(false);
+    }).then((harvest) => {
+      if (!harvest) {
+        return;
+      }
+      setshowInvalid(false);
 
-        props.selectHarvest({
-          group,
-          field,
-          harvest
-        });
+      props.selectHarvest({
+        group,
+        field,
+        harvest,
       });
+    });
   };
 
   function DatePickerComponent() {
@@ -228,7 +230,7 @@ export function HarvestForm(props: {
                   const group = groups.data?.find((g) => g.name === value.target.value);
                   setSelectedGroup(group);
                   // if a field is selected, we unselect the field if we switch groups
-                  if (selectedField() && !group?.fields.find(y => y.id === selectedField()?.id)) {
+                  if (selectedField() && !group?.fields.find((y) => y.id === selectedField()?.id)) {
                     setSelectedField(undefined);
                   }
                 }}
@@ -272,9 +274,7 @@ export function HarvestForm(props: {
                 value={harvestType()?.name ?? ""}
                 error={showInvalid() && harvestType() == undefined}
                 onChange={(value) => {
-                  setHarvestType(
-                    harvestTypes.data?.find((h) => h.name === value.target.value),
-                  );
+                  setHarvestType(harvestTypes.data?.find((h) => h.name === value.target.value));
                 }}
                 label="Select Type"
                 notched
@@ -304,12 +304,10 @@ export function HarvestForm(props: {
               </div>
               <DrynessSelector value={drynessRating()} onChange={setDrynessRating} />
             </div>
-
           </Match>
         </Switch>
       </DialogContent>
       <DialogActions class={styles.harvestDialogActions}>
-
         <Button
           onClick={() => {
             setshowInvalid(false);

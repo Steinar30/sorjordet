@@ -58,7 +58,7 @@ describe("HarvestList Component", () => {
       },
     });
 
-    vi.spyOn(global, "fetch").mockImplementation((url: string | URL | Request) => {
+    vi.spyOn(globalThis, "fetch").mockImplementation((url: string | URL | Request) => {
       const urlStr = url.toString();
       if (urlStr.includes("/api/farm_field_groups/meta")) {
         return Promise.resolve(mockResponse(mockMetaGroups));

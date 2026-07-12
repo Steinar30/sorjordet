@@ -53,9 +53,7 @@ export function DrawableMap(props: MapFeature) {
     });
 
     const source = new VectorSource({
-      features: props.initialFeature
-        ? new Collection([props.initialFeature])
-        : undefined,
+      features: props.initialFeature ? new Collection([props.initialFeature]) : undefined,
     });
 
     const vector = new VectorLayer({
@@ -72,8 +70,9 @@ export function DrawableMap(props: MapFeature) {
     let measureTooltipElement: HTMLElement;
     let measureTooltip: Overlay;
 
-    const pointerMoveHandler = function (evt: MapBrowserEvent<UIEvent>) {
-      if (evt.dragging) {
+    const pointerMoveHandler = function (evt: unknown) {
+      const mapEvent = evt as MapBrowserEvent<PointerEvent>;
+      if (mapEvent.dragging) {
         return;
       }
 
@@ -84,7 +83,7 @@ export function DrawableMap(props: MapFeature) {
       }
 
       helpTooltipElement.innerHTML = helpMsg;
-      helpTooltip.setPosition(evt.coordinate);
+      helpTooltip.setPosition(mapEvent.coordinate);
 
       helpTooltipElement.classList.remove("hidden");
     };
@@ -217,9 +216,7 @@ export function DrawableMap(props: MapFeature) {
       const snap: Snap = new Snap({ source: source });
       map.addInteraction(snap);
 
-      const modifyTouch = new ModifyTouch(
-        Object({ source: source, title: "Remove point" }),
-      );
+      const modifyTouch = new ModifyTouch(Object({ source: source, title: "Remove point" }));
       map.addInteraction(modifyTouch);
     }
 

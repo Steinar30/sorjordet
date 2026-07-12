@@ -22,8 +22,8 @@
 body {
   margin: 0;
   font-family:
-    "SF Pro Display", "SF Pro Text", "Aptos", "Segoe UI Variable", "Inter",
-    "Helvetica Neue", sans-serif;
+    "SF Pro Display", "SF Pro Text", "Aptos", "Segoe UI Variable", "Inter", "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
@@ -42,8 +42,7 @@ body::before {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 #root {

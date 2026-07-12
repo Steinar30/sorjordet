@@ -17,10 +17,7 @@ export function HarvestMobileCard(props: {
   wideSecondColumn?: boolean;
 }) {
   return (
-    <article
-      class={styles.harvestCard}
-      onClick={props.onClick}
-    >
+    <article class={styles.harvestCard} onClick={props.onClick}>
       <div class={styles.harvestCardTop}>
         <div>
           <Show when={props.eyebrow}>
@@ -35,7 +32,9 @@ export function HarvestMobileCard(props: {
           <div class={styles.harvestCardAction}>{props.action}</div>
         </Show>
       </div>
-      <div class={`${styles.harvestCardFacts} ${props.wideSecondColumn ? styles.harvestCardFactsWideSecond : ""}`}>
+      <div
+        class={`${styles.harvestCardFacts} ${props.wideSecondColumn ? styles.harvestCardFactsWideSecond : ""}`}
+      >
         {props.facts.map((fact) => (
           <div class={fact.wideSecondColumn ? styles.harvestCardFactWideSecond : undefined}>
             <p>{fact.label}</p>

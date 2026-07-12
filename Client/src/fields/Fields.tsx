@@ -1,11 +1,4 @@
-import {
-  createMemo,
-  createSignal,
-  For,
-  Match,
-  Show,
-  Switch,
-} from "solid-js";
+import { createMemo, createSignal, For, Match, Show, Switch } from "solid-js";
 import { createQuery } from "@tanstack/solid-query";
 import { Button } from "@suid/material";
 import { FarmField } from "../../bindings/FarmField";
@@ -25,9 +18,7 @@ export default function Fields() {
   const fields = createQuery(() => ({
     queryKey: ["fields_all"],
     queryFn: () =>
-      fetch("/api/farm_fields/all").then((response) =>
-        response.json() as Promise<FarmField[]>,
-      ),
+      fetch("/api/farm_fields/all").then((response) => response.json() as Promise<FarmField[]>),
   }));
 
   const fieldAreas = createMemo(() =>
@@ -44,7 +35,10 @@ export default function Fields() {
   const stats = createMemo(() => [
     { label: "Fields", value: (fields.data?.length ?? "...").toString() },
     { label: "Groups", value: (groups.data?.length ?? "...").toString() },
-    { label: "Total area", value: fields.data ? formatArea(totalArea()) : "..." },
+    {
+      label: "Total area",
+      value: fields.data ? formatArea(totalArea()) : "...",
+    },
   ]);
 
   return (
@@ -68,10 +62,7 @@ export default function Fields() {
                 <p class={styles.managementEyebrow}>Logged-in tools</p>
                 <h2>Create a field</h2>
               </div>
-              <Button
-                variant="outlined"
-                onClick={() => setShowCreateForm(false)}
-              >
+              <Button variant="outlined" onClick={() => setShowCreateForm(false)}>
                 Cancel
               </Button>
             </div>
@@ -83,10 +74,7 @@ export default function Fields() {
             showDelete={jwt_token() !== null}
             addButton={() => (
               <Show when={jwt_token()}>
-                <Button
-                  variant="contained"
-                  onClick={() => setShowCreateForm(true)}
-                >
+                <Button variant="contained" onClick={() => setShowCreateForm(true)}>
                   New field
                 </Button>
               </Show>

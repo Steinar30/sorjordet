@@ -74,11 +74,7 @@ export default function Login() {
           <h1>Sørjordet gård</h1>
         </div>
 
-        <Box
-          component="form"
-          class={styles.loginForm}
-          onsubmit={handleSubmit}
-        >
+        <Box component="form" class={styles.loginForm} onsubmit={handleSubmit}>
           <TextField
             id="username-field"
             label="Brukernavn"

@@ -1,0 +1,369 @@
+.page {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 12px 18px;
+}
+
+.hero,
+.tableCard {
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+}
+
+.hero {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.heroContent {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hero h2 {
+  margin: 4px 0 0;
+  color: var(--dark-text-color);
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
+  line-height: 1.08;
+}
+
+.heroAction {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.tableTools {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.summaryPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.summaryPill {
+  display: grid;
+  gap: 3px;
+  min-width: 128px;
+  min-height: 48px;
+  padding: 7px 10px;
+  border-radius: var(--radius-lg);
+  background: rgba(244, 248, 244, 0.9);
+  color: rgba(35, 50, 47, 0.68);
+  line-height: 1.1;
+}
+
+.summaryPill span {
+  color: rgba(35, 50, 47, 0.58);
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.summaryPill strong {
+  color: var(--dark-text-color);
+  font-size: 0.98rem;
+  font-weight: 620;
+  overflow-wrap: anywhere;
+}
+
+.summaryPill small,
+.emptySummary {
+  color: rgba(35, 50, 47, 0.58);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.emptySummary {
+  margin: 0;
+  padding: 8px 0;
+}
+
+.filters {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.filterControl {
+  min-width: 132px;
+}
+
+.tableCard {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.tableWrap {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  min-width: 680px;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 14px;
+  color: rgba(40, 52, 52, 0.64);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.row:hover {
+  background: rgba(241, 247, 244, 0.88);
+}
+
+.mobileActionCell {
+  width: 56px;
+}
+
+.chipActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.eventSummaryCell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.eventTypeName {
+  display: inline;
+  color: var(--dark-text-color);
+  font-size: 0.95rem;
+  font-weight: 560;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+.eventTypeName::after {
+  content: ".";
+  margin-left: 8px;
+  color: rgba(35, 50, 47, 0.36);
+  font-weight: 500;
+}
+
+.eventSummaryCell > .eventTypeName:last-child::after {
+  content: "";
+  margin-left: 0;
+}
+
+.primaryValues {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+
+.primaryValue {
+  display: inline-flex;
+  gap: 5px;
+  align-items: baseline;
+  max-width: 100%;
+}
+
+.valueName {
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.7rem;
+  font-weight: 620;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.valueValue {
+  color: var(--dark-text-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.noteValue {
+  display: block;
+  color: rgba(40, 52, 52, 0.78);
+  font-size: 0.9rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.mobileCards {
+  display: none;
+  gap: 10px;
+}
+
+.mobileCard {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+  cursor: pointer;
+}
+
+.mobileCardTop {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.mobileCardTop > div:first-child {
+  min-width: 0;
+}
+
+.mobileCardTitle {
+  margin: 0;
+  color: var(--dark-text-color);
+  font-size: 1rem;
+  font-weight: 720;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.mobileCardMeta {
+  margin: 4px 0 0;
+  color: rgba(40, 52, 52, 0.64);
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+
+.mobileCardFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mobileCardFacts div,
+.valueBox {
+  min-width: 0;
+  padding: 8px;
+  border-radius: var(--radius-lg);
+  background: rgba(247, 250, 246, 0.8);
+}
+
+.mobileCardFacts p,
+.valueBox p {
+  margin: 0 0 4px;
+  color: rgba(35, 50, 47, 0.54);
+  font-size: 0.62rem;
+  font-weight: 720;
+  text-transform: uppercase;
+}
+
+.mobileCardFacts span,
+.valueBox span {
+  display: block;
+  color: var(--dark-text-color);
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 0 8px 14px;
+  }
+
+  .hero {
+    gap: 10px;
+  }
+
+  .heroAction {
+    width: auto;
+  }
+
+  .tableTools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filters {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .filterControl {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .tableCard {
+    display: none;
+  }
+
+  .mobileCards {
+    display: grid;
+  }
+
+  .mobileActionCell {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heroAction {
+    margin-left: 0;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filterControl {
+    width: 100%;
+  }
+
+  .mobileCardFacts {
+    grid-template-columns: 1fr;
+  }
+}

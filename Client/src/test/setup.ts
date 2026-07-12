@@ -55,9 +55,9 @@ const mockFetch = vi.fn().mockImplementation(() =>
     json: () => Promise.resolve([]),
     ok: true,
     status: 200,
-  } as Response)
+  } as Response),
 );
-global.fetch = mockFetch as typeof fetch;
+globalThis.fetch = mockFetch as typeof fetch;
 
 // Mock solid-apexcharts
 vi.mock("solid-apexcharts", () => {
@@ -169,7 +169,10 @@ vi.mock("ol/format/GeoJSON", () => {
               },
             };
           },
-          getProperties: () => ({ name: "Mock Field", "group-name": "Mock Group" }),
+          getProperties: () => ({
+            name: "Mock Field",
+            "group-name": "Mock Group",
+          }),
           set: vi.fn(),
         };
       });

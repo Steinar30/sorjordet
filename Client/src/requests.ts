@@ -25,9 +25,7 @@ export async function get_farm(): Promise<Farm[]> {
   return fetch("/api/farm").then((a) => a.json());
 }
 
-export async function getFarmFieldsForGroup(
-  group_id: number,
-): Promise<FarmField[]> {
+export async function getFarmFieldsForGroup(group_id: number): Promise<FarmField[]> {
   return fetch("/api/farm_fields/group/" + group_id).then((a) => a.json());
 }
 
@@ -35,9 +33,7 @@ export async function getFarmFieldGroups(): Promise<FarmFieldGroup[]> {
   return fetch("/api/farm_field_groups").then((a) => a.json());
 }
 
-export async function getFarmFieldGroupsWithFields(): Promise<
-  [FarmFieldGroup, FarmField[]][]
-> {
+export async function getFarmFieldGroupsWithFields(): Promise<[FarmFieldGroup, FarmField[]][]> {
   return fetch("/api/farm_field_groups")
     .then((a) => a.json())
     .then((a: FarmFieldGroup[]) =>
@@ -45,9 +41,7 @@ export async function getFarmFieldGroupsWithFields(): Promise<
     );
 }
 
-export async function tryPostNewFieldGroup(
-  f: FarmFieldGroup,
-): Promise<number | undefined> {
+export async function tryPostNewFieldGroup(f: FarmFieldGroup): Promise<number | undefined> {
   const authHeaders = prepareAuth(true);
   if (authHeaders) {
     return fetch("/api/farm_field_groups", {
@@ -60,9 +54,7 @@ export async function tryPostNewFieldGroup(
   }
 }
 
-export async function tryPatchNewFieldGroup(
-  f: FarmFieldGroup,
-): Promise<number | undefined> {
+export async function tryPatchNewFieldGroup(f: FarmFieldGroup): Promise<number | undefined> {
   const authHeaders = prepareAuth(true);
   if (authHeaders) {
     return fetch("/api/farm_field_groups", {
@@ -75,9 +67,7 @@ export async function tryPatchNewFieldGroup(
   }
 }
 
-export async function tryPostNewField(
-  f: FarmField,
-): Promise<number | undefined> {
+export async function tryPostNewField(f: FarmField): Promise<number | undefined> {
   const authHeaders = prepareAuth(true);
   console.log("posting json: ", f);
   if (f.map_polygon_string.length == 0) {

@@ -1,11 +1,4 @@
-import {
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from "@suid/material";
+import { TextField, Button, Select, MenuItem, FormControl, InputLabel } from "@suid/material";
 import { createStore } from "solid-js/store";
 import { createSignal, createResource, Show } from "solid-js";
 
@@ -52,10 +45,7 @@ function validateFarmInput(field: FarmField, feature: Feature | undefined) {
   );
 }
 
-export function FieldUpdateForm(props: {
-  initial: FarmField;
-  onSave: (x: FarmField) => void;
-}) {
+export function FieldUpdateForm(props: { initial: FarmField; onSave: (x: FarmField) => void }) {
   const [farmFieldGroups] = createResource(getFarmFieldGroups);
   const [form, setForm] = createStore<FarmField>(props.initial);
 
@@ -85,9 +75,7 @@ export function FieldUpdateForm(props: {
             color="primary"
             value={form.farm_field_group_id}
             onChange={(x) => {
-              const group = farmFieldGroups()?.find(
-                (y) => y.id === x.target.value,
-              );
+              const group = farmFieldGroups()?.find((y) => y.id === x.target.value);
               if (group) {
                 setForm({
                   ["farm_field_group_id"]: group.id,
@@ -123,9 +111,7 @@ export function FieldUpdateForm(props: {
 
         {selectComponent()}
 
-        <p class={styles.hint}>
-          Draw an outline of the field in the map below to show it in maps.
-        </p>
+        <p class={styles.hint}>Draw an outline of the field in the map below to show it in maps.</p>
 
         <Button
           disabled={!validateFarmInput(form, feature[0]())}
@@ -155,8 +141,8 @@ export function FieldUpdateForm(props: {
               initialFeature={
                 parseJsonIntoFeature(
                   props.initial,
-                  groups().find((x) => x.id === props.initial.farm_field_group_id)
-                    ?.name ?? "placeholder",
+                  groups().find((x) => x.id === props.initial.farm_field_group_id)?.name ??
+                    "placeholder",
                 ) ?? undefined
               }
             />

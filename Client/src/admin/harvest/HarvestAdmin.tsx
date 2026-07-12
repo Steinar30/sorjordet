@@ -1,7 +1,18 @@
 import { createInfiniteQuery, createQuery, InfiniteData } from "@tanstack/solid-query";
 import { createSignal, For, Show } from "solid-js";
 import { HarvestEvent } from "../../../bindings/HarvestEvent";
-import { Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow } from "@suid/material";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@suid/material";
 import { prepareAuth } from "../../requests";
 import { HarvestPagination } from "../../../bindings/HarvestPagination";
 import { formatDate, getYearRangeSinceYearToCurrent } from "../../Utils";
@@ -15,29 +26,37 @@ const page_size = 100;
 const getHarvestEvents = async (page: number, year: number) => {
   const authHeaders = prepareAuth(false);
   const result: Promise<HarvestPagination> = fetch(
-    `/api/harvest_event?page_size=${page_size}&page=${page}&year=${year}`, {
-    headers: authHeaders!
-  }
+    `/api/harvest_event?page_size=${page_size}&page=${page}&year=${year}`,
+    {
+      headers: authHeaders!,
+    },
   ).then((a) => a.json());
   return (await result).events;
-}
+};
 
 export default function HarvestAdmin() {
   const [year, setYear] = createSignal(new Date().getFullYear());
 
   const fields = createQuery<FarmFieldMeta[]>(() => ({
     queryKey: ["fields_meta"],
-    queryFn: () => fetch("/api/farm_fields").then((a) => a.json())
+    queryFn: () => fetch("/api/farm_fields").then((a) => a.json()),
   }));
 
-  const harvestEvents = createInfiniteQuery<HarvestEvent[], Error, InfiniteData<HarvestEvent[], unknown>, ["harvestEventsInfinite", number]>(() => ({
+  const harvestEvents = createInfiniteQuery<
+    HarvestEvent[],
+    Error,
+    InfiniteData<HarvestEvent[], unknown>,
+    ["harvestEventsInfinite", number]
+  >(() => ({
     queryKey: ["harvestEventsInfinite", year()],
     queryFn: (param) => getHarvestEvents(param.pageParam as number, year()),
     keepPreviousData: true,
     initialPageParam: 1,
-    getNextPageParam: (lastPage: HarvestEvent[], allPages: HarvestEvent[][]) => lastPage.length < page_size ? undefined : allPages.length + 1,
-    getPreviousPageParam: (firstPage: HarvestEvent[], allPages: HarvestEvent[][]) => firstPage.length < page_size ? undefined : allPages.length - 1
-  }))
+    getNextPageParam: (lastPage: HarvestEvent[], allPages: HarvestEvent[][]) =>
+      lastPage.length < page_size ? undefined : allPages.length + 1,
+    getPreviousPageParam: (firstPage: HarvestEvent[], allPages: HarvestEvent[][]) =>
+      firstPage.length < page_size ? undefined : allPages.length - 1,
+  }));
 
   return (
     <main
@@ -106,10 +125,7 @@ export default function HarvestAdmin() {
       </Table>
 
       <Show when={harvestEvents.hasNextPage}>
-        <Button
-          size="small"
-          onClick={() => harvestEvents.fetchNextPage()}
-        >
+        <Button size="small" onClick={() => harvestEvents.fetchNextPage()}>
           Load more
         </Button>
       </Show>

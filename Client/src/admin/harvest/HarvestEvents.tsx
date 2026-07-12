@@ -86,19 +86,15 @@ export default function HarvestEvents() {
       lastPage.length < pageSize ? undefined : allPages.length + 1,
   }));
 
-  const visiblePages = createMemo(() =>
-    harvestEvents.data?.pages.map((page) =>
-      missingDrynessOnly()
-        ? page.filter((event) => event.dryness_rating === null)
-        : page,
-    ) ?? [],
+  const visiblePages = createMemo(
+    () =>
+      harvestEvents.data?.pages.map((page) =>
+        missingDrynessOnly() ? page.filter((event) => event.dryness_rating === null) : page,
+      ) ?? [],
   );
 
   const fieldLookup = createMemo(() => {
-    const map = new Map<
-      number,
-      { fieldName: string; groupName: string }
-    >();
+    const map = new Map<number, { fieldName: string; groupName: string }>();
 
     groups.data?.forEach((group) => {
       group.fields.forEach((field) => {
@@ -142,8 +138,7 @@ export default function HarvestEvents() {
   const fieldLabel = (fieldId: number) =>
     fieldLookup().get(fieldId)?.fieldName ?? fieldId.toString();
 
-  const groupLabel = (fieldId: number) =>
-    fieldLookup().get(fieldId)?.groupName ?? "-";
+  const groupLabel = (fieldId: number) => fieldLookup().get(fieldId)?.groupName ?? "-";
 
   const setDryness = async (event: HarvestEvent, rating: number) => {
     await updateHarvestDryness(event, rating);
@@ -170,9 +165,9 @@ export default function HarvestEvents() {
                 type="button"
                 class={styles.backfillButton}
                 style={{
-                  "background": display.background,
+                  background: display.background,
                   "border-color": display.borderColor,
-                  "color": display.color,
+                  color: display.color,
                 }}
                 title={display.description}
                 onClick={async (clickEvent) => {
@@ -226,9 +221,7 @@ export default function HarvestEvents() {
             notched
             onChange={(event) => setYear(Number(event.target.value))}
           >
-            <For each={years}>
-              {(entry) => <MenuItem value={entry}>{entry}</MenuItem>}
-            </For>
+            <For each={years}>{(entry) => <MenuItem value={entry}>{entry}</MenuItem>}</For>
           </Select>
         </FormControl>
 
@@ -269,34 +262,28 @@ export default function HarvestEvents() {
                             class={`${styles.row} ${styles.clickableRow}`}
                             onClick={() => openEditForm(event)}
                           >
-                            <TableCell class={styles.cell}>
-                              {formatDate(event.time)}
-                            </TableCell>
-                            <TableCell
-                              class={`${styles.cell} ${styles.fieldCell}`}
-                            >
+                            <TableCell class={styles.cell}>{formatDate(event.time)}</TableCell>
+                            <TableCell class={`${styles.cell} ${styles.fieldCell}`}>
                               {fieldLabel(event.field_id)}
                             </TableCell>
-                            <TableCell
-                              class={`${styles.cell} ${styles.groupCell}`}
-                            >
+                            <TableCell class={`${styles.cell} ${styles.groupCell}`}>
                               {groupLabel(event.field_id)}
                             </TableCell>
-                            <TableCell
-                              class={`${styles.cell} ${styles.typeCell}`}
-                            >
+                            <TableCell class={`${styles.cell} ${styles.typeCell}`}>
                               {event.type_name}
                             </TableCell>
-                            <TableCell class={`${styles.cell} ${event.dryness_rating === null ? styles.drynessCellBackfill : styles.drynessCellCompact}`}>
+                            <TableCell
+                              class={`${styles.cell} ${event.dryness_rating === null ? styles.drynessCellBackfill : styles.drynessCellCompact}`}
+                            >
                               {renderDrynessBackfill(event)}
+                            </TableCell>
+                            <TableCell align="right" class={`${styles.cell} ${styles.valueCell}`}>
+                              {event.value}
                             </TableCell>
                             <TableCell
                               align="right"
-                              class={`${styles.cell} ${styles.valueCell}`}
+                              class={`${styles.cell} ${styles.mobileActionCell}`}
                             >
-                              {event.value}
-                            </TableCell>
-                            <TableCell align="right" class={`${styles.cell} ${styles.mobileActionCell}`}>
                               <IconButton
                                 size="small"
                                 onClick={(rowEvent) => {
@@ -347,10 +334,7 @@ export default function HarvestEvents() {
 
         <Show when={harvestEvents.hasNextPage}>
           <div style={{ "margin-top": "12px" }}>
-            <Button
-              variant="outlined"
-              onClick={() => harvestEvents.fetchNextPage()}
-            >
+            <Button variant="outlined" onClick={() => harvestEvents.fetchNextPage()}>
               Load more
             </Button>
           </div>

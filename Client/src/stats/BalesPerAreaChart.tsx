@@ -17,7 +17,7 @@ export default function BalesPerAreaChart() {
   }));
 
   const groupArea = createMemo<Map<number, number>>(() => {
-    // make mapping from groupId to 
+    // make mapping from groupId to
     const m = fields.data?.reduce((acc, field) => {
       const groupId = field.farm_field_group_id;
       if (!groupId) return acc;
@@ -41,50 +41,51 @@ export default function BalesPerAreaChart() {
           const area = groupArea().get(agg.group_id);
           const y = area ? Number(agg.value) / area : 0;
 
-          return ({
+          return {
             x: agg.group_name,
             y: y.toPrecision(2),
             fillColor: rgbToHex(agg.group_color),
-          })
-        }
-        ),
+          };
+        }),
       },
     ];
-  })
+  });
 
   return (
-    <Show when={harvestsByYear()}>
-      <SolidApexCharts
-        options={{
-          dataLabels: {
-            style: {
-              colors: ["#333"],
-            }
-          },
-          plotOptions: {
-            bar: {
-              horizontal: false,
+    <Show keyed when={chartSeries().length > 0 ? chartSeries() : undefined}>
+      {(series) => (
+        <SolidApexCharts
+          options={{
+            dataLabels: {
+              style: {
+                colors: ["#333"],
+              },
             },
-          },
-          chart: {
-            type: "bar",
-            height: 350,
-          },
-          yaxis: {
-            title: {
-              text: "Bales per Dekar",
+            plotOptions: {
+              bar: {
+                horizontal: false,
+              },
             },
-          },
-          fill: {
-            opacity: 0.8,
-          },
-        }}
-        series={chartSeries()}
-        type="bar"
-        vertical
-        width="100%"
-        height="100%"
-      />
+            chart: {
+              type: "bar",
+              height: 350,
+            },
+            yaxis: {
+              title: {
+                text: "Bales per Dekar",
+              },
+            },
+            fill: {
+              opacity: 0.8,
+            },
+          }}
+          series={series}
+          type="bar"
+          vertical
+          width="100%"
+          height="100%"
+        />
+      )}
     </Show>
   );
 }

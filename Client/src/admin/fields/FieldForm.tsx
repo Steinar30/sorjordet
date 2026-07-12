@@ -1,11 +1,4 @@
-import {
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from "@suid/material";
+import { TextField, Button, Select, MenuItem, FormControl, InputLabel } from "@suid/material";
 import { createStore } from "solid-js/store";
 import { createSignal, createResource, Show } from "solid-js";
 
@@ -21,11 +14,7 @@ import { getFarmFieldGroups, tryPostNewField } from "../../requests";
 import { DrawableMap } from "../../maps/DrawableMap";
 import styles from "./FieldForm.module.css";
 
-function validateFarmInput(
-  field: FarmField,
-  feature: Feature | undefined,
-  validFeature: boolean,
-) {
+function validateFarmInput(field: FarmField, feature: Feature | undefined, validFeature: boolean) {
   return (
     field.farm_id >= 1 &&
     field.farm_field_group_id &&
@@ -70,9 +59,7 @@ export function FieldForm(props: { onCreate: () => void }) {
             id="group-select"
             color="primary"
             onChange={(x) => {
-              const group = farmFieldGroups()?.find(
-                (y) => y.id === x.target.value,
-              );
+              const group = farmFieldGroups()?.find((y) => y.id === x.target.value);
               if (group) {
                 setForm({
                   ["farm_field_group_id"]: group.id,
@@ -108,9 +95,7 @@ export function FieldForm(props: { onCreate: () => void }) {
 
         {selectComponent()}
 
-        <p class={styles.hint}>
-          Draw an outline of the field in the map below to show it in maps.
-        </p>
+        <p class={styles.hint}>Draw an outline of the field in the map below to show it in maps.</p>
 
         <Button
           disabled={!validateFarmInput(form, feature[0](), validFeature[0]())}

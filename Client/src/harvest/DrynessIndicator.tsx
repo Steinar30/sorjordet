@@ -11,7 +11,9 @@ export function DrynessIcon(props: { rating: number | null | undefined }) {
   return (
     <Show
       when={display().icon === "dry"}
-      fallback={display().icon === "wet" ? <WaterIcon fontSize="small" /> : <OpacityIcon fontSize="small" />}
+      fallback={
+        display().icon === "wet" ? <WaterIcon fontSize="small" /> : <OpacityIcon fontSize="small" />
+      }
     >
       <WbSunnyIcon fontSize="small" />
     </Show>
@@ -30,13 +32,15 @@ export function DrynessIndicator(props: {
       class={props.class}
       title={display().description}
       style={{
-        "background": display().background,
+        background: display().background,
         "border-color": display().borderColor,
-        "color": display().color,
+        color: display().color,
       }}
     >
       <DrynessIcon rating={props.rating} />
-      <span>{props.compact ? (display().rating ? `${display().rating}/5` : "-") : display().label}</span>
+      <span>
+        {props.compact ? (display().rating ? `${display().rating}/5` : "-") : display().label}
+      </span>
       <Show when={display().rating !== null && !props.compact}>
         <span aria-hidden="true">{display().rating}/5</span>
       </Show>
@@ -59,9 +63,9 @@ export function DrynessSelector(props: {
               type="button"
               class={`${styles.drynessSelectorButton} ${props.value === rating ? styles.drynessSelectorButtonSelected : ""}`}
               style={{
-                "background": props.value === rating ? display.background : undefined,
+                background: props.value === rating ? display.background : undefined,
                 "border-color": props.value === rating ? display.borderColor : undefined,
-                "color": props.value === rating ? display.color : undefined,
+                color: props.value === rating ? display.color : undefined,
               }}
               aria-label={`Set dryness ${display.label}`}
               aria-pressed={props.value === rating}
@@ -73,7 +77,7 @@ export function DrynessSelector(props: {
             >
               <span
                 class={styles.drynessSelectorSwatch}
-                style={{ "background": display.background }}
+                style={{ background: display.background }}
                 aria-hidden="true"
               />
               <span class={styles.drynessSelectorValue}>{rating}</span>

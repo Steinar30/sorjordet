@@ -1,11 +1,4 @@
-import {
-  Accessor,
-  createMemo,
-  createSignal,
-  For,
-  JSX,
-  Show,
-} from "solid-js";
+import { Accessor, createMemo, createSignal, For, JSX, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { createQuery, useQueryClient } from "@tanstack/solid-query";
 import {
@@ -19,21 +12,12 @@ import {
   TableRow,
   TextField,
 } from "@suid/material";
-import {
-  ArrowUpward,
-  Delete,
-  Edit,
-  Map as MapIcon,
-} from "@suid/icons-material";
+import { ArrowUpward, Delete, Edit, Map as MapIcon } from "@suid/icons-material";
 
 import { getFarmFieldGroups, prepareAuth } from "../requests";
 import { FarmFieldGroup } from "../../bindings/FarmFieldGroup";
 import { FarmField } from "../../bindings/FarmField";
-import {
-  formatArea,
-  getMapPolygonArea,
-  parseJsonIntoFeature,
-} from "../maps/Map";
+import { formatArea, getMapPolygonArea, parseJsonIntoFeature } from "../maps/Map";
 import styles from "./Fields.module.css";
 import { ConfirmDeleteDialog } from "../Utils";
 import { PeekFieldMap } from "../maps/PeekFieldMap";
@@ -81,8 +65,7 @@ const renderFieldsTable = (
 ) => {
   const [fieldPeek, setFieldPeek] = createSignal<DisplayedField | null>(null);
   const groupMap = new Map(groups.map((group) => [group.id, group]));
-  const getFieldGroup = (id: number | null) =>
-    id === null ? null : groupMap.get(id);
+  const getFieldGroup = (id: number | null) => (id === null ? null : groupMap.get(id));
 
   const displayFields: Accessor<DisplayedField[]> = createMemo(
     () =>
@@ -121,9 +104,7 @@ const renderFieldsTable = (
       }
 
       if (currentSorting.sortKey === "size") {
-        return currentSorting.direction === "asc"
-          ? a.size - b.size
-          : b.size - a.size;
+        return currentSorting.direction === "asc" ? a.size - b.size : b.size - a.size;
       }
 
       return 0;
@@ -143,16 +124,9 @@ const renderFieldsTable = (
     }
   };
 
-  const renderSortableHeader = (
-    label: string,
-    sortKey: "name" | "group-name" | "size",
-  ) => {
+  const renderSortableHeader = (label: string, sortKey: "name" | "group-name" | "size") => {
     return (
-      <TableCell
-        class={styles.headerCell}
-        sx={{ cursor: "pointer" }}
-        onClick={toggleSort(sortKey)}
-      >
+      <TableCell class={styles.headerCell} sx={{ cursor: "pointer" }} onClick={toggleSort(sortKey)}>
         {label}
         {sorting().sortKey === sortKey && sorting().direction === "asc" && (
           <ArrowUpward
@@ -160,7 +134,7 @@ const renderFieldsTable = (
               width: "1rem",
               height: "1rem",
               transition: "transform 300ms",
-              "margin-left": "4px",
+              marginLeft: "4px",
             }}
           />
         )}
@@ -171,7 +145,7 @@ const renderFieldsTable = (
               width: "1rem",
               height: "1rem",
               transition: "transform 300ms",
-              "margin-left": "4px",
+              marginLeft: "4px",
             }}
           />
         )}
@@ -236,9 +210,7 @@ const renderFieldsTable = (
   );
 
   const renderEditButtons = (field: DisplayedField) => (
-    <Show when={hasEditActions}>
-      {renderEditButton(field)}
-    </Show>
+    <Show when={hasEditActions}>{renderEditButton(field)}</Show>
   );
 
   return (
@@ -288,9 +260,7 @@ const renderFieldsTable = (
                           size="small"
                           onClick={(event) => {
                             event.stopPropagation();
-                            const foundField = fields.find(
-                              (entry) => entry.id === field.id,
-                            );
+                            const foundField = fields.find((entry) => entry.id === field.id);
                             if (foundField) {
                               setEdit(foundField);
                             }
@@ -337,9 +307,7 @@ const renderFieldsTable = (
                 />
                 <div class={styles.fieldCardTitle}>
                   <p class={styles.fieldCardName}>{field.name}</p>
-                  <p class={styles.fieldCardGroup}>
-                    {field.group_name || "Ungrouped"}
-                  </p>
+                  <p class={styles.fieldCardGroup}>{field.group_name || "Ungrouped"}</p>
                 </div>
                 <div class={styles.fieldCardTopActions}>
                   {renderMapButton(field)}
@@ -354,16 +322,12 @@ const renderFieldsTable = (
                 </div>
                 <div class={styles.factTile}>
                   <p class={styles.factLabel}>Field group</p>
-                  <p class={styles.factValue}>
-                    {field.group_name || "Ungrouped"}
-                  </p>
+                  <p class={styles.factValue}>{field.group_name || "Ungrouped"}</p>
                 </div>
               </div>
 
               <Show when={setEdit !== undefined}>
-                <div class={styles.fieldCardActions}>
-                  {renderEditButtons(field)}
-                </div>
+                <div class={styles.fieldCardActions}>{renderEditButtons(field)}</div>
               </Show>
             </article>
           )}
@@ -389,9 +353,7 @@ export default function FieldsList(props?: {
   const fields = createQuery(() => ({
     queryKey: ["fields_all"],
     queryFn: () =>
-      fetch("/api/farm_fields/all").then((response) =>
-        response.json() as Promise<FarmField[]>,
-      ),
+      fetch("/api/farm_fields/all").then((response) => response.json() as Promise<FarmField[]>),
   }));
   const [sorting, setSorting] = createSignal<Sorting>({
     sortKey: "size",
@@ -403,10 +365,8 @@ export default function FieldsList(props?: {
   const deleteFunction = async (id: number) => {
     const result = await deleteField(id);
     if (result) {
-      queryClient.setQueryData(
-        ["fields_all"],
-        (current: FarmField[] | undefined) =>
-          current?.filter((entry) => entry.id !== id),
+      queryClient.setQueryData(["fields_all"], (current: FarmField[] | undefined) =>
+        current?.filter((entry) => entry.id !== id),
       );
     }
   };
@@ -418,9 +378,7 @@ export default function FieldsList(props?: {
           <p class={styles.headerTitle}>Field directory</p>
         </div>
         <div class={styles.headerActions}>
-          <Show when={props?.addButton}>
-            {props?.addButton && props?.addButton()}
-          </Show>
+          <Show when={props?.addButton}>{props?.addButton && props?.addButton()}</Show>
           <Show when={props?.disableSearch !== true}>
             <TextField
               size="small"

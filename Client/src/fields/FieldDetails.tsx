@@ -14,15 +14,7 @@ import {
 } from "@suid/material";
 import { A } from "@solidjs/router";
 import { createQuery, useQueryClient } from "@tanstack/solid-query";
-import {
-  createMemo,
-  createSignal,
-  createUniqueId,
-  For,
-  Show,
-  onCleanup,
-  onMount,
-} from "solid-js";
+import { createMemo, createSignal, createUniqueId, For, Show, onCleanup, onMount } from "solid-js";
 import Map from "ol/Map";
 import View from "ol/View";
 import XYZ from "ol/source/XYZ";
@@ -39,23 +31,16 @@ import { formatDate } from "../Utils";
 import { jwt_token } from "../App";
 import { FieldUpdateForm } from "../admin/fields/FieldEditForm";
 import { FieldEventForm } from "./FieldEventForm";
+import { FieldEventNote, FieldEventSummary } from "./FieldEventValueDisplay";
 import { HarvestForm } from "../harvest/HarvestForm";
 import { DrynessIndicator } from "../harvest/DrynessIndicator";
 import harvestStyles from "../harvest/Harvest.module.css";
-import {
-  formatArea,
-  getMapPolygonArea,
-  parseJsonIntoFeature,
-} from "../maps/Map";
+import { formatArea, getMapPolygonArea, parseJsonIntoFeature } from "../maps/Map";
 import "ol/ol.css";
 import "../maps/Map.css";
 import styles from "./FieldDetails.module.css";
 
-function FieldPreviewMap(props: {
-  field?: FarmField;
-  groupName: string;
-  drawColor: string;
-}) {
+function FieldPreviewMap(props: { field?: FarmField; groupName: string; drawColor: string }) {
   const mapId = createUniqueId();
   let mapElement: HTMLDivElement | undefined;
 
@@ -256,10 +241,7 @@ export function FieldDetails(props: { fieldId: number }) {
                       <div class={styles.titleRow}>
                         <p class={styles.eyebrow}>Field profile</p>
                         <Show when={jwt_token()}>
-                          <Button
-                            variant="contained"
-                            onClick={() => setIsEditing(true)}
-                          >
+                          <Button variant="contained" onClick={() => setIsEditing(true)}>
                             Edit field
                           </Button>
                         </Show>
@@ -333,7 +315,11 @@ export function FieldDetails(props: { fieldId: number }) {
                                   <TableCell>{formatDate(event.time)}</TableCell>
                                   <TableCell>{event.type_name}</TableCell>
                                   <TableCell>
-                                    <DrynessIndicator rating={event.dryness_rating} class={harvestStyles.drynessChip} compact />
+                                    <DrynessIndicator
+                                      rating={event.dryness_rating}
+                                      class={harvestStyles.drynessChip}
+                                      compact
+                                    />
                                   </TableCell>
                                   <TableCell align="right">{event.value}</TableCell>
                                 </TableRow>
@@ -372,7 +358,7 @@ export function FieldDetails(props: { fieldId: number }) {
                             <TableRow>
                               <TableCell>Date</TableCell>
                               <TableCell>Event</TableCell>
-                              <TableCell>Description</TableCell>
+                              <TableCell>Note</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -380,8 +366,20 @@ export function FieldDetails(props: { fieldId: number }) {
                               {(event) => (
                                 <TableRow>
                                   <TableCell>{formatDate(event.time)}</TableCell>
-                                  <TableCell>{event.event_name}</TableCell>
-                                  <TableCell>{event.description || "-"}</TableCell>
+                                  <TableCell>
+                                    <FieldEventSummary
+                                      event={event}
+                                      class={styles.eventSummaryCell}
+                                      typeClass={styles.eventTypeName}
+                                      valuesClass={styles.primaryValues}
+                                      valueClass={styles.primaryValue}
+                                      nameClass={styles.valueName}
+                                      formattedValueClass={styles.valueValue}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <FieldEventNote event={event} class={styles.noteValue} />
+                                  </TableCell>
                                 </TableRow>
                               )}
                             </For>
@@ -400,10 +398,7 @@ export function FieldDetails(props: { fieldId: number }) {
                   <p class={styles.eyebrow}>Logged-in tools</p>
                   <h2>Edit field details</h2>
                 </div>
-                <Button
-                  variant="outlined"
-                  onClick={() => setIsEditing(false)}
-                >
+                <Button variant="outlined" onClick={() => setIsEditing(false)}>
                   Back to field
                 </Button>
               </div>
@@ -412,10 +407,7 @@ export function FieldDetails(props: { fieldId: number }) {
                 <h1>{fieldData().name}</h1>
                 <p class={styles.editContextMeta}>{group()?.name ?? "Ungrouped field"}</p>
               </div>
-              <FieldUpdateForm
-                initial={fieldData()}
-                onSave={handleFieldSave}
-              />
+              <FieldUpdateForm initial={fieldData()} onSave={handleFieldSave} />
             </section>
           </Show>
         )}

@@ -2,4 +2,7 @@
 import type { HarvestEvent } from "./HarvestEvent";
 import type { HarvestParams } from "./HarvestParams";
 
-export type HarvestPagination = { params: HarvestParams, events: Array<HarvestEvent>, };
+export type HarvestPagination = {
+  params: HarvestParams;
+  events: Array<HarvestEvent>;
+};

@@ -4,21 +4,31 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
 } from "@suid/material";
-import { Accessor, createMemo, createSignal } from "solid-js";
+import { createQuery } from "@tanstack/solid-query";
+import { Accessor, createMemo, createSignal, For, Show } from "solid-js";
 import DatePicker, { PickerValue } from "@rnwonder/solid-date-picker";
 import "@rnwonder/solid-date-picker/dist/style.css";
 
 import { FieldEvent } from "../../bindings/FieldEvent";
+import { FieldEventType } from "../../bindings/FieldEventType";
+import { FieldEventValue } from "../../bindings/FieldEventValue";
 import { prepareAuth } from "../requests";
+import { FieldEventValueInput } from "./FieldEventValueInput";
+import { FieldEventValues, valuesForType } from "./fieldEventValues";
 import styles from "./FieldEventForm.module.css";
 
 async function createFieldEvent(
   fieldId: number,
-  eventName: string,
+  eventType: FieldEventType,
   time: string,
-  description: string,
+  values: FieldEventValues,
+  note: string,
 ): Promise<FieldEvent> {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
@@ -28,9 +38,11 @@ async function createFieldEvent(
   const payload: FieldEvent = {
     id: -1,
     field_id: fieldId,
-    event_name: eventName,
+    type_id: eventType.id,
+    type_name: eventType.name,
     time: new Date(time).toISOString(),
-    description: description.trim() ? description.trim() : null,
+    note: note.trim() ? note.trim() : null,
+    values,
   };
 
   const response = await fetch("/api/field_event", {
@@ -56,21 +68,30 @@ export function FieldEventForm(props: {
   onClose: () => void;
   onCreated: (event: FieldEvent) => void;
 }) {
-  const [eventName, setEventName] = createSignal("");
-  const [description, setDescription] = createSignal("");
+  const [typeId, setTypeId] = createSignal(-1);
+  const [values, setValues] = createSignal<FieldEventValues>({});
+  const [note, setNote] = createSignal("");
   const [date, setDate] = createSignal<PickerValue>({
     value: {},
     label: "",
   });
   const [showInvalid, setShowInvalid] = createSignal(false);
 
-  const canSave = createMemo(
-    () => eventName().trim().length > 0 && !!date().value.selected,
+  const eventTypes = createQuery<FieldEventType[]>(() => ({
+    queryKey: ["field_event_types"],
+    queryFn: () => fetch("/api/field_event_type").then((a) => a.json()),
+  }));
+
+  const selectedType = createMemo(() =>
+    eventTypes.data?.find((eventType) => eventType.id === typeId()),
   );
 
+  const canSave = createMemo(() => typeId() > 0 && !!date().value.selected);
+
   const resetForm = () => {
-    setEventName("");
-    setDescription("");
+    setTypeId(-1);
+    setValues({});
+    setNote("");
     setDate({
       value: {},
       label: "",
@@ -78,18 +99,27 @@ export function FieldEventForm(props: {
     setShowInvalid(false);
   };
 
+  const setFieldValue = (name: string, value: FieldEventValue) => {
+    setValues((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
   const save = async () => {
     setShowInvalid(true);
     const selected = date().value.selected;
-    if (!selected || eventName().trim().length === 0) {
+    const eventType = selectedType();
+    if (!selected || !eventType) {
       return;
     }
 
     const result = await createFieldEvent(
       props.fieldId,
-      eventName().trim(),
+      eventType,
       selected,
-      description(),
+      valuesForType(eventType, values()),
+      note(),
     );
     resetForm();
     props.onCreated(result);
@@ -106,13 +136,28 @@ export function FieldEventForm(props: {
     >
       <DialogTitle class={styles.dialogTitle}>New field event</DialogTitle>
       <DialogContent class={styles.dialogContent}>
-        <TextField
-          class={styles.field}
-          label="Event name"
-          size="small"
-          value={eventName()}
-          onChange={(event) => setEventName(event.currentTarget.value)}
-        />
+        <FormControl fullWidth class={styles.field}>
+          <InputLabel shrink id="field-event-type">
+            Event type
+          </InputLabel>
+          <Select
+            labelId="field-event-type"
+            label="Event type"
+            notched
+            value={typeId()}
+            onChange={(event) => {
+              const nextTypeId = Number(event.target.value);
+              const nextType = eventTypes.data?.find((item) => item.id === nextTypeId);
+              setTypeId(nextTypeId);
+              setValues(valuesForType(nextType));
+            }}
+          >
+            <MenuItem value={-1}>Select type</MenuItem>
+            <For each={eventTypes.data ?? []}>
+              {(eventType) => <MenuItem value={eventType.id}>{eventType.name}</MenuItem>}
+            </For>
+          </Select>
+        </FormControl>
 
         <div class={styles.dateRow}>
           <DatePicker
@@ -122,10 +167,9 @@ export function FieldEventForm(props: {
             value={date}
             setValue={setDate}
             inputWrapperClass={styles.dateInputWrapper}
-            inputClass={`${styles.dateInput} ${showInvalid() && !date().value.selected
-                ? styles.dateInputInvalid
-                : ""
-              }`}
+            inputClass={`${styles.dateInput} ${
+              showInvalid() && !date().value.selected ? styles.dateInputInvalid : ""
+            }`}
             shouldCloseOnSelect
           />
           <Button
@@ -145,13 +189,28 @@ export function FieldEventForm(props: {
 
         <TextField
           class={styles.field}
-          label="Description"
+          label="Note"
           size="small"
           multiline
           minRows={3}
-          value={description()}
-          onChange={(event) => setDescription(event.currentTarget.value)}
+          value={note()}
+          onChange={(_event, nextNote) => setNote(nextNote)}
         />
+
+        <Show when={selectedType()}>
+          {(eventType) => (
+            <For each={eventType().fields}>
+              {(field) => (
+                <FieldEventValueInput
+                  field={field}
+                  value={values()[field.name]}
+                  class={styles.field}
+                  onValue={(value) => setFieldValue(field.name, value)}
+                />
+              )}
+            </For>
+          )}
+        </Show>
       </DialogContent>
       <DialogActions class={styles.dialogActions}>
         <Button

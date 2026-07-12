@@ -32,19 +32,18 @@ export function formatArea(polygon: Polygon | number | Geometry): string {
 export function getMapPolygonArea(mapPolygonString: string): number {
   try {
     const json = JSON.parse(mapPolygonString);
-    const feature: Feature<Geometry> = new GeoJSON().readFeature(json);
-    return getArea(feature.getGeometry() as Polygon);
+    const featureResult = new GeoJSON().readFeature(json) as
+      Feature<Geometry> | Feature<Geometry>[];
+    const feature = Array.isArray(featureResult) ? featureResult[0] : featureResult;
+    const geometry = feature?.getGeometry();
+    return geometry instanceof Polygon ? getArea(geometry) : -1;
   } catch (e) {
     console.error(e);
     return -1;
   }
 }
 
-export function formatSelectedDiv(
-  fieldName: string,
-  fieldGroup: string,
-  area: string,
-) {
+export function formatSelectedDiv(fieldName: string, fieldGroup: string, area: string) {
   return (
     "<div><p>Navn: " +
     fieldName +
@@ -62,7 +61,13 @@ export function parseJsonIntoFeature(
 ): Feature<Geometry> | null {
   try {
     const json = JSON.parse(field.map_polygon_string);
-    const feature: Feature<Geometry> = new GeoJSON().readFeature(json);
+    const featureResult = new GeoJSON().readFeature(json) as
+      Feature<Geometry> | Feature<Geometry>[];
+    const feature = Array.isArray(featureResult) ? featureResult[0] : featureResult;
+    if (!feature) {
+      return null;
+    }
+
     feature.set("name", field.name);
     feature.set("group-name", groupName);
     return feature;
@@ -73,10 +78,7 @@ export function parseJsonIntoFeature(
   }
 }
 
-export function fromGroupFieldsToLayer(
-  group: FarmFieldGroup,
-  fields: FarmField[],
-) {
+export function fromGroupFieldsToLayer(group: FarmFieldGroup, fields: FarmField[]) {
   const fieldFeatures: Feature<Geometry>[] = fields
     .map((f) => parseJsonIntoFeature(f, group.name))
     .filter((x): x is Feature<Geometry> => {
@@ -160,17 +162,16 @@ export function NoEditMap() {
       if (e.selected.length == 1) {
         const selected: Feature<Geometry> = e.selected[0];
         const x = selected.getProperties();
-        const y: Polygon = selected
-          .getGeometry()
-          ?.simplifyTransformedInternal();
+        const geometry = selected.getGeometry();
+        if (!(geometry instanceof Polygon)) {
+          return;
+        }
+
+        const y = geometry.simplifyTransformedInternal() as Polygon;
         const selectedCoords = y.getInteriorPoint().getCoordinates();
 
         selectElement.className = "ol-tooltip";
-        selectElement.innerHTML = formatSelectedDiv(
-          x["name"],
-          x["group-name"],
-          formatArea(y),
-        );
+        selectElement.innerHTML = formatSelectedDiv(x["name"], x["group-name"], formatArea(y));
         selectOverlay.setPosition(selectedCoords);
       } else {
         console.log("unselecting");
@@ -184,7 +185,10 @@ export function NoEditMap() {
   return (
     <>
       <MetaProvider>
-        <Meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <Meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        />
         <main>
           <div id="map_container" class="map"></div>
         </main>

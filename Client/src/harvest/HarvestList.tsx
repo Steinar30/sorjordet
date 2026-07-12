@@ -1,7 +1,25 @@
-import { createInfiniteQuery, createQuery, InfiniteData, useQueryClient } from "@tanstack/solid-query";
+import {
+  createInfiniteQuery,
+  createQuery,
+  InfiniteData,
+  useQueryClient,
+} from "@tanstack/solid-query";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
-import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@suid/material";
+import {
+  Button,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@suid/material";
 import { HarvestPagination } from "../../bindings/HarvestPagination";
 import { ConfirmDeleteDialog, formatDate, getYearRangeSinceYearToCurrent } from "../Utils";
 import { FarmFieldMeta } from "../../bindings/FarmFieldMeta";
@@ -20,11 +38,16 @@ const years = getYearRangeSinceYearToCurrent(2022);
 // todo make this configurable maybe
 const page_size = 100;
 
-const getHarvestEvents = async (page: number, year: number, field_id?: number, group_id?: number) => {
+const getHarvestEvents = async (
+  page: number,
+  year: number,
+  field_id?: number,
+  group_id?: number,
+) => {
   const url = new URL(document.location.origin + "/api/harvest_event");
   url.searchParams.append("page", page.toString());
-  url.searchParams.append("page_size", page_size.toString())
-  url.searchParams.append("year", year.toString())
+  url.searchParams.append("page_size", page_size.toString());
+  url.searchParams.append("year", year.toString());
   if (field_id) {
     url.searchParams.append("field_id", field_id.toString());
   }
@@ -33,7 +56,7 @@ const getHarvestEvents = async (page: number, year: number, field_id?: number, g
   }
   const result: Promise<HarvestPagination> = fetch(url).then((a) => a.json());
   return (await result).events;
-}
+};
 
 const deleteHarvestEvent = async (id: number) => {
   const authHeaders = prepareAuth(true);
@@ -68,19 +91,27 @@ export default function HarvestList() {
   }));
 
   const fieldLookup = createMemo(() => {
-    const m = new Map<number, { group: FarmFieldGroupMeta, field: FarmFieldMeta }>();
-    groups.data?.forEach(g => g.fields.forEach(f => m.set(f.id, { group: g, field: f })))
+    const m = new Map<number, { group: FarmFieldGroupMeta; field: FarmFieldMeta }>();
+    groups.data?.forEach((g) => g.fields.forEach((f) => m.set(f.id, { group: g, field: f })));
     return m;
-  }, [groups.data])
+  }, [groups.data]);
 
-  const harvestEvents = createInfiniteQuery<HarvestEvent[], Error, InfiniteData<HarvestEvent[], unknown>, ["harvestEventsInfinite", number, number, number]>(() => ({
+  const harvestEvents = createInfiniteQuery<
+    HarvestEvent[],
+    Error,
+    InfiniteData<HarvestEvent[], unknown>,
+    ["harvestEventsInfinite", number, number, number]
+  >(() => ({
     queryKey: ["harvestEventsInfinite", year(), field()?.id || -1, fieldGroup()?.id || -1],
-    queryFn: (param) => getHarvestEvents(param.pageParam as number, year(), field()?.id, fieldGroup()?.id),
+    queryFn: (param) =>
+      getHarvestEvents(param.pageParam as number, year(), field()?.id, fieldGroup()?.id),
     keepPreviousData: true,
     initialPageParam: 1,
-    getNextPageParam: (lastPage: HarvestEvent[], allPages: HarvestEvent[][]) => lastPage.length < page_size ? undefined : allPages.length + 1,
-    getPreviousPageParam: (firstPage: HarvestEvent[], allPages: HarvestEvent[][]) => firstPage.length < page_size ? undefined : allPages.length - 1
-  }))
+    getNextPageParam: (lastPage: HarvestEvent[], allPages: HarvestEvent[][]) =>
+      lastPage.length < page_size ? undefined : allPages.length + 1,
+    getPreviousPageParam: (firstPage: HarvestEvent[], allPages: HarvestEvent[][]) =>
+      firstPage.length < page_size ? undefined : allPages.length - 1,
+  }));
 
   function handleCreateNewEvent(event: ValidHarvest) {
     setCreateNew(false);
@@ -132,13 +163,13 @@ export default function HarvestList() {
       setSelectedHarvest({
         harvest: harvestEvent,
         field: values.field,
-        group: values.group
-      })
+        group: values.group,
+      });
     };
 
     return (
       <main class={styles.harvestPage}>
-        <Show when={createNew()} >
+        <Show when={createNew()}>
           <HarvestForm
             isOpen={createNew}
             selectHarvest={handleCreateNewEvent}
@@ -213,7 +244,7 @@ export default function HarvestList() {
                   setFieldGroup(undefined);
                   setField(undefined);
                 }
-                const g = groups.data?.find(x => x.id === value.target.value);
+                const g = groups.data?.find((x) => x.id === value.target.value);
                 if (g) {
                   setFieldGroup(g);
                 }
@@ -241,16 +272,16 @@ export default function HarvestList() {
                 if (value.target.value === -1) {
                   setField(undefined);
                 }
-                const g = fieldGroup()?.fields.find(x => x.id === value.target.value);
+                const g = fieldGroup()?.fields.find((x) => x.id === value.target.value);
                 if (g) {
                   setField(g);
                 }
               }}
             >
               <MenuItem value={-1}>All</MenuItem>
-              {fieldGroup()?.fields.map(field =>
+              {fieldGroup()?.fields.map((field) => (
                 <MenuItem value={field.id}>{field.name}</MenuItem>
-              )}
+              ))}
             </Select>
           </FormControl>
         </section>
@@ -295,7 +326,11 @@ export default function HarvestList() {
                           </TableCell>
                           <TableCell>{harvestEvent.type_name}</TableCell>
                           <TableCell>
-                            <DrynessIndicator rating={harvestEvent.dryness_rating} class={styles.drynessChip} compact />
+                            <DrynessIndicator
+                              rating={harvestEvent.dryness_rating}
+                              class={styles.drynessChip}
+                              compact
+                            />
                           </TableCell>
                           <Show when={isAdmin}>
                             <TableCell>
@@ -303,12 +338,11 @@ export default function HarvestList() {
                                 size="small"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setToDelete(harvestEvent.id)
+                                  setToDelete(harvestEvent.id);
                                 }}
                               >
                                 <Delete />
                               </IconButton>
-
                             </TableCell>
                           </Show>
                         </TableRow>
@@ -344,7 +378,7 @@ export default function HarvestList() {
                           size="small"
                           onClick={(event) => {
                             event.stopPropagation();
-                            setToDelete(harvestEvent.id)
+                            setToDelete(harvestEvent.id);
                           }}
                         >
                           <Delete />
@@ -357,7 +391,13 @@ export default function HarvestList() {
                       { label: "Type", value: harvestEvent.type_name },
                       {
                         label: "Dryness",
-                        value: <DrynessIndicator rating={harvestEvent.dryness_rating} class={`${styles.drynessChip} ${styles.harvestCardDryness}`} compact />,
+                        value: (
+                          <DrynessIndicator
+                            rating={harvestEvent.dryness_rating}
+                            class={`${styles.drynessChip} ${styles.harvestCardDryness}`}
+                            compact
+                          />
+                        ),
                       },
                     ]}
                     onClick={() => selectHarvestEvent(harvestEvent)}
@@ -382,9 +422,7 @@ export default function HarvestList() {
   }
 
   return (
-    <div
-      class={styles.harvestListRoot}
-    >
+    <div class={styles.harvestListRoot}>
       <Show
         when={jwt_token()}
         fallback={
@@ -394,13 +432,13 @@ export default function HarvestList() {
         }
       >
         <Show when={selectedHarvest()} fallback={<RenderHarvestList />}>
-          {(harvest) =>
+          {(harvest) => (
             <Harvest
               selectedHarvest={harvest}
               setSelectedHarvest={setSelectedHarvest}
               onHarvestUpdated={handleHarvestUpdated}
             />
-          }
+          )}
         </Show>
       </Show>
     </div>

@@ -78,10 +78,7 @@ export default function UserAdmin() {
         <div class={styles.mobileCards}>
           <For each={users.data}>
             {(user) => (
-              <article
-                class={styles.mobileCard}
-                onClick={() => setEditForm(user)}
-              >
+              <article class={styles.mobileCard} onClick={() => setEditForm(user)}>
                 <div class={styles.mobileCardTop}>
                   <div>
                     <h3 class={styles.mobileCardTitle}>{user.name}</h3>

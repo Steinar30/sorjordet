@@ -52,10 +52,8 @@ describe("Login Component", () => {
   it("shows an alert error message upon failed login api response", async () => {
     // Setup fetch mock failure
     const spyFetch = vi
-      .spyOn(global, "fetch")
-      .mockResolvedValue(
-        mockResponse({ result: false, message: "Feil passord" }),
-      );
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(mockResponse({ result: false, message: "Feil passord" }));
 
     const { container } = render(() => (
       <Router>
@@ -79,7 +77,7 @@ describe("Login Component", () => {
 
   it("saves token and redirects home upon successful login", async () => {
     // Setup fetch mock success
-    vi.spyOn(global, "fetch").mockResolvedValue(
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
       mockResponse({ result: true, token: "mocked-valid-jwt" }),
     );
 
@@ -99,7 +97,10 @@ describe("Login Component", () => {
 
     // Verify redirection and storage updates
     await vi.waitFor(() => {
-      expect(window.localStorage.setItem).toHaveBeenCalledWith(jwt_localstore_key, "mocked-valid-jwt");
+      expect(window.localStorage.setItem).toHaveBeenCalledWith(
+        jwt_localstore_key,
+        "mocked-valid-jwt",
+      );
     });
   });
 });

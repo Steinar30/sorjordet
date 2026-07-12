@@ -30,7 +30,7 @@ const updateHarvestType = (harvestType: HarvestType) => {
   return fetch(`/api/harvest_type/${harvestType.id}`, {
     method: "PATCH",
     body: JSON.stringify(harvestType),
-    headers: authHeaders
+    headers: authHeaders,
   });
 };
 
@@ -43,7 +43,7 @@ const createHarvestType = (harvestType: HarvestType) => {
   return fetch(`/api/harvest_type`, {
     method: "POST",
     body: JSON.stringify(harvestType),
-    headers: authHeaders
+    headers: authHeaders,
   });
 };
 
@@ -60,7 +60,7 @@ export default function HarvestTypes() {
     <main class={styles.page}>
       <Dialog
         open={addForm() !== undefined || editForm() !== undefined}
-        onClose={() => addForm() != undefined ? setAddForm(undefined) : setEditForm(undefined)}
+        onClose={() => (addForm() != undefined ? setAddForm(undefined) : setEditForm(undefined))}
         classes={{ paper: styles.dialogPaper }}
       >
         <DialogTitle class={styles.dialogTitle}>
@@ -93,9 +93,11 @@ export default function HarvestTypes() {
           </Show>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => addForm() ? setAddForm(undefined) : setEditForm(undefined)}>Cancel</Button>
+          <Button onClick={() => (addForm() ? setAddForm(undefined) : setEditForm(undefined))}>
+            Cancel
+          </Button>
           <Show when={addForm()}>
-            {(toAdd =>
+            {(toAdd) => (
               <Button
                 variant="contained"
                 onClick={async () => {
@@ -111,18 +113,20 @@ export default function HarvestTypes() {
             )}
           </Show>
           <Show when={editForm()}>
-            {update => (<Button
-              variant="contained"
-              onClick={async () => {
-                const n = await updateHarvestType(update());
-                if (n?.ok) {
-                  setEditForm(undefined);
-                  harvestTypes.refetch();
-                }
-              }}
-            >
-              Save
-            </Button>)}
+            {(update) => (
+              <Button
+                variant="contained"
+                onClick={async () => {
+                  const n = await updateHarvestType(update());
+                  if (n?.ok) {
+                    setEditForm(undefined);
+                    harvestTypes.refetch();
+                  }
+                }}
+              >
+                Save
+              </Button>
+            )}
           </Show>
         </DialogActions>
       </Dialog>
@@ -144,45 +148,42 @@ export default function HarvestTypes() {
         <>
           <div class={styles.tableCard}>
             <TableContainer class={styles.tableWrap}>
-            <Table size="small" class={styles.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Id</TableCell>
-                  <TableCell>Harvest Type</TableCell>
-                  <TableCell class={styles.mobileActionCell}></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {harvestTypes.data?.map((harvestType) => (
-                  <TableRow
-                    class={`${styles.row} ${styles.clickableRow}`}
-                    onClick={() => setEditForm(harvestType)}
-                  >
-                    <TableCell>{harvestType.id}</TableCell>
-                    <TableCell>{harvestType.name}</TableCell>
-                    <TableCell class={styles.mobileActionCell}>
-                      <IconButton
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setEditForm(harvestType);
-                        }}
-                      >
-                        <Edit />
-                      </IconButton>
-                    </TableCell>
+              <Table size="small" class={styles.table}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Id</TableCell>
+                    <TableCell>Harvest Type</TableCell>
+                    <TableCell class={styles.mobileActionCell}></TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {harvestTypes.data?.map((harvestType) => (
+                    <TableRow
+                      class={`${styles.row} ${styles.clickableRow}`}
+                      onClick={() => setEditForm(harvestType)}
+                    >
+                      <TableCell>{harvestType.id}</TableCell>
+                      <TableCell>{harvestType.name}</TableCell>
+                      <TableCell class={styles.mobileActionCell}>
+                        <IconButton
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setEditForm(harvestType);
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </div>
           <div class={styles.mobileCards}>
             <For each={harvestTypes.data}>
               {(harvestType) => (
-                <article
-                  class={styles.mobileCard}
-                  onClick={() => setEditForm(harvestType)}
-                >
+                <article class={styles.mobileCard} onClick={() => setEditForm(harvestType)}>
                   <div class={styles.mobileCardTop}>
                     <div>
                       <h3 class={styles.mobileCardTitle}>{harvestType.name}</h3>

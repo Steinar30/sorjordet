@@ -18,10 +18,7 @@ function validateInput(group: UserInfo): boolean {
   return group.name.length > 0 && group.email.length > 0;
 }
 
-const createUser = async (
-  user: UserInfo,
-  password: string,
-): Promise<UserInfo | null> => {
+const createUser = async (user: UserInfo, password: string): Promise<UserInfo | null> => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
     console.log("not allowed to post without bearer token");
@@ -45,8 +42,7 @@ const createUser = async (
 };
 
 const generateRandomPassword = () => {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   for (let i = 0; i < 20; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -80,10 +76,7 @@ const updateUser = async (
   }
 };
 
-export function UserForm(props: {
-  onCreate: (user: UserInfo) => void;
-  toEdit?: UserInfo;
-}) {
+export function UserForm(props: { onCreate: (user: UserInfo) => void; toEdit?: UserInfo }) {
   const [form, setForm] = createStore<UserInfo>(
     props.toEdit || {
       id: -1,
@@ -100,9 +93,7 @@ export function UserForm(props: {
     });
   };
 
-  const [newPassword, setNewPassword] = createSignal(
-    props.toEdit === undefined,
-  );
+  const [newPassword, setNewPassword] = createSignal(props.toEdit === undefined);
 
   const PasswordContainer = () => {
     return (
@@ -127,9 +118,7 @@ export function UserForm(props: {
     <div class={styles.formShell}>
       <div class={styles.header}>
         <p class={styles.eyebrow}>Admin editor</p>
-        <Typography variant="h6">
-          {props.toEdit ? "Edit user" : "Add user"}
-        </Typography>
+        <Typography variant="h6">{props.toEdit ? "Edit user" : "Add user"}</Typography>
       </div>
       <p class={styles.intro}>
         {props.toEdit
@@ -155,10 +144,7 @@ export function UserForm(props: {
         onChange={updateField("email")}
       />
 
-      <Show
-        when={props.toEdit !== undefined}
-        fallback={<PasswordContainer />}
-      >
+      <Show when={props.toEdit !== undefined} fallback={<PasswordContainer />}>
         <FormControlLabel
           control={
             <Checkbox
@@ -181,10 +167,7 @@ export function UserForm(props: {
         variant="contained"
         onClick={async () => {
           if (props.toEdit !== undefined) {
-            const result = await updateUser(
-              form,
-              newPassword() ? password() : undefined,
-            );
+            const result = await updateUser(form, newPassword() ? password() : undefined);
             if (result) {
               props.onCreate(result);
             }
