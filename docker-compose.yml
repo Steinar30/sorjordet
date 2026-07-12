@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sorjordet}
+      POSTGRES_USER: ${POSTGRES_USER:-sorjordet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sorjordet}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - sorjordet-postgres-data:/var/lib/postgresql/data
+      - ./migrations:/migrations:ro
+      - ./scripts/dev-db-init.sh:/docker-entrypoint-initdb.d/10-dev-db-init.sh:ro
+      - ./scripts/seed-dev.sql:/seed/seed-dev.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sorjordet-postgres-data:
