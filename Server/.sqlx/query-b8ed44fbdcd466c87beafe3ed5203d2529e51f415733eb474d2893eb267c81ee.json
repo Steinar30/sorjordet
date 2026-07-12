@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT e.id, e.time, e.field_id, t.id as type_id, t.name as type_name, e.note, e.values as \"values: SqlxJson<HashMap<String, FieldEventValue>>\"\n         FROM field_event e\n         JOIN field_event_type t ON t.id = e.field_event_type_id\n         ORDER BY e.time DESC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "time",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "field_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "type_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "type_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "note",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "values: SqlxJson<HashMap<String, FieldEventValue>>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "b8ed44fbdcd466c87beafe3ed5203d2529e51f415733eb474d2893eb267c81ee"
+}

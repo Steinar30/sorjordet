@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, time, field_id, event_name, description \n                FROM field_event\n                WHERE field_id = $1\n                ORDER BY time DESC\n            ",
+  "query": "SELECT id, field_event_type_id, name, value_kind, unit\n         FROM field_event_type_field\n         ORDER BY id",
   "describe": {
     "columns": [
       {
@@ -10,29 +10,27 @@
       },
       {
         "ordinal": 1,
-        "name": "time",
-        "type_info": "Timestamptz"
-      },
-      {
-        "ordinal": 2,
-        "name": "field_id",
+        "name": "field_event_type_id",
         "type_info": "Int4"
       },
       {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
         "ordinal": 3,
-        "name": "event_name",
+        "name": "value_kind",
         "type_info": "Varchar"
       },
       {
         "ordinal": 4,
-        "name": "description",
+        "name": "unit",
         "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": [
-        "Int4"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -42,5 +40,5 @@
       true
     ]
   },
-  "hash": "10c7df0244e22f0ba0c1827ce1b11497afad9e3ce3ef2bade2a3e031593e07db"
+  "hash": "4b4091e85be10acd10ceeab1a8521cb415b416f3d5755d7a85f996d87969a840"
 }

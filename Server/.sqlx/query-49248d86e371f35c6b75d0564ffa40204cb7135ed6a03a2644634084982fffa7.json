@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT name, value_kind, unit\n         FROM field_event_type_field\n         WHERE field_event_type_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "value_kind",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "unit",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "49248d86e371f35c6b75d0564ffa40204cb7135ed6a03a2644634084982fffa7"
+}

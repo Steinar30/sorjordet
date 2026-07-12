@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM field_event_type_field WHERE field_event_type_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e925a73fae94470af91653f7a3c26dff1d8195fe29cd598dd659c626b79a587f"
+}
