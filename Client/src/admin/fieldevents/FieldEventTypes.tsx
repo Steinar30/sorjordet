@@ -1,6 +1,7 @@
 import { createQuery } from "@tanstack/solid-query";
 import { createSignal, For, Index, Show } from "solid-js";
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -48,6 +49,9 @@ async function saveFieldEventType(eventType: FieldEventType) {
       )
       .map((field) => ({
         ...field,
+        // Field IDs are ignored when the server inserts them. Keep temporary
+        // client IDs inside the API's signed 32-bit integer range.
+        id: field.id > 0 ? field.id : -1,
         name: field.name.trim(),
         unit: field.value_kind === "unit_int" && field.unit?.trim() ? field.unit.trim() : null,
       })),
@@ -79,8 +83,10 @@ async function deleteFieldEventType(typeId: number) {
   return response.ok;
 }
 
+let nextTemporaryFieldId = -1;
+
 const newField = (): FieldEventTypeField => ({
-  id: -Date.now(),
+  id: nextTemporaryFieldId--,
   name: "",
   value_kind: "text",
   unit: null,
@@ -89,6 +95,7 @@ const newField = (): FieldEventTypeField => ({
 export default function FieldEventTypes() {
   const [form, setForm] = createSignal<FieldEventType | undefined>(undefined);
   const [toDelete, setToDelete] = createSignal<FieldEventType | undefined>(undefined);
+  const [saveError, setSaveError] = createSignal<string | undefined>(undefined);
 
   const eventTypes = createQuery<FieldEventType[]>(() => ({
     queryKey: ["field_event_types"],
@@ -115,23 +122,27 @@ export default function FieldEventTypes() {
     <main class={styles.page}>
       <Dialog
         open={form() !== undefined}
-        onClose={() => setForm(undefined)}
+        onClose={() => {
+          setForm(undefined);
+          setSaveError(undefined);
+        }}
         classes={{ paper: styles.dialogPaper }}
       >
         <DialogTitle class={styles.dialogTitle}>
           {form()?.id && form()!.id > 0 ? `Update ${form()?.name ?? ""}` : "Add field event type"}
         </DialogTitle>
         <DialogContent class={styles.dialogContent}>
+          <Show when={saveError()}>{(message) => <Alert severity="error">{message()}</Alert>}</Show>
           <TextField
             fullWidth
             label="Name"
             variant="outlined"
             size="small"
             value={form()?.name ?? ""}
-            onChange={(event) => {
+            onChange={(_event, nextName) => {
               const current = form();
               if (current) {
-                updateForm({ ...current, name: event.currentTarget.value });
+                updateForm({ ...current, name: nextName });
               }
             }}
           />
@@ -143,9 +154,9 @@ export default function FieldEventTypes() {
                   label="Field"
                   size="small"
                   value={field().name}
-                  onInput={(event) =>
+                  onChange={(_event, nextName) =>
                     updateField(index, {
-                      name: (event.currentTarget as HTMLInputElement).value,
+                      name: nextName,
                     })
                   }
                 />
@@ -157,8 +168,7 @@ export default function FieldEventTypes() {
                     value={field().value_kind}
                     onChange={(event) =>
                       updateField(index, {
-                        value_kind: (event.currentTarget as HTMLSelectElement)
-                          .value as FieldEventValueKind,
+                        value_kind: event.target.value as FieldEventValueKind,
                       })
                     }
                   >
@@ -174,9 +184,9 @@ export default function FieldEventTypes() {
                     label="Unit"
                     size="small"
                     value={field().unit ?? ""}
-                    onInput={(event) =>
+                    onChange={(_event, nextUnit) =>
                       updateField(index, {
-                        unit: (event.currentTarget as HTMLInputElement).value,
+                        unit: nextUnit,
                       })
                     }
                   />
@@ -215,7 +225,14 @@ export default function FieldEventTypes() {
           </Button>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setForm(undefined)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setForm(undefined);
+              setSaveError(undefined);
+            }}
+          >
+            Cancel
+          </Button>
           <Button
             variant="contained"
             disabled={!form()?.name.trim()}
@@ -225,10 +242,17 @@ export default function FieldEventTypes() {
                 return;
               }
 
-              const success = await saveFieldEventType(current);
-              if (success) {
-                setForm(undefined);
-                await eventTypes.refetch();
+              setSaveError(undefined);
+              try {
+                const success = await saveFieldEventType(current);
+                if (success) {
+                  setForm(undefined);
+                  await eventTypes.refetch();
+                } else {
+                  setSaveError("The field event type could not be saved. Please try again.");
+                }
+              } catch {
+                setSaveError("The field event type could not be saved. Please try again.");
               }
             }}
           >
@@ -264,7 +288,10 @@ export default function FieldEventTypes() {
           class={styles.heroAction}
           size="small"
           variant="contained"
-          onClick={() => setForm({ id: -1, name: "", fields: [] })}
+          onClick={() => {
+            setSaveError(undefined);
+            setForm({ id: -1, name: "", fields: [] });
+          }}
         >
           New type
         </Button>
