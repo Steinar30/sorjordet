@@ -1,4 +1,7 @@
 import HarvestChart from "./HarvestChart";
+import { Button } from "@suid/material";
+import { A } from "@solidjs/router";
+import InsightsRounded from "@suid/icons-material/InsightsRounded";
 
 import styles from "./Stats.module.css";
 import GroupHarvestChart from "./GroupHarvestChart";
@@ -32,9 +35,19 @@ export default function Stats() {
 
   return (
     <main class={styles.page}>
-      <section class={styles.hero}>
-        <p class={styles.eyebrow}>Farm analytics</p>
-        <h1>Harvest overview</h1>
+      <section class={`${styles.hero} ${styles.heroWithActions}`}>
+        <div>
+          <p class={styles.eyebrow}>Farm analytics</p>
+          <h1>Harvest overview</h1>
+        </div>
+        <Button
+          component={A}
+          href="/stats/explorer"
+          variant="contained"
+          startIcon={<InsightsRounded />}
+        >
+          Explore the data
+        </Button>
       </section>
 
       <section class={styles.chartGrid} aria-label="Farm statistics charts">

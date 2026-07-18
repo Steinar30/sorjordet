@@ -186,6 +186,7 @@ const App: Component = () => {
         />
         <Route path="/login" component={lazy(() => import("./login/Login"))} />
         <Route path="/stats" component={lazy(() => import("./stats/Stats"))} />
+        <Route path="/stats/explorer" component={lazy(() => import("./stats/StatsExplorerPage"))} />
         <Route path="/admin" component={lazy(() => import("./admin/Admin"))} />
         <Route path="/harvest" component={lazy(() => import("./harvest/HarvestList"))} />
         <Route path="/field-events" component={lazy(() => import("./fields/FieldEvents"))} />

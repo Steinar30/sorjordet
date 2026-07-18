@@ -68,6 +68,171 @@
   min-height: 0;
 }
 
+.heroWithActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.explorerPageCard {
+  padding: 16px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(245, 249, 245, 0.88)),
+    rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 42px rgba(18, 33, 28, 0.08);
+}
+
+.explorer {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.explorerPresets {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 2px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.explorerPresetButton {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.explorerControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(96px, 0.65fr)) repeat(3, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(32, 52, 50, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(244, 248, 244, 0.72);
+}
+
+.explorerControl,
+.explorerControlWide {
+  min-width: 0 !important;
+}
+
+.explorerInsights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.explorerInsightCard {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(40, 80, 66, 0.1);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top right, rgba(126, 163, 129, 0.15), transparent 48%),
+    rgba(250, 252, 248, 0.92);
+}
+
+.explorerInsightCard p {
+  margin: 0;
+  color: rgba(35, 50, 47, 0.55);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.explorerInsightCard strong {
+  color: var(--dark-text-color);
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  line-height: 1.25;
+}
+
+.explorerInsightCard span {
+  color: rgba(32, 52, 50, 0.65);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.explorerBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.85fr);
+  gap: 14px;
+  min-width: 0;
+}
+
+.explorerChart,
+.explorerTableWrap {
+  min-width: 0;
+  border: 1px solid rgba(32, 52, 50, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.explorerChart {
+  height: 520px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.explorerEmpty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  margin: 0;
+  color: rgba(32, 52, 50, 0.58);
+  text-align: center;
+}
+
+.explorerTableWrap {
+  max-height: 520px;
+  overflow: auto;
+}
+
+.explorerTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.explorerTable caption {
+  padding: 13px 14px 8px;
+  color: rgba(32, 52, 50, 0.55);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.explorerTable th,
+.explorerTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(32, 52, 50, 0.07);
+  text-align: left;
+  vertical-align: top;
+}
+
+.explorerTable th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: rgba(32, 52, 50, 0.68);
+  background: rgba(242, 247, 242, 0.97);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.explorerTable tbody tr:hover {
+  background: rgba(68, 106, 91, 0.045);
+}
+
 @media (max-width: 820px) {
   .chartGrid {
     grid-template-columns: 1fr;
@@ -76,6 +241,23 @@
   .card,
   .wideCard {
     min-height: 360px;
+  }
+
+  .explorerControls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .explorerControlWide:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .explorerInsights,
+  .explorerBody {
+    grid-template-columns: 1fr;
+  }
+
+  .explorerChart {
+    height: 430px;
   }
 }
 
@@ -87,5 +269,32 @@
 
   .card {
     padding: 10px;
+  }
+
+  .heroWithActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heroWithActions a {
+    width: 100%;
+  }
+
+  .explorerPageCard {
+    padding: 10px;
+  }
+
+  .explorerControls {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .explorerControlWide:last-child {
+    grid-column: auto;
+  }
+
+  .explorerChart {
+    height: 360px;
+    padding: 4px;
   }
 }
