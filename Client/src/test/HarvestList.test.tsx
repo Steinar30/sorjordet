@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@solidjs/testing-library";
+import { render, screen, fireEvent, within } from "@solidjs/testing-library";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import HarvestList from "../harvest/HarvestList";
@@ -30,6 +30,7 @@ describe("HarvestList Component", () => {
       fields: [
         { id: 10, name: "Jordet 1" },
         { id: 11, name: "Jordet 2" },
+        { id: 12, name: "Jordet 3" },
       ],
     },
   ];
@@ -45,7 +46,34 @@ describe("HarvestList Component", () => {
         type_id: 1,
         dryness_rating: null,
       },
+      {
+        id: 101,
+        value: 30,
+        time: "2026-06-24T10:00:00Z",
+        field_id: 10,
+        type_name: "Gress",
+        type_id: 1,
+        dryness_rating: 2,
+      },
+      {
+        id: 102,
+        value: 25,
+        time: "2026-07-24T10:00:00Z",
+        field_id: 11,
+        type_name: "Gress",
+        type_id: 1,
+        dryness_rating: 3,
+      },
     ],
+  };
+
+  const findDialogByTitle = async (title: string) => {
+    const titleElement = await screen.findByText(title);
+    const dialog = titleElement.closest<HTMLElement>('[role="dialog"]');
+    if (!dialog) {
+      throw new Error(`Could not find dialog containing "${title}"`);
+    }
+    return dialog;
   };
 
   beforeEach(() => {
@@ -107,6 +135,55 @@ describe("HarvestList Component", () => {
     expect(screen.getAllByText("Jordet 1").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Nordmarka").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Gress").length).toBeGreaterThan(0);
+
+    const summary = await screen.findByRole("region", { name: "Harvest summary for 2026" });
+    expect(within(summary).getByText("100")).toBeInTheDocument();
+    expect(within(summary).getByText("2 / 3")).toBeInTheDocument();
+    expect(within(summary).getByText("1 / 3")).toBeInTheDocument();
+    expect(within(summary).getByText("1 field without a harvest")).toBeInTheDocument();
+  });
+
+  it("lists fields missing their first harvest and starts a preselected harvest", async () => {
+    set_jwt_token("mock-token-admin");
+
+    render(() => (
+      <QueryClientProvider client={queryClient}>
+        <HarvestList />
+      </QueryClientProvider>
+    ));
+
+    const summary = await screen.findByRole("region", { name: "Harvest summary for 2026" });
+    await within(summary).findByText("1 field without a harvest");
+    fireEvent.click(within(summary).getByRole("button", { name: /At least one harvest/i }));
+
+    const targetDialog = await findDialogByTitle("Fields without a first harvest");
+    expect(await within(targetDialog).findByText("Jordet 3")).toBeInTheDocument();
+    expect(within(targetDialog).queryByText("Jordet 1")).not.toBeInTheDocument();
+    expect(within(targetDialog).queryByText("Jordet 2")).not.toBeInTheDocument();
+
+    fireEvent.click(within(targetDialog).getByText("Add harvest"));
+
+    const harvestDialog = await findDialogByTitle("New harvest");
+    expect(within(harvestDialog).getByLabelText("Select Field")).toHaveTextContent("Jordet 3");
+  });
+
+  it("lists fields that have not reached a second harvest", async () => {
+    set_jwt_token("mock-token-admin");
+
+    render(() => (
+      <QueryClientProvider client={queryClient}>
+        <HarvestList />
+      </QueryClientProvider>
+    ));
+
+    const summary = await screen.findByRole("region", { name: "Harvest summary for 2026" });
+    await within(summary).findByText("1 field without a harvest");
+    fireEvent.click(within(summary).getByRole("button", { name: /Two or more harvests/i }));
+
+    const targetDialog = await findDialogByTitle("Fields without a second harvest");
+    expect(within(targetDialog).queryByText("Jordet 1")).not.toBeInTheDocument();
+    expect(await within(targetDialog).findByText("Jordet 2")).toBeInTheDocument();
+    expect(within(targetDialog).getByText("Jordet 3")).toBeInTheDocument();
   });
 
   it("shows form overlay when New Harvest button is clicked", async () => {

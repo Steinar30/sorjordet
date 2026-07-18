@@ -8,6 +8,10 @@ import { createMemo, createSignal, For, Show } from "solid-js";
 import { HarvestEvent } from "../../bindings/HarvestEvent";
 import {
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputLabel,
@@ -58,6 +62,20 @@ const getHarvestEvents = async (
   return (await result).events;
 };
 
+const getAllHarvestEvents = async (year: number, field_id?: number, group_id?: number) => {
+  const events: HarvestEvent[] = [];
+  let page = 1;
+
+  while (true) {
+    const pageEvents = await getHarvestEvents(page, year, field_id, group_id);
+    events.push(...pageEvents);
+    if (pageEvents.length < page_size) {
+      return events;
+    }
+    page += 1;
+  }
+};
+
 const deleteHarvestEvent = async (id: number) => {
   const authHeaders = prepareAuth(true);
   if (authHeaders === null) {
@@ -84,6 +102,7 @@ export default function HarvestList() {
   const [createNew, setCreateNew] = createSignal(false);
   const [selectedHarvest, setSelectedHarvest] = createSignal<ValidHarvest>();
   const [toDelete, setToDelete] = createSignal<number | undefined>(undefined);
+  const [harvestTarget, setHarvestTarget] = createSignal<1 | 2>();
 
   const groups = createQuery<FarmFieldGroupMeta[]>(() => ({
     queryKey: ["field_groups"],
@@ -113,6 +132,72 @@ export default function HarvestList() {
       firstPage.length < page_size ? undefined : allPages.length - 1,
   }));
 
+  const harvestSummaryEvents = createQuery<HarvestEvent[]>(() => ({
+    queryKey: ["harvestSummary", year(), field()?.id || -1, fieldGroup()?.id || -1],
+    queryFn: () => getAllHarvestEvents(year(), field()?.id, fieldGroup()?.id),
+  }));
+
+  const summaryFields = createMemo(() => {
+    if (field()) {
+      return [field()!];
+    }
+    if (fieldGroup()) {
+      return fieldGroup()!.fields;
+    }
+    return groups.data?.flatMap((group) => group.fields) ?? [];
+  });
+
+  const harvestStats = createMemo(() => {
+    const fields = summaryFields();
+    const events = harvestSummaryEvents.data ?? [];
+    const harvestCountByField = new Map(fields.map((field) => [field.id, 0]));
+
+    events.forEach((event) => {
+      if (harvestCountByField.has(event.field_id)) {
+        harvestCountByField.set(event.field_id, (harvestCountByField.get(event.field_id) ?? 0) + 1);
+      }
+    });
+
+    const fieldCounts = fields.map((field) => ({
+      field,
+      count: harvestCountByField.get(field.id) ?? 0,
+    }));
+    const fieldsWithHarvest = fieldCounts.filter(({ count }) => count >= 1).length;
+    const fieldsWithSecondHarvest = fieldCounts.filter(({ count }) => count >= 2).length;
+
+    return {
+      totalFields: fields.length,
+      totalHarvest: events.reduce((sum, event) => sum + event.value, 0),
+      eventCount: events.length,
+      fieldsWithHarvest,
+      fieldsWithoutHarvest: fields.length - fieldsWithHarvest,
+      fieldsWithSecondHarvest,
+      fieldsMissingFirstHarvest: fieldCounts.filter(({ count }) => count < 1),
+      fieldsMissingSecondHarvest: fieldCounts.filter(({ count }) => count < 2),
+    };
+  });
+
+  const fieldsMissingHarvestTarget = createMemo(() => {
+    if (harvestTarget() === 1) {
+      return harvestStats().fieldsMissingFirstHarvest;
+    }
+    if (harvestTarget() === 2) {
+      return harvestStats().fieldsMissingSecondHarvest;
+    }
+    return [];
+  });
+
+  const startHarvestForField = (fieldId: number) => {
+    const selection = fieldLookup().get(fieldId);
+    if (!selection) {
+      return;
+    }
+    setFieldGroup(selection.group);
+    setField(selection.field);
+    setHarvestTarget(undefined);
+    setCreateNew(true);
+  };
+
   function handleCreateNewEvent(event: ValidHarvest) {
     setCreateNew(false);
     const date = new Date(event.harvest.time);
@@ -132,6 +217,7 @@ export default function HarvestList() {
         queryKey: ["harvestEventsInfinite", y, fId, gId],
       });
     });
+    queryClient.invalidateQueries({ queryKey: ["harvestSummary"] });
   }
 
   function handleDeleteSuccess() {
@@ -145,12 +231,14 @@ export default function HarvestList() {
     queryClient.invalidateQueries({
       queryKey: ["harvestEventsInfinite", year(), -1, -1],
     });
+    queryClient.invalidateQueries({ queryKey: ["harvestSummary"] });
   }
 
   function handleHarvestUpdated() {
     queryClient.invalidateQueries({
       queryKey: ["harvestEventsInfinite"],
     });
+    queryClient.invalidateQueries({ queryKey: ["harvestSummary"] });
   }
 
   function RenderHarvestList() {
@@ -178,6 +266,54 @@ export default function HarvestList() {
             group={fieldGroup}
           />
         </Show>
+        <Dialog
+          open={harvestTarget() !== undefined}
+          onClose={() => setHarvestTarget(undefined)}
+          aria-labelledby="harvest-target-dialog-title"
+          PaperProps={{ class: `${styles.harvestDialog} ${styles.harvestTargetDialog}` }}
+        >
+          <DialogTitle id="harvest-target-dialog-title" class={styles.harvestDialogTitle}>
+            {harvestTarget() === 2
+              ? "Fields without a second harvest"
+              : "Fields without a first harvest"}
+          </DialogTitle>
+          <DialogContent class={styles.harvestTargetContent}>
+            <Show
+              when={fieldsMissingHarvestTarget().length > 0}
+              fallback={
+                <p class={styles.harvestTargetEmpty}>
+                  All selected fields have reached this harvest target.
+                </p>
+              }
+            >
+              <div class={styles.harvestTargetList}>
+                <For each={fieldsMissingHarvestTarget()}>
+                  {({ field, count }) => (
+                    <div class={styles.harvestTargetRow}>
+                      <div>
+                        <strong>{field.name}</strong>
+                        <span>
+                          {fieldLookup().get(field.id)?.group.name} · {count}{" "}
+                          {count === 1 ? "harvest" : "harvests"}
+                        </span>
+                      </div>
+                      <Button
+                        variant="outlined"
+                        onClick={() => startHarvestForField(field.id)}
+                        aria-label={`Add harvest for ${field.name}`}
+                      >
+                        Add harvest
+                      </Button>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </Show>
+          </DialogContent>
+          <DialogActions class={styles.harvestDialogActions}>
+            <Button onClick={() => setHarvestTarget(undefined)}>Close</Button>
+          </DialogActions>
+        </Dialog>
         <Show when={isAdmin}>
           <ConfirmDeleteDialog
             open={toDelete() !== undefined}
@@ -284,6 +420,50 @@ export default function HarvestList() {
               ))}
             </Select>
           </FormControl>
+        </section>
+
+        <section
+          class={styles.harvestStats}
+          aria-label={`Harvest summary for ${year()}`}
+          aria-busy={harvestSummaryEvents.isLoading}
+        >
+          <article class={styles.harvestStatCard}>
+            <p>Total harvested</p>
+            <strong>{harvestSummaryEvents.isLoading ? "–" : harvestStats().totalHarvest}</strong>
+            <span>
+              {harvestStats().eventCount} {harvestStats().eventCount === 1 ? "event" : "events"} in
+              {` ${year()}`}
+            </span>
+          </article>
+          <button
+            type="button"
+            class={`${styles.harvestStatCard} ${styles.harvestStatButton}`}
+            aria-haspopup="dialog"
+            disabled={harvestSummaryEvents.isLoading || groups.isLoading}
+            onClick={() => setHarvestTarget(1)}
+          >
+            <p>First harvest</p>
+            <strong>
+              {harvestStats().fieldsWithHarvest} / {harvestStats().totalFields}
+            </strong>
+            <span>
+              {harvestStats().fieldsWithoutHarvest}{" "}
+              {harvestStats().fieldsWithoutHarvest === 1 ? "field" : "fields"} without a harvest
+            </span>
+          </button>
+          <button
+            type="button"
+            class={`${styles.harvestStatCard} ${styles.harvestStatButton}`}
+            aria-haspopup="dialog"
+            disabled={harvestSummaryEvents.isLoading || groups.isLoading}
+            onClick={() => setHarvestTarget(2)}
+          >
+            <p>Second harvest</p>
+            <strong>
+              {harvestStats().fieldsWithSecondHarvest} / {harvestStats().totalFields}
+            </strong>
+            <span>Fields with a second harvest</span>
+          </button>
         </section>
 
         <section class={styles.tableCard}>

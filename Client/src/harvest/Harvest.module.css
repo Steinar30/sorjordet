@@ -211,6 +211,130 @@ input.datePickerInputInvalid,
   white-space: nowrap;
 }
 
+.harvestStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.harvestStatCard {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 14px 32px rgba(18, 33, 28, 0.06);
+  color: var(--dark-text-color);
+  text-align: left;
+}
+
+.harvestStatCard p,
+.harvestStatCard span {
+  margin: 0;
+}
+
+.harvestStatCard p {
+  color: rgba(35, 50, 47, 0.56);
+  font-size: 0.7rem;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.harvestStatCard strong {
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.harvestStatCard span {
+  color: rgba(40, 52, 52, 0.66);
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+button.harvestStatButton {
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+button.harvestStatButton:hover {
+  border-color: rgba(44, 87, 74, 0.24);
+  box-shadow: 0 16px 36px rgba(18, 33, 28, 0.1);
+  transform: translateY(-1px);
+}
+
+button.harvestStatButton:focus-visible {
+  outline: 3px solid rgba(44, 87, 74, 0.16);
+  outline-offset: 2px;
+}
+
+button.harvestStatButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+  transform: none;
+}
+
+div.harvestTargetContent {
+  width: 100%;
+  max-height: min(60vh, 520px);
+  padding: 10px 18px !important;
+  box-sizing: border-box;
+}
+
+.harvestTargetDialog {
+  width: min(580px, calc(100vw - 20px));
+}
+
+.harvestTargetList {
+  display: grid;
+  gap: 8px;
+}
+
+.harvestTargetRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid rgba(26, 46, 40, 0.08);
+  border-radius: var(--radius-lg);
+  background: rgba(247, 250, 246, 0.78);
+}
+
+.harvestTargetRow > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.harvestTargetRow strong {
+  color: var(--dark-text-color);
+  overflow-wrap: anywhere;
+}
+
+.harvestTargetRow span {
+  color: rgba(40, 52, 52, 0.64);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.harvestTargetRow button {
+  flex: 0 0 auto;
+}
+
+.harvestTargetEmpty {
+  margin: 0;
+  color: rgba(40, 52, 52, 0.72);
+}
+
 .tableCard {
   overflow: hidden;
 }
@@ -446,6 +570,36 @@ input.datePickerInputInvalid,
     padding: 10px;
   }
 
+  .harvestStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .harvestStatCard {
+    gap: 2px;
+    padding: 10px;
+    border-radius: var(--radius-lg);
+  }
+
+  .harvestStatCard:first-child {
+    grid-column: 1 / -1;
+    grid-template-columns: auto 1fr;
+    column-gap: 10px;
+    align-items: baseline;
+  }
+
+  .harvestStatCard:first-child p {
+    grid-column: 1 / -1;
+  }
+
+  .harvestStatCard strong {
+    font-size: 1.22rem;
+  }
+
+  button.harvestStatButton span {
+    display: none;
+  }
+
   .filterComponent {
     flex-basis: 100%;
   }
@@ -493,6 +647,20 @@ input.datePickerInputInvalid,
     margin: 0 !important;
   }
 
+  div.harvestTargetContent {
+    width: 100%;
+    padding: 10px 14px !important;
+  }
+
+  .harvestTargetRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .harvestTargetRow button {
+    width: 100%;
+  }
+
   .selectedHarvestCard {
     width: 100%;
   }
@@ -504,6 +672,7 @@ input.datePickerInputInvalid,
     flex-direction: column;
   }
 }
+
 .drynessField {
   display: grid;
   gap: 8px;

@@ -204,13 +204,16 @@ export function HarvestForm(props: {
   return (
     <Dialog
       open={props.isOpen()}
+      aria-labelledby="harvest-form-dialog-title"
       onClose={() => {
         setshowInvalid(false);
         props.onClose();
       }}
       PaperProps={{ class: styles.harvestDialog }}
     >
-      <DialogTitle class={styles.harvestDialogTitle}>{title()}</DialogTitle>
+      <DialogTitle id="harvest-form-dialog-title" class={styles.harvestDialogTitle}>
+        {title()}
+      </DialogTitle>
       <DialogContent class={styles.harvestSelectBody}>
         <Switch>
           <Match when={groups.isLoading}>Loading</Match>
