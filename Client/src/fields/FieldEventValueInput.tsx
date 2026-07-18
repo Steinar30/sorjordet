@@ -12,6 +12,11 @@ function initialRaw(value: FieldEventValue | undefined): string {
   return String(value.value);
 }
 
+function parseNumericValue(raw: string): number {
+  const normalized = raw.trim().replace(",", ".");
+  return normalized === "" ? 0 : Number(normalized);
+}
+
 export function FieldEventValueInput(props: {
   field: FieldEventTypeField;
   value: FieldEventValue | undefined;
@@ -26,7 +31,7 @@ export function FieldEventValueInput(props: {
     if (props.field.value_kind === "unit_int") {
       props.onValue({
         kind: "unit_int",
-        value: nextRaw.trim() === "" ? 0 : Number(nextRaw),
+        value: parseNumericValue(nextRaw),
         unit: props.field.unit ?? "",
       });
       return;
@@ -35,7 +40,7 @@ export function FieldEventValueInput(props: {
     if (props.field.value_kind === "int") {
       props.onValue({
         kind: "int",
-        value: nextRaw.trim() === "" ? 0 : Number(nextRaw),
+        value: parseNumericValue(nextRaw),
       });
       return;
     }
@@ -48,7 +53,8 @@ export function FieldEventValueInput(props: {
       class={props.class}
       label={props.field.unit ? `${props.field.name} (${props.field.unit})` : props.field.name}
       size="small"
-      type={props.field.value_kind === "text" ? "text" : "number"}
+      type="text"
+      inputProps={props.field.value_kind === "text" ? undefined : { inputMode: "decimal" }}
       value={raw()}
       onChange={(_event, nextRaw) => commit(nextRaw)}
     />

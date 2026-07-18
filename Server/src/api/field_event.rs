@@ -17,8 +17,8 @@ use crate::errors::SorjordetError;
 #[serde(tag = "kind", rename_all = "snake_case")]
 #[ts(export)]
 pub enum FieldEventValue {
-    Int { value: i32 },
-    UnitInt { value: i32, unit: String },
+    Int { value: f64 },
+    UnitInt { value: f64, unit: String },
     Text { value: String },
 }
 
@@ -258,4 +258,38 @@ pub fn field_event_router() -> Router<PgPool> {
             "/{event_id}",
             axum::routing::patch(patch_event).delete(delete_event),
         )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::FieldEventValue;
+
+    #[test]
+    fn numeric_field_event_values_accept_decimals() {
+        let unit_value: FieldEventValue = serde_json::from_value(serde_json::json!({
+            "kind": "unit_int",
+            "value": 12.75,
+            "unit": "kg/daa"
+        }))
+        .expect("decimal field event value should deserialize");
+
+        match unit_value {
+            FieldEventValue::UnitInt { value, unit } => {
+                assert_eq!(value, 12.75);
+                assert_eq!(unit, "kg/daa");
+            }
+            _ => panic!("expected a numeric field event value with a unit"),
+        }
+
+        let plain_value: FieldEventValue = serde_json::from_value(serde_json::json!({
+            "kind": "int",
+            "value": 3.5
+        }))
+        .expect("plain decimal field event value should deserialize");
+
+        match plain_value {
+            FieldEventValue::Int { value } => assert_eq!(value, 3.5),
+            _ => panic!("expected a numeric field event value"),
+        }
+    }
 }

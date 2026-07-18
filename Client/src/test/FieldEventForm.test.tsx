@@ -92,8 +92,10 @@ describe("FieldEventForm", () => {
     fireEvent.click(await screen.findByText("Fertilizing"));
 
     fireEvent.click(screen.getByText("Select date"));
-    fireEvent.input(await screen.findByLabelText("amount (kg/daa)"), {
-      target: { value: "23" },
+    const amountInput = await screen.findByLabelText("amount (kg/daa)");
+    expect(amountInput).toHaveAttribute("inputmode", "decimal");
+    fireEvent.input(amountInput, {
+      target: { value: "23,75" },
     });
     fireEvent.input(screen.getByLabelText("Note"), {
       target: { value: "spread evenly" },
@@ -114,7 +116,7 @@ describe("FieldEventForm", () => {
       type_name: "Fertilizing",
       note: "spread evenly",
       values: {
-        amount: { kind: "unit_int", value: 23, unit: "kg/daa" },
+        amount: { kind: "unit_int", value: 23.75, unit: "kg/daa" },
       },
     });
   });
