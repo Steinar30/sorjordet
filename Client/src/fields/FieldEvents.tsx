@@ -377,7 +377,7 @@ export default function FieldEvents() {
               notched
               value={form()?.type_id ?? -1}
               onChange={(event) => {
-                const nextTypeId = Number((event.currentTarget as HTMLSelectElement).value);
+                const nextTypeId = Number(event.target.value);
                 const nextType = eventTypes.data?.find((item) => item.id === nextTypeId);
                 const current = form();
                 if (current) {
